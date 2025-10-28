@@ -269,3 +269,22 @@ For issues or questions:
 
 **Quick Reference Version**: 2.0.0
 **Last Updated**: January 2025
+
+## 🧹 Nettoyer le localStorage (migration ancien → nouveau panier)
+
+```js
+// Exécuter dans la console du navigateur
+console.log('🧹 Nettoyage du localStorage du panier...')
+
+const oldCart = localStorage.getItem('loutsider-cart')
+const newCart = localStorage.getItem('loutsider-cart-zustand')
+
+console.log('Avant: ancien=', !!oldCart, ' nouveau=', !!newCart)
+if (oldCart) console.log('Ancien:', JSON.parse(oldCart))
+if (newCart) console.log('Nouveau:', JSON.parse(newCart))
+
+localStorage.removeItem('loutsider-cart')
+localStorage.removeItem('loutsider-cart-zustand')
+
+console.log('✅ localStorage nettoyé! Rechargez la page.')
+```
