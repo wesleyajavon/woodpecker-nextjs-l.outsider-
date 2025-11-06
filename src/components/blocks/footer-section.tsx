@@ -32,6 +32,7 @@ export function Footer() {
 			label: t('footer.sections.company'),
 			links: [
 				{ title: t('footer.links.contact'), href: '/contact' },
+				{ title: t('footer.links.recruiters'), href: '/recruiters' },
 			],
 		},
 		{

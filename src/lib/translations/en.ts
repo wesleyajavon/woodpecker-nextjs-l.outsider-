@@ -499,6 +499,7 @@ export const en = {
       terms: 'Terms of Use',
       licenses: 'Licenses',
       privacy: 'Privacy Policy',
+      recruiters: 'Recruiters',
       instagram: 'Instagram',
       youtube: 'YouTube',
     },
@@ -764,5 +765,18 @@ export const en = {
   admin_totalRevenue30Days: 'Total Revenue (30 Days)',
   admin_noRevenueData: 'No revenue data available for selected period',
   
+  // Recruiters Page
+  recruiters: {
+    title: 'Demos for Recruiters',
+    subtitle: 'Discover the features and flows of the l.outsider application',
+    userFlow: {
+      title: 'User Flow - User Experience',
+      description: 'This video presents the complete user journey, from discovering beats to completing a purchase.',
+    },
+    adminFlow: {
+      title: 'Admin Flow - Administrative Management',
+      description: 'This video details the administrative features, beat management, orders, and statistics.',
+    },
+  },
 
 };

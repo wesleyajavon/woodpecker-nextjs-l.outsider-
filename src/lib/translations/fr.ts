@@ -511,6 +511,7 @@ export const fr = {
       terms: 'Conditions d\'utilisation',
       licenses: 'Licences',
       privacy: 'Politique de confidentialité',
+      recruiters: 'Recruteurs',
       instagram: 'Instagram',
       youtube: 'YouTube',
     },
@@ -758,5 +759,19 @@ export const fr = {
   admin_dailyRevenue: 'Revenus Quotidiens (14 Derniers Jours)',
   admin_totalRevenue30Days: 'Revenus Totaux (30 Jours)',
   admin_noRevenueData: 'Aucune donnée de revenus disponible pour la période sélectionnée',
+
+  // Recruiters Page
+  recruiters: {
+    title: 'Démonstrations pour Recruteurs',
+    subtitle: 'Découvrez les fonctionnalités et les flux de l\'application l.outsider',
+    userFlow: {
+      title: 'User Flow - Expérience Utilisateur',
+      description: 'Cette vidéo présente le parcours utilisateur complet, de la découverte des beats à la finalisation d\'un achat.',
+    },
+    adminFlow: {
+      title: 'Admin Flow - Gestion Administrative',
+      description: 'Cette vidéo détaille les fonctionnalités d\'administration, la gestion des beats, des commandes et des statistiques.',
+    },
+  },
 
 };
