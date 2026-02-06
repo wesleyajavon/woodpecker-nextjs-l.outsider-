@@ -2,7 +2,6 @@
 
 import { useMemo } from 'react'
 import { useCartStore } from '@/stores/cartStore'
-import { Beat } from '@/types/beat'
 import { LicenseType } from '@/types/cart'
 
 // Nouveau hook useCart qui utilise Zustand (remplace l'ancien)

@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     // Configuration de l'email
     const mailOptions = {
       from: process.env.SMTP_USER,
-      to: process.env.CONTACT_EMAIL || 'contact@loutsider.com',
+      to: process.env.CONTACT_EMAIL || 'contact.loutsider@gmail.com',
       subject: `[l.outsider] ${subject} - ${name}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">

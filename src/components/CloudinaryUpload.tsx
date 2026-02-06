@@ -1,9 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { Upload, Image, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
-import { useTranslation } from '@/contexts/LanguageContext'
-
+import { Upload, Image as ImageIcon, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
 interface CloudinaryUploadProps {
   beatId: string
   folder: 'previews' | 'artworks'
@@ -21,7 +19,6 @@ export function CloudinaryUpload({
   maxSize = 20,
   acceptedTypes = ['image/jpeg', 'image/png', 'audio/wav', 'audio/mpeg']
 }: CloudinaryUploadProps) {
-  const { t } = useTranslation()
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState(0)
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle')
@@ -154,7 +151,7 @@ export function CloudinaryUpload({
       case 'error':
         return <AlertCircle className="w-5 h-5 text-red-500" />
       default:
-        return folder === 'artworks' ? <Image className="w-5 h-5" /> : <Upload className="w-5 h-5" />
+        return folder === 'artworks' ? <ImageIcon className="w-5 h-5" aria-hidden /> : <Upload className="w-5 h-5" aria-hidden />
     }
   }
 

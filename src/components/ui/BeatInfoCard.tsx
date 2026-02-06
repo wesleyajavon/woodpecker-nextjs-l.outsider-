@@ -1,17 +1,14 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { 
   Music, 
-  Play, 
-  Pause, 
   Download, 
   Eye, 
-  Calendar,
   DollarSign,
   Tag,
   Clock,
-  TrendingUp,
   Users,
   Edit,
   Trash2,
@@ -24,6 +21,7 @@ import {
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Beat } from '@/types/beat';
+import { BEAT_CONFIG } from '@/config/constants';
 import { useTranslation } from '@/contexts/LanguageContext';
 
 interface BeatInfoCardProps {
@@ -36,8 +34,10 @@ interface BeatInfoCardProps {
   onDelete?: () => void;
   onEditFiles?: () => void;
   onStartEdit?: () => void;
+  onToggleFeatured?: (featured: boolean) => void | Promise<void>;
   isSaving?: boolean;
   isDeleting?: boolean;
+  isTogglingFeatured?: boolean;
 }
 
 export default function BeatInfoCard({
@@ -50,16 +50,14 @@ export default function BeatInfoCard({
   onDelete,
   onEditFiles,
   onStartEdit,
+  onToggleFeatured,
   isSaving = false,
-  isDeleting = false
+  isDeleting = false,
+  isTogglingFeatured = false
 }: BeatInfoCardProps) {
   const { t } = useTranslation();
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [, setIsPlaying] = useState(false);
   const [showActions, setShowActions] = useState(false);
-
-  const togglePlay = () => {
-    setIsPlaying(!isPlaying);
-  };
 
   const handleEditChange = (field: keyof Beat, value: string | number | boolean | string[]) => {
     if (onEditChange) {
@@ -81,32 +79,18 @@ export default function BeatInfoCard({
         {/* Artwork Section */}
         <div className="relative h-64 sm:h-80 bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-pink-500/20 overflow-hidden z-10">
           {beat.artworkUrl ? (
-            <img 
+            <Image 
               src={beat.artworkUrl} 
               alt={beat.title}
-              className="w-full h-full object-cover"
+              fill
+              sizes="(max-width: 640px) 100vw, 400px"
+              className="object-cover"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <Music className="w-16 h-16 text-indigo-400/50" />
             </div>
           )}
-          
-          {/* Play Overlay */}
-          <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20">
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={togglePlay}
-              className="w-16 h-16 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-colors duration-200 relative z-30"
-            >
-              {isPlaying ? (
-                <Pause className="w-6 h-6 text-gray-800" />
-              ) : (
-                <Play className="w-6 h-6 text-gray-800 ml-1" />
-              )}
-            </motion.button>
-          </div>
 
           {/* Action Menu */}
           <div className="absolute top-4 right-4 z-30">
@@ -140,16 +124,39 @@ export default function BeatInfoCard({
             )}
           </div>
 
-          {/* Status Badge */}
+          {/* Status Badge - cliquable pour basculer featured quand onToggleFeatured est fourni */}
           <div className="absolute top-4 left-4 z-30">
-            <span className={cn(
-              "px-3 py-1 rounded-full text-xs font-medium backdrop-blur-sm",
-              beat.featured 
-                ? "bg-green-500/20 text-green-300 border border-green-500/30" 
-                : "bg-gray-500/20 text-gray-300 border border-gray-500/30"
-            )}>
-              {beat.featured ? t('admin.featured') : t('admin.normal')}
-            </span>
+            {onToggleFeatured ? (
+              <button
+                type="button"
+                onClick={() => onToggleFeatured(!beat.featured)}
+                disabled={isTogglingFeatured}
+                title={beat.featured ? t('admin.unfeature') : t('admin.feature')}
+                className={cn(
+                  "px-3 py-1 rounded-full text-xs font-medium backdrop-blur-sm transition-all",
+                  "cursor-pointer hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent",
+                  "disabled:opacity-50 disabled:cursor-not-allowed",
+                  beat.featured 
+                    ? "bg-green-500/20 text-green-300 border border-green-500/30 focus:ring-green-500/50" 
+                    : "bg-gray-500/20 text-gray-300 border border-gray-500/30 focus:ring-gray-500/50"
+                )}
+              >
+                {isTogglingFeatured ? (
+                  <span className="inline-block w-3 h-3 min-w-[12px] animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden />
+                ) : (
+                  beat.featured ? t('admin.featured') : t('admin.normal')
+                )}
+              </button>
+            ) : (
+              <span className={cn(
+                "px-3 py-1 rounded-full text-xs font-medium backdrop-blur-sm",
+                beat.featured 
+                  ? "bg-green-500/20 text-green-300 border border-green-500/30" 
+                  : "bg-gray-500/20 text-gray-300 border border-gray-500/30"
+              )}>
+                {beat.featured ? t('admin.featured') : t('admin.normal')}
+              </span>
+            )}
           </div>
         </div>
 
@@ -202,7 +209,7 @@ export default function BeatInfoCard({
           )}
 
           {/* Beat Details Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
             <div className="text-center p-3 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-xl border border-indigo-500/20">
               <div className="text-sm text-muted-foreground mb-1">{t('upload.genre')}</div>
               {isEditing ? (
@@ -211,16 +218,9 @@ export default function BeatInfoCard({
                   onChange={(e) => handleEditChange('genre', e.target.value)}
                   className="w-full text-sm font-medium text-foreground bg-transparent border-none focus:outline-none"
                 >
-                  <option value="Trap">Trap</option>
-                  <option value="Hip-Hop">Hip-Hop</option>
-                  <option value="Drill">Drill</option>
-                  <option value="Jazz">Jazz</option>
-                  <option value="Electronic">Electronic</option>
-                  <option value="Boom Bap">Boom Bap</option>
-                  <option value="Synthwave">Synthwave</option>
-                  <option value="R&B">R&B</option>
-                  <option value="Pop">Pop</option>
-                  <option value="Rock">Rock</option>
+                  {BEAT_CONFIG.genres.map((genre) => (
+                    <option key={genre} value={genre}>{genre}</option>
+                  ))}
                 </select>
               ) : (
                 <div className="text-sm font-medium text-foreground">{beat.genre}</div>
@@ -251,21 +251,31 @@ export default function BeatInfoCard({
                   onChange={(e) => handleEditChange('key', e.target.value)}
                   className="w-full text-sm font-medium text-foreground bg-transparent border-none focus:outline-none"
                 >
-                  <option value="C">C</option>
-                  <option value="C#">C#</option>
-                  <option value="D">D</option>
-                  <option value="D#">D#</option>
-                  <option value="E">E</option>
-                  <option value="F">F</option>
-                  <option value="F#">F#</option>
-                  <option value="G">G</option>
-                  <option value="G#">G#</option>
-                  <option value="A">A</option>
-                  <option value="A#">A#</option>
-                  <option value="B">B</option>
+                  {BEAT_CONFIG.keys.map((k) => (
+                    <option key={k} value={k}>{k}</option>
+                  ))}
                 </select>
               ) : (
                 <div className="text-sm font-medium text-foreground">{beat.key}</div>
+              )}
+            </div>
+
+            <div className="text-center p-3 bg-gradient-to-br from-teal-500/10 to-cyan-500/10 rounded-xl border border-teal-500/20">
+              <div className="text-sm text-muted-foreground mb-1">{t('upload.mode')}</div>
+              {isEditing ? (
+                <select
+                  value={editData.mode ?? beat.mode ?? 'majeur'}
+                  onChange={(e) => handleEditChange('mode', e.target.value)}
+                  className="w-full text-sm font-medium text-foreground bg-transparent border-none focus:outline-none"
+                >
+                  {BEAT_CONFIG.modes.map((m) => (
+                    <option key={m} value={m}>{t(`upload.mode${m === 'majeur' ? 'Majeur' : 'Mineur'}`)}</option>
+                  ))}
+                </select>
+              ) : (
+                <div className="text-sm font-medium text-foreground">
+                  {(beat.mode ?? 'majeur') === 'majeur' ? t('upload.modeMajeur') : t('upload.modeMineur')}
+                </div>
               )}
             </div>
 
@@ -372,24 +382,58 @@ export default function BeatInfoCard({
             </div>
             
             {isEditing && (
-              <div className="mt-4 flex flex-col sm:flex-row gap-3">
-                <label className="flex items-center gap-2 text-muted-foreground text-sm">
+              <div className="mt-4 flex flex-col sm:flex-row gap-4">
+                <label
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-2.5 rounded-lg border-2 cursor-pointer transition-all",
+                    editData.isExclusive ?? beat.isExclusive
+                      ? "bg-amber-500/20 border-amber-500/50 text-amber-200"
+                      : "bg-background/50 border-border/50 text-muted-foreground hover:border-amber-500/30"
+                  )}
+                >
                   <input
                     type="checkbox"
-                    checked={editData.isExclusive || beat.isExclusive || false}
+                    checked={editData.isExclusive ?? beat.isExclusive ?? false}
                     onChange={(e) => handleEditChange('isExclusive', e.target.checked)}
-                    className="w-4 h-4 text-indigo-500 bg-background border-border rounded focus:ring-indigo-500"
+                    className="sr-only"
                   />
-                  {t('admin.exclusive')}
+                  <span className={cn(
+                    "flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 transition-colors",
+                    editData.isExclusive ?? beat.isExclusive
+                      ? "border-amber-400 bg-amber-500/30"
+                      : "border-muted-foreground/50 bg-transparent"
+                  )}>
+                    {(editData.isExclusive ?? beat.isExclusive) && (
+                      <span className="text-amber-400 text-xs font-bold">✓</span>
+                    )}
+                  </span>
+                  <span className="font-medium">{t('admin.exclusive')}</span>
                 </label>
-                <label className="flex items-center gap-2 text-muted-foreground text-sm">
+                <label
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-2.5 rounded-lg border-2 cursor-pointer transition-all",
+                    editData.featured ?? beat.featured
+                      ? "bg-green-500/20 border-green-500/50 text-green-200"
+                      : "bg-background/50 border-border/50 text-muted-foreground hover:border-green-500/30"
+                  )}
+                >
                   <input
                     type="checkbox"
-                    checked={editData.featured || beat.featured || false}
+                    checked={editData.featured ?? beat.featured ?? false}
                     onChange={(e) => handleEditChange('featured', e.target.checked)}
-                    className="w-4 h-4 text-indigo-500 bg-background border-border rounded focus:ring-indigo-500"
+                    className="sr-only"
                   />
-                  {t('admin.featured')}
+                  <span className={cn(
+                    "flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 transition-colors",
+                    editData.featured ?? beat.featured
+                      ? "border-green-400 bg-green-500/30"
+                      : "border-muted-foreground/50 bg-transparent"
+                  )}>
+                    {(editData.featured ?? beat.featured) && (
+                      <span className="text-green-400 text-xs font-bold">✓</span>
+                    )}
+                  </span>
+                  <span className="font-medium">{t('admin.featured')}</span>
                 </label>
               </div>
             )}

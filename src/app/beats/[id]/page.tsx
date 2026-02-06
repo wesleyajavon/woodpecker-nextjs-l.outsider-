@@ -1,12 +1,11 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Play, Pause, Music, Download, Crown, Star } from 'lucide-react';
+import { ArrowLeft, Music, Crown, Star } from 'lucide-react';
 import Link from 'next/link';
 import { DottedSurface } from '@/components/ui/dotted-surface';
-import { TextRewind } from '@/components/ui/text-rewind';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useApp';
 import { useBeat } from '@/hooks/queries/useBeats';
@@ -17,11 +16,11 @@ import { LicenseType } from '@/types/cart';
 export default function BeatDetailPage() {
   const { t } = useTranslation();
   const params = useParams();
-  const router = useRouter();
   const beatId = params?.id as string;
 
   const [selectedLicense, setSelectedLicense] = useState<LicenseType>('WAV_LEASE');
   const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState<{ currentTime: number; duration: number }>({ currentTime: 0, duration: 0 });
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // TanStack Query hook
@@ -44,6 +43,7 @@ export default function BeatDetailPage() {
         audioRef.current.currentTime = 0;
       }
       setIsPlaying(false);
+      setProgress({ currentTime: 0, duration: 0 });
     } else {
       if (audioRef.current) {
         audioRef.current.pause();
@@ -53,6 +53,16 @@ export default function BeatDetailPage() {
       try {
         const audio = new Audio(beat.previewUrl);
         audioRef.current = audio;
+        
+        setProgress({ currentTime: 0, duration: 0 });
+        
+        audio.addEventListener('loadedmetadata', () => {
+          setProgress((p) => ({ ...p, duration: audio.duration }));
+        });
+        
+        audio.addEventListener('timeupdate', () => {
+          setProgress((p) => ({ ...p, currentTime: audio.currentTime }));
+        });
         
         audio.addEventListener('canplaythrough', () => {
           setIsPlaying(true);
@@ -65,6 +75,7 @@ export default function BeatDetailPage() {
         
         audio.addEventListener('ended', () => {
           setIsPlaying(false);
+          setProgress({ currentTime: 0, duration: 0 });
           audioRef.current = null;
         });
         
@@ -84,6 +95,13 @@ export default function BeatDetailPage() {
         audioRef.current = null;
       }
     };
+  }, []);
+
+  const handleSeek = useCallback((time: number) => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = time;
+      setProgress((p) => ({ ...p, currentTime: time }));
+    }
   }, []);
 
   const getPrice = (licenseType: LicenseType): number => {
@@ -213,6 +231,8 @@ export default function BeatDetailPage() {
                 isPlaying={isPlaying}
                 onPlay={() => togglePlay()}
                 onPause={() => togglePlay()}
+                progress={isPlaying && progress.duration > 0 ? progress : undefined}
+                onSeek={handleSeek}
                 className="w-full"
               />
             </motion.div>
@@ -237,6 +257,12 @@ export default function BeatDetailPage() {
                 <div>
                   <span className="text-muted-foreground">Clé:</span>
                   <span className="ml-2 text-foreground">{beat.key}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Mode:</span>
+                  <span className="ml-2 text-foreground">
+                    {(beat.mode ?? 'majeur') === 'majeur' ? t('upload.modeMajeur') : t('upload.modeMineur')}
+                  </span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Durée:</span>

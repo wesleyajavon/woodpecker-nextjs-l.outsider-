@@ -1,7 +1,6 @@
 'use client'
 
 import { useCartStore } from '@/stores/cartStore'
-import { Beat } from '@/types/beat'
 import { LicenseType } from '@/types/cart'
 
 // Hook principal pour le panier avec Zustand

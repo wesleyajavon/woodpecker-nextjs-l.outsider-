@@ -121,6 +121,7 @@ export function useCache<T>(
     } finally {
       setLoading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- dependencies are intentionally spread for dynamic refetch triggers
   }, [cacheKey, fetcher, ttl, skipCache, ...dependencies]);
   
   // Effet pour charger les données

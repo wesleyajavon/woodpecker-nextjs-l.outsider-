@@ -1,17 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Music, ShoppingCart, DollarSign, Eye, TrendingUp } from 'lucide-react';
+import { Music, ShoppingCart, DollarSign, Eye } from 'lucide-react';
 import { useTranslation } from '@/hooks/useApp';
 import { useAdminStats } from '@/hooks/queries/useAdminStats';
-
-interface AdminStatsData {
-  totalBeats: number;
-  totalOrders: number;
-  totalRevenue: number;
-  activeVisitors: number;
-}
 
 export default function AdminStats() {
   const { t } = useTranslation();

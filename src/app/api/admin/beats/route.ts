@@ -49,6 +49,7 @@ export async function GET(request: NextRequest) {
     const priceMax = searchParams.get('priceMax') ? parseFloat(searchParams.get('priceMax')!) : undefined
     const isExclusive = searchParams.get('isExclusive') ? searchParams.get('isExclusive') === 'true' : undefined
     const featured = searchParams.get('featured') ? searchParams.get('featured') === 'true' : undefined
+    const hasStems = searchParams.get('hasStems') ? searchParams.get('hasStems') === 'true' : undefined
     const includeInactive = searchParams.get('includeInactive') === 'true'
     const sortField = (searchParams.get('sortField') || 'createdAt') as keyof BeatSortOptions['field']
     const sortOrder = (searchParams.get('sortOrder') || 'desc') as 'asc' | 'desc'
@@ -71,7 +72,8 @@ export async function GET(request: NextRequest) {
       priceMin,
       priceMax,
       isExclusive,
-      featured
+      featured,
+      hasStems
     }
 
     // Construction des options de tri

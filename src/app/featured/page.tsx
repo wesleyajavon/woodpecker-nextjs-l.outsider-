@@ -2,17 +2,15 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Star, Music, TrendingUp, Play, Pause } from 'lucide-react';
+import { Star, Music, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { DottedSurface } from '@/components/ui/dotted-surface';
 import { TextRewind } from '@/components/ui/text-rewind';
 import { cn } from '@/lib/utils';
-import { useTranslation } from '@/hooks/useApp';
 import { useFeaturedBeats } from '@/hooks/queries/useBeats';
 import BeatCard from '@/components/BeatCard';
 
 export default function FeaturedBeatsPage() {
-  const { t } = useTranslation();
   const [playingBeat, setPlayingBeat] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 

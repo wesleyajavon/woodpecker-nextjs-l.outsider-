@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withUpstashCache } from '@/lib/cache-upstash';
 import { WOODPECKER_CACHE_CONFIG } from '@/lib/cache-upstash';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
 
 // Configuration du cache pour les politiques de confidentialité
 const PRIVACY_CACHE_CONFIG = {
@@ -154,7 +151,7 @@ Nous nous engageons à répondre dans les 48h.`,
 }
 
 // Keep the original function for backward compatibility
-export async function getPrivacyData(language: string = 'fr') {
+export async function getPrivacyData(_language: string = 'fr') {
   try {
     return {
       sections: "Static content for now",

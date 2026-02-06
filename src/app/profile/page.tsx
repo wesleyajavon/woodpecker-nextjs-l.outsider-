@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
@@ -25,7 +25,7 @@ export default function ProfilePage() {
   const { t } = useTranslation()
   const { language } = useLanguage()
   const { data: session, status } = useSession()
-  const router = useRouter()
+  const _router = useRouter()
   const [user, setUser] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(false)
@@ -36,13 +36,7 @@ export default function ProfilePage() {
     image: ''
   })
 
-  useEffect(() => {
-    if (status === 'authenticated' && session?.user?.email) {
-      fetchUserProfile()
-    }
-  }, [session, status])
-
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = useCallback(async () => {
     try {
       const response = await fetch('/api/user/profile')
       if (!response.ok) {
@@ -60,7 +54,13 @@ export default function ProfilePage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [t])
+
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user?.email) {
+      fetchUserProfile()
+    }
+  }, [session, status, fetchUserProfile])
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -203,7 +203,7 @@ export default function ProfilePage() {
                     {/* <Button
                       type="button"
                       variant="outline"
-                      onClick={() => router.back()}
+                      onClick={() => _router.back()}
                       className="w-full sm:w-auto text-white"
                     >
                       Annuler

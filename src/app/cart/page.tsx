@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { ShoppingCart, ArrowLeft, Music } from 'lucide-react'
 import { useCart, useCartActions } from '@/hooks/useCart'

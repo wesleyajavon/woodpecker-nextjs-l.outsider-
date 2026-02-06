@@ -38,10 +38,6 @@ export function TextRewind({
         textShadow: "0 4px 8px rgba(0, 0, 0, 0.3), 0 8px 16px rgba(0, 0, 0, 0.2), 0 0 20px rgba(139, 92, 246, 0.4), 0 0 40px rgba(236, 72, 153, 0.3), 0 0 60px rgba(245, 158, 11, 0.2)",
     };
 
-    const noShadowStyle = {
-        textShadow: "none",
-    };
-
     return (
         <div className="w-full text-center">
             <motion.div

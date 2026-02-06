@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Download, Archive, Loader2 } from 'lucide-react';
+import { Archive, Loader2 } from 'lucide-react';
 import { Button } from './ui/Button';
 import { useTranslation } from '@/contexts/LanguageContext';
 

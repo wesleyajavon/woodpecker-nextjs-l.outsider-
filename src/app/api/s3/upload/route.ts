@@ -6,7 +6,7 @@ import { S3_CONFIG } from '@/lib/aws-s3'
 import { withUserRateLimit } from '@/lib/rate-limit'
 
 // POST désactivé - utilisez GET pour obtenir une URL signée et uploader directement
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   return NextResponse.json(
     { 
       error: 'Méthode POST désactivée',

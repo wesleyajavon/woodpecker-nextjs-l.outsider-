@@ -4,16 +4,14 @@ import { useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useUserStore } from '@/stores/userStore'
 import { User } from '@prisma/client'
+import { useProfile } from '@/hooks/queries/useUsers'
 
-// Hook pour synchroniser le userStore avec NextAuth
+// Hook pour synchroniser le userStore avec NextAuth (utilisé uniquement par AuthProvider)
+// Utilise React Query (useProfile) pour la déduplication automatique des requêtes
 export function useAuthSync() {
   const { data: session, status } = useSession()
+  const { data: profileData, isLoading: profileLoading } = useProfile()
   const { setUser, setLoading, logout } = useUserStore()
-
-  // Fonction utilitaire pour convertir null en undefined
-  const nullToUndefined = <T>(value: T | null): T | undefined => {
-    return value === null ? undefined : value
-  }
 
   useEffect(() => {
     if (status === 'loading') {
@@ -27,76 +25,50 @@ export function useAuthSync() {
       return
     }
 
-    if (session?.user) {
-      // Récupérer le profil complet avec le rôle depuis l'API
-      const fetchUserProfile = async () => {
-        try {
-          const response = await fetch('/api/user/profile')
-          if (response.ok) {
-            const data = await response.json()
-                const user: User = {
-                  id: data.user.id || '',
-                  name: nullToUndefined(data.user.name ?? session.user?.name),
-                  email: data.user.email || session.user?.email || '',
-                  image: data.user.image || session.user?.image || null,
-                  role: data.user.role || 'USER',
-                  emailVerified: data.user.emailVerified ? new Date(data.user.emailVerified) : null,
-                  createdAt: data.user.createdAt ? new Date(data.user.createdAt) : new Date(),
-                  updatedAt: data.user.updatedAt ? new Date(data.user.updatedAt) : new Date()
-                }
-            setUser(user)
-          } else {
-            // Fallback si l'API échoue
-            const user: User = {
-              id: '',
-              name: session.user?.name || null,
-              email: session.user?.email || '',
-              image: session.user?.image || null,
-              role: 'USER',
-              emailVerified: null,
-              createdAt: new Date(),
-              updatedAt: new Date()
-            }
-            setUser(user)
-          }
-        } catch (error) {
-          console.error('Error fetching user profile:', error)
-          // Fallback en cas d'erreur
-          const user: User = {
-            id: '',
-            name: session.user?.name || null,
-            email: session.user?.email || '',
-            image: session.user?.image || null,
-            role: 'USER',
-            emailVerified: null,
-            createdAt: new Date(),
-            updatedAt: new Date()
-          }
-          setUser(user)
-        } finally {
-          setLoading(false)
-        }
+    if (status === 'authenticated' && session?.user) {
+      if (profileLoading) {
+        setLoading(true)
+        return
       }
 
-      fetchUserProfile()
+      if (profileData?.user) {
+        const u = profileData.user
+        const user: User = {
+          id: u.id || '',
+          name: u.name ?? session.user?.name ?? null,
+          email: u.email || session.user?.email || '',
+          image: u.image ?? session.user?.image ?? null,
+          role: u.role || 'USER',
+          emailVerified: 'emailVerified' in u && u.emailVerified ? new Date(u.emailVerified as string) : null,
+          createdAt: u.createdAt ? new Date(u.createdAt) : new Date(),
+          updatedAt: u.updatedAt ? new Date(u.updatedAt) : new Date(),
+        }
+        setUser(user)
+      } else {
+        const user: User = {
+          id: '',
+          name: session.user?.name || null,
+          email: session.user?.email || '',
+          image: session.user?.image || null,
+          role: 'USER',
+          emailVerified: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }
+        setUser(user)
+      }
+      setLoading(false)
     }
-  }, [session, status, setUser, setLoading, logout])
+  }, [session, status, profileData, profileLoading, setUser, setLoading, logout])
 
   return {
     isAuthenticated: !!session,
     isLoading: status === 'loading',
-    user: session?.user
+    user: session?.user,
   }
 }
 
-// Hook pour obtenir l'utilisateur actuel avec synchronisation NextAuth
 export function useCurrentUser() {
-  const { isAuthenticated, isLoading, user } = useAuthSync()
-  const userStore = useUserStore()
-
-  return {
-    isAuthenticated: isAuthenticated || userStore.isAuthenticated,
-    isLoading: isLoading || userStore.isLoading,
-    user: userStore.user || user
-  }
+  const { user, isAuthenticated, isLoading } = useUserStore()
+  return { isAuthenticated, isLoading, user }
 }

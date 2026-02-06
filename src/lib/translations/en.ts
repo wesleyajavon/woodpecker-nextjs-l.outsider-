@@ -62,10 +62,19 @@ export const en = {
     status: 'Status',
   },
 
+  // SEO Metadata (used in layout/page metadata)
+  metadata: {
+    beats: {
+      title: 'Beats | l.outsider - Professional Beat Catalog',
+      description: 'Discover l.outsider\'s professional beat catalog. Trap, Hip-Hop, Drill, Jazz and more. Quality instrumentals for rappers, singers and producers. Non-exclusive and exclusive licenses available.',
+    },
+  },
+
   // Navigation
   nav: {
     home: 'Home',
     beats: 'Beats',
+    breadcrumb: 'Breadcrumb',
     cart: 'Cart',
     profile: 'Profile',
     contact: 'Contact',
@@ -128,9 +137,27 @@ export const en = {
     errorLoading: 'Loading error',
     retry: 'Retry',
     noBeatsAvailable: 'No beats available at the moment',
+    activeFiltersCount: '{count} active filter',
+    activeFiltersCount_plural: '{count} active filters',
     resetFilters: 'Reset filters',
     customBeatCTA: 'Order a custom beat',
     showingResults: 'Showing {start} to {end} of {total} beats',
+    sortNewest: 'Newest',
+    sortOldest: 'Oldest',
+    sortPriceAsc: 'Price: Low to High',
+    sortPriceDesc: 'Price: High to Low',
+    sortPopular: 'Most Popular',
+    advancedFilters: 'Advanced filters',
+    moreFilters: 'More filters',
+    bpmRange: 'BPM',
+    bpmMin: 'BPM min',
+    bpmMax: 'BPM max',
+    keyFilter: 'Key',
+    allKeys: 'All',
+    priceRange: 'Price',
+    priceMin: 'Price min (€)',
+    priceMax: 'Price max (€)',
+    withStems: 'With stems',
     stats: {
       beats: 'Beats',
       genres: 'Genres',
@@ -141,6 +168,7 @@ export const en = {
 
   // Beat Card
   beatCard: {
+    viewDetails: 'View details',
     changeLicense: 'Change license',
     selectLicense: 'Select a license',
     licenseDetails: 'License details',
@@ -148,6 +176,7 @@ export const en = {
     buyWithPrice: 'Buy - {price}',
     bpm: '{bpm} BPM',
     key: 'Key {key}',
+    mode: '{mode}',
     duration: '{duration}',
     genre: 'Genre: {genre}',
     tags: 'Tags',
@@ -401,8 +430,11 @@ export const en = {
     searchBeats: 'Search beats...',
     beatsFound: 'beat found | beats found',
     featured: 'Featured',
+    feature: 'Feature',
+    unfeature: 'Unfeature',
     active: 'Active',
     inactive: 'Inactive',
+    includeInactive: 'Include inactive',
     noBeatsWithCriteria: 'No beats found with these criteria',
     searchOrders: 'Search orders...',
     allOrders: 'All orders',
@@ -617,6 +649,9 @@ export const en = {
     genre: 'Genre',
     bpm: 'BPM',
     key: 'Key',
+    mode: 'Mode',
+    modeMajeur: 'Major',
+    modeMineur: 'Minor',
     duration: 'Duration',
     durationPlaceholder: '3:24',
     pricePerLicense: 'Price per license type',

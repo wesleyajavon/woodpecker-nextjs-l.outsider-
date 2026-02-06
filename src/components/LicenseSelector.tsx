@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Music, Archive, Crown } from 'lucide-react';
 import { Beat } from '@/types/beat';

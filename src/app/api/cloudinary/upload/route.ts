@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
-import { CloudinaryService, CLOUDINARY_FOLDERS } from '@/lib/cloudinary'
 import { createHash } from 'crypto'
 
 // GET - Génération d'URL d'upload directe Cloudinary

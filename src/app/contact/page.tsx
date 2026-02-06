@@ -46,7 +46,7 @@ const ContactPage = () => {
         setSubmitStatus('error');
         setErrorMessage(result.error || t('contact.form.error'));
       }
-    } catch (error) {
+    } catch {
       setSubmitStatus('error');
       setErrorMessage(t('errors.network'));
     } finally {
@@ -65,17 +65,17 @@ const ContactPage = () => {
     {
       icon: Mail,
       label: t('contact.info.email'),
-      value: 'contact@loutsider.com'
+      value: 'contact.loutsider@gmail.com'
     },
     {
       icon: Phone,
       label: t('common.phone'),
-      value: '+33 1 23 45 67 89'
+      value: '+32 471 51 20 44'
     },
     {
       icon: MapPin,
       label: t('contact.info.location'),
-      value: 'Virton, Belgique'
+      value: 'Belgique'
     },
     {
       icon: Clock,

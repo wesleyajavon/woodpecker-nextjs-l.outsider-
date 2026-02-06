@@ -195,31 +195,19 @@ export class CacheService {
       
       // Analyser les clés par type
       const keysByType: Record<string, number> = {};
-      let faqKeys = 0;
-      let licenseKeys = 0;
-      let privacyKeys = 0;
-      let beatKeys = 0;
-      let userKeys = 0;
-      let adminKeys = 0;
 
       allKeys.forEach(key => {
         if (key.includes(':faq:')) {
-          faqKeys++;
           keysByType['FAQ'] = (keysByType['FAQ'] || 0) + 1;
         } else if (key.includes(':licenses:')) {
-          licenseKeys++;
           keysByType['Licenses'] = (keysByType['Licenses'] || 0) + 1;
         } else if (key.includes(':privacy:')) {
-          privacyKeys++;
           keysByType['Privacy'] = (keysByType['Privacy'] || 0) + 1;
         } else if (key.includes(':beat')) {
-          beatKeys++;
           keysByType['Beats'] = (keysByType['Beats'] || 0) + 1;
         } else if (key.includes(':user:')) {
-          userKeys++;
           keysByType['Users'] = (keysByType['Users'] || 0) + 1;
         } else if (key.includes(':admin:') || key.includes(':stats:')) {
-          adminKeys++;
           keysByType['Admin/Stats'] = (keysByType['Admin/Stats'] || 0) + 1;
         } else {
           keysByType['Other'] = (keysByType['Other'] || 0) + 1;

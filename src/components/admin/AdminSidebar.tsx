@@ -5,16 +5,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ArrowLeft, 
   ArrowRight,
-  Edit, 
   Upload, 
   Music, 
   FileAudio, 
-  Image, 
+  Image as ImageIcon, 
   Archive,
   Settings,
   LayoutDashboard,
   BarChart3,
-  Users,
   ShoppingCart,
   Menu,
   X
@@ -319,7 +317,7 @@ export default function AdminSidebar({ beatId }: AdminSidebarProps) {
                       <span>{t('upload.masterAudio')}</span>
                     </div>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Image className="w-3 h-3 text-purple-400" />
+                      <ImageIcon className="w-3 h-3 text-purple-400" aria-hidden />
                       <span>{t('upload.artwork')}</span>
                     </div>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -453,7 +451,7 @@ export default function AdminSidebar({ beatId }: AdminSidebarProps) {
                         <span>{t('upload.masterAudio')}</span>
                       </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Image className="w-3 h-3 text-purple-400" />
+                        <ImageIcon className="w-3 h-3 text-purple-400" aria-hidden />
                         <span>{t('upload.artwork')}</span>
                       </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">

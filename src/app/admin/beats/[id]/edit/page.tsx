@@ -9,7 +9,6 @@ import { DottedSurface } from '@/components/ui/dotted-surface';
 import { TextRewind } from '@/components/ui/text-rewind';
 import BeatEditCard from '@/components/ui/BeatEditCard';
 import { cn } from '@/lib/utils';
-import { Beat } from '@/types/beat';
 import { useTranslation } from '@/contexts/LanguageContext';
 import { useBeat, useUpdateBeat } from '@/hooks/queries/useBeats';
 

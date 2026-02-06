@@ -38,22 +38,23 @@ function DottedSurfaceInner({ className, ...props }: DottedSurfaceProps) {
 			if (isLowEndDevice) {
 				setWebglSupported(false);
 			}
-		} catch (e) {
+		} catch (_e) {
 			setWebglSupported(false);
 		}
 	}, []);
 
 	useEffect(() => {
-		if (!containerRef.current || typeof window === 'undefined' || !webglSupported) return;
+		const container = containerRef.current;
+		if (!container || typeof window === 'undefined' || !webglSupported) return;
 
 		// Clean up any existing scene first
 		if (sceneRef.current) {
 			cancelAnimationFrame(sceneRef.current.animationId);
 			sceneRef.current.renderer.dispose();
-			if (containerRef.current && sceneRef.current.renderer.domElement) {
+			if (container && sceneRef.current.renderer.domElement) {
 				try {
-					containerRef.current.removeChild(sceneRef.current.renderer.domElement);
-				} catch (e) {
+					container.removeChild(sceneRef.current.renderer.domElement);
+				} catch {
 					// Element might already be removed
 				}
 			}
@@ -85,10 +86,9 @@ function DottedSurfaceInner({ className, ...props }: DottedSurfaceProps) {
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		renderer.setClearColor(scene.fog.color, 0);
 
-		containerRef.current.appendChild(renderer.domElement);
+		container.appendChild(renderer.domElement);
 
-		// Create particles
-		const particles: THREE.Points[] = [];
+		// Create particles (stored in sceneRef.particles)
 		const positions: number[] = [];
 		const colors: number[] = [];
 
@@ -202,12 +202,12 @@ function DottedSurfaceInner({ className, ...props }: DottedSurfaceProps) {
 
 				sceneRef.current.renderer.dispose();
 
-				if (containerRef.current && sceneRef.current.renderer.domElement) {
+				if (container && sceneRef.current.renderer.domElement) {
 					try {
-						containerRef.current.removeChild(
+						container.removeChild(
 							sceneRef.current.renderer.domElement,
 						);
-					} catch (e) {
+					} catch {
 						// Element might already be removed
 					}
 				}

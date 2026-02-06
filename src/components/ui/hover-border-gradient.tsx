@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 
 import { motion } from "motion/react";
@@ -33,15 +33,6 @@ export function HoverBorderGradient({
     setMounted(true);
   }, []);
 
-  const rotateDirection = (currentDirection: Direction): Direction => {
-    const directions: Direction[] = ["TOP", "LEFT", "BOTTOM", "RIGHT"];
-    const currentIndex = directions.indexOf(currentDirection);
-    const nextIndex = clockwise
-      ? (currentIndex - 1 + directions.length) % directions.length
-      : (currentIndex + 1) % directions.length;
-    return directions[nextIndex];
-  };
-
   // Adapt colors based on theme, but use default dark theme colors during SSR
   const gradientColor = mounted && theme === 'light' ? 'hsl(0, 0%, 0%)' : 'hsl(0, 0%, 100%)';
   const transparentColor = mounted && theme === 'light' ? 'rgba(0, 0, 0, 0)' : 'rgba(255, 255, 255, 0)';
@@ -58,15 +49,23 @@ export function HoverBorderGradient({
 
   useEffect(() => {
     if (!hovered) {
+      const rotateDirection = (currentDirection: Direction): Direction => {
+        const directions: Direction[] = ["TOP", "LEFT", "BOTTOM", "RIGHT"];
+        const currentIndex = directions.indexOf(currentDirection);
+        const nextIndex = clockwise
+          ? (currentIndex - 1 + directions.length) % directions.length
+          : (currentIndex + 1) % directions.length;
+        return directions[nextIndex];
+      };
       const interval = setInterval(() => {
         setDirection((prevState) => rotateDirection(prevState));
       }, duration * 1000);
       return () => clearInterval(interval);
     }
-  }, [hovered]);
+  }, [hovered, duration, clockwise]);
   return (
     <Tag
-      onMouseEnter={(event: React.MouseEvent<HTMLDivElement>) => {
+      onMouseEnter={() => {
         setHovered(true);
       }}
       onMouseLeave={() => setHovered(false)}

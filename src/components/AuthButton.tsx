@@ -2,8 +2,6 @@
 
 import { signOut } from 'next-auth/react'
 import { Button } from '@/components/ui/Button'
-import Image from 'next/image'
-import { User } from 'lucide-react'
 import UserMenu from './UserMenu'
 import { useState, useEffect } from 'react'
 import { useTranslation } from '@/hooks/useApp'

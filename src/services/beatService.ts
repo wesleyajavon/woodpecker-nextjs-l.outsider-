@@ -20,13 +20,14 @@ type BeatWhereClause = {
     lte?: number
   }
   key?: string
-  price?: {
+  wavLeasePrice?: {
     gte?: Decimal
     lte?: Decimal
   }
   isExclusive?: boolean
   featured?: boolean
   userId?: string
+  AND?: Array<Record<string, unknown>>
   OR?: Array<{
     title?: { contains: string; mode: 'insensitive' }
     description?: { contains: string; mode: 'insensitive' }
@@ -136,9 +137,9 @@ export class BeatService {
     }
 
     if (filters.priceMin || filters.priceMax) {
-      where.price = {}
-      if (filters.priceMin) where.price.gte = new Decimal(filters.priceMin)
-      if (filters.priceMax) where.price.lte = new Decimal(filters.priceMax)
+      where.wavLeasePrice = {}
+      if (filters.priceMin) where.wavLeasePrice.gte = new Decimal(filters.priceMin)
+      if (filters.priceMax) where.wavLeasePrice.lte = new Decimal(filters.priceMax)
     }
 
     if (filters.isExclusive !== undefined) {
@@ -157,13 +158,28 @@ export class BeatService {
       ]
     }
 
+    if (filters.hasStems) {
+      where.AND = [
+        ...(where.AND || []),
+        {
+          OR: [
+            { stemsUrl: { not: null } },
+            { s3StemsUrl: { not: null } }
+          ]
+        }
+      ]
+    }
+
     // Get total count
     const total = await prisma.beat.count({ where })
+
+    // Map 'price' to wavLeasePrice (price column was removed in favor of license-specific prices)
+    const orderByField = sort.field === 'price' ? 'wavLeasePrice' : sort.field
 
     // Get beats with pagination
     const beats = await prisma.beat.findMany({
       where,
-      orderBy: { [sort.field]: sort.order },
+      orderBy: { [orderByField]: sort.order },
       skip: (page - 1) * limit,
       take: limit
     })

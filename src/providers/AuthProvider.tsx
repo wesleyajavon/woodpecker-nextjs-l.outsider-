@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect } from 'react'
 import { useAuthSync } from '@/hooks/useAuthSync'
 
 // Provider pour synchroniser l'authentification avec le userStore

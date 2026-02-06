@@ -162,7 +162,7 @@ export class S3Service {
 
       await this.client.send(command)
       return true
-    } catch (error) {
+    } catch (_error) {
       return false
     }
   }

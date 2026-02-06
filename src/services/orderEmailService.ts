@@ -3,17 +3,6 @@ import { emailService } from './emailService'
 
 const prisma = new PrismaClient()
 
-interface BeatDownloadUrls {
-  beatId: string
-  beatTitle: string
-  downloadUrls: {
-    master: string
-    expiresAt: string
-  }
-  hasStems?: boolean
-  stemsUrl?: string
-}
-
 interface OrderEmailData {
   customerEmail: string
   customerName?: string

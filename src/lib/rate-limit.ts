@@ -140,7 +140,7 @@ export class RateLimitManager {
   /**
    * Obtenir l'identifiant utilisateur si authentifié
    */
-  static async getUserIdentifier(request: NextRequest): Promise<string | null> {
+  static async getUserIdentifier(_request: NextRequest): Promise<string | null> {
     try {
       // Essayer de récupérer l'ID utilisateur depuis la session
       const { getServerSession } = await import('next-auth/next');

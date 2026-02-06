@@ -4,7 +4,6 @@ import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Search, 
-  Filter, 
   Download, 
   Eye, 
   Calendar, 
@@ -34,23 +33,16 @@ export default function AdminOrders({ className = '' }: AdminOrdersProps) {
   const {
     data: singleOrdersData,
     isLoading: singleOrdersLoading,
-    error: singleOrdersError
+    error: _singleOrdersError
   } = useAdminOrders();
   
   const {
     data: multiOrdersData,
     isLoading: multiOrdersLoading,
-    error: multiOrdersError
+    error: _multiOrdersError
   } = useAdminMultiItemOrders();
   
-  // Combine orders
-  const orders: OrderWithType[] = [
-    ...(singleOrdersData?.orders || []).map((order: Order) => ({ ...order, type: 'single' as const })),
-    ...(multiOrdersData?.orders || []).map((order: MultiItemOrder) => ({ ...order, type: 'multi' as const }))
-  ];
-  
   const loading = singleOrdersLoading || multiOrdersLoading;
-  const error = singleOrdersError || multiOrdersError;
   
   // États locaux pour l'UI
   const [searchTerm, setSearchTerm] = useState('');
@@ -61,9 +53,13 @@ export default function AdminOrders({ className = '' }: AdminOrdersProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
 
-  // Use useMemo to calculate filtered orders
+  // Use useMemo to calculate filtered orders - orders moved inside to avoid stale closure
   const filteredOrders = useMemo(() => {
-    let filtered = orders;
+    const ordersList: OrderWithType[] = [
+      ...(singleOrdersData?.orders || []).map((order: Order) => ({ ...order, type: 'single' as const })),
+      ...(multiOrdersData?.orders || []).map((order: MultiItemOrder) => ({ ...order, type: 'multi' as const }))
+    ];
+    let filtered = ordersList;
 
     // Filter by search term
     if (searchTerm) {
@@ -109,7 +105,7 @@ export default function AdminOrders({ className = '' }: AdminOrdersProps) {
     });
 
     return filtered;
-  }, [orders, searchTerm, filterType, sortBy, sortOrder]);
+  }, [singleOrdersData?.orders, multiOrdersData?.orders, searchTerm, filterType, sortBy, sortOrder]);
 
   useEffect(() => {
     setCurrentPage(1);

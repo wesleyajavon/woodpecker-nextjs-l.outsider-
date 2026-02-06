@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { isUserAdmin } from '@/lib/roleUtils'
-import { Beat } from '@/types/beat'
+import { getContentDispositionAttachment } from '@/lib/utils'
 
 interface RouteParams {
   params: Promise<{
@@ -111,7 +111,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       }
 
       const response = NextResponse.redirect(downloadUrl!)
-      response.headers.set('Content-Disposition', `attachment; filename="${filename}"`)
+      response.headers.set('Content-Disposition', getContentDispositionAttachment(filename))
       response.headers.set('Content-Type',
         type === 'preview' ? 'audio/mpeg' : type === 'stems' ? 'application/zip' : 'audio/wav')
       return response
@@ -244,7 +244,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const response = NextResponse.redirect(downloadUrl)
     
     // Ajout des headers pour forcer le téléchargement
-    response.headers.set('Content-Disposition', `attachment; filename="${filename}"`)
+    response.headers.set('Content-Disposition', getContentDispositionAttachment(filename))
     response.headers.set('Content-Type', 
       type === 'preview' ? 'audio/mpeg' : type === 'stems' ? 'application/zip' : 'audio/wav')
     

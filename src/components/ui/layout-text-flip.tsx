@@ -14,15 +14,6 @@ export const LayoutTextFlip = ({
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Système d'ombres similaire à text-rewind
-  const shadowColors = {
-    first: "rgba(99, 102, 241, 0.6)",    // indigo-500
-    second: "rgba(139, 92, 246, 0.5)",    // purple-500  
-    third: "rgba(124, 58, 237, 0.4)",     // purple-600
-    fourth: "rgba(99, 102, 241, 0.3)",   // indigo-500
-    glow: "rgba(139, 92, 246, 0.2)"       // purple-500 glow
-  };
-
   const regularShadowStyle = {
     textShadow: "0 4px 8px rgba(0, 0, 0, 0.3), 0 8px 16px rgba(0, 0, 0, 0.2), 0 0 20px rgba(99, 102, 241, 0.4), 0 0 40px rgba(139, 92, 246, 0.3), 0 0 60px rgba(124, 58, 237, 0.2)",
   };
@@ -33,7 +24,7 @@ export const LayoutTextFlip = ({
     }, duration);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [duration, words.length]);
 
   return (
     <>

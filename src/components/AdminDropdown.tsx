@@ -94,7 +94,7 @@ export default function AdminDropdown({ className }: AdminDropdownProps) {
             className="absolute top-full left-0 mt-2 w-48 bg-card/95 backdrop-blur-xl border border-border/20 rounded-lg shadow-lg z-[5001] overflow-hidden"
           >
             <div className="py-2">
-              {adminLinks.map((link, index) => {
+              {adminLinks.map((link) => {
                 const Icon = link.icon;
                 return (
                   <Link

@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Upload, 
@@ -8,14 +7,14 @@ import {
   FileAudio, 
   X, 
   Save, 
-  Image, 
+  Image as ImageIcon, 
   Archive,
   AlertCircle,
   CheckCircle,
   Trash2,
   RefreshCw
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import Image from 'next/image';
 import { Beat } from '@/types/beat';
 import { useTranslation } from '@/contexts/LanguageContext';
 import { S3Upload } from '@/components/S3Upload';
@@ -212,7 +211,7 @@ export default function BeatEditCard({
             {/* Artwork */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                <Image className="w-5 h-5 text-blue-400" />
+                <ImageIcon className="w-5 h-5 text-blue-400" />
                 {t('upload.artwork')}
               </h3>
               
@@ -232,11 +231,13 @@ export default function BeatEditCard({
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
-                    <div className="relative">
-                      <img
+                    <div className="relative h-32 sm:h-48">
+                      <Image
                         src={beat.artworkUrl}
                         alt={t('upload.artwork')}
-                        className="w-full h-32 sm:h-48 object-cover rounded-xl"
+                        fill
+                        sizes="(max-width: 640px) 100vw, 400px"
+                        className="object-cover rounded-xl"
                       />
                     </div>
                   </div>
@@ -258,7 +259,7 @@ export default function BeatEditCard({
                   >
                     {uploadedFiles.artwork ? (
                       <div className="flex items-center gap-2 text-blue-300">
-                        <Image className="w-4 h-4" />
+                        <ImageIcon className="w-4 h-4" />
                         <span className="text-sm truncate flex-1">{uploadedFiles.artwork.name}</span>
                         <button
                           onClick={(e) => {
@@ -413,7 +414,7 @@ export default function BeatEditCard({
                     <div>
                       <div className="flex justify-between text-sm text-muted-foreground mb-2">
                         <span className="flex items-center gap-2">
-                          <Image className="w-4 h-4 text-blue-400" />
+                          <ImageIcon className="w-4 h-4 text-blue-400" />
                           Artwork
                         </span>
                         <span>{uploadProgress.artwork}%</span>

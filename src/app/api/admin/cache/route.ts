@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
-import { getUserIdFromEmail } from '@/lib/userUtils';
 import { isUserAdmin } from '@/lib/roleUtils';
 import { CacheService } from '@/services/cacheService';
 import { UpstashCacheManager } from '@/lib/cache-upstash';

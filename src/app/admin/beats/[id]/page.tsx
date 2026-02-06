@@ -32,6 +32,7 @@ export default function BeatManagementPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isTogglingFeatured, setIsTogglingFeatured] = useState(false);
   const [editData, setEditData] = useState<Partial<Beat>>({});
 
   // Gestion des modifications
@@ -65,7 +66,7 @@ export default function BeatManagementPage() {
         throw new Error('Erreur lors de la sauvegarde');
       }
 
-      const result = await response.json();
+      await response.json();
       await refetch(); // Refresh data from TanStack Query
       setIsEditing(false);
     } catch (err) {
@@ -79,6 +80,32 @@ export default function BeatManagementPage() {
   const handleCancel = () => {
     setEditData(beat || {});
     setIsEditing(false);
+  };
+
+  // Bascule featured (clic sur le badge)
+  const handleToggleFeatured = async (featured: boolean) => {
+    if (!beat) return;
+
+    try {
+      setIsTogglingFeatured(true);
+      const response = await fetch(`/api/beats/${beatId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ featured }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la mise à jour');
+      }
+
+      await refetch();
+    } catch (err) {
+      console.error('Erreur lors du changement featured:', err);
+    } finally {
+      setIsTogglingFeatured(false);
+    }
   };
 
   // Suppression du beat
@@ -189,6 +216,21 @@ export default function BeatManagementPage() {
       </div>
 
       <div className="max-w-4xl mx-auto py-4 sm:py-8 relative z-10">
+        {/* Back to management */}
+        <motion.div
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="mb-6"
+        >
+          <Link
+            href="/admin/manage"
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group"
+          >
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+            <span className="text-sm font-medium">{t('admin.backToManagement')}</span>
+          </Link>
+        </motion.div>
+
         {/* Page Title */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -223,8 +265,10 @@ export default function BeatManagementPage() {
           onDelete={handleDelete}
           onEditFiles={() => router.push(`/admin/beats/${beatId}/edit`)}
           onStartEdit={() => setIsEditing(true)}
+          onToggleFeatured={handleToggleFeatured}
           isSaving={isSaving}
           isDeleting={isDeleting}
+          isTogglingFeatured={isTogglingFeatured}
         />
       </div>
     </div>

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { ShoppingCart, Check, Plus } from 'lucide-react'
+import { ShoppingCart, Check } from 'lucide-react'
 import { Beat } from '@/types/beat'
 import { LicenseType } from '@/types/cart'
 import { useAddToCart } from '@/hooks/useCart'

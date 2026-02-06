@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import type { ComponentProps, ReactNode } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
-import { FacebookIcon, FrameIcon, InstagramIcon, LinkedinIcon, YoutubeIcon } from 'lucide-react';
+import { FrameIcon, InstagramIcon, YoutubeIcon } from 'lucide-react';
 import { useTranslation } from '@/contexts/LanguageContext';
 
 interface FooterLink {

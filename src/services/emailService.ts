@@ -35,7 +35,7 @@ class EmailService {
 
   async sendOrderConfirmationEmail(data: OrderEmailData): Promise<void> {
     try {
-      const { customerEmail, customerName, orderId, totalAmount, currency, isMultiItem, beats, expiresAt } = data
+      const { customerEmail, orderId } = data
 
       const subject = `🎵 l.outsider - Votre commande #${orderId} est prête !`
       

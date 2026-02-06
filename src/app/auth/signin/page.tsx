@@ -36,7 +36,7 @@ export default function SignInPage() {
           setError('Vérifiez votre email pour le lien de connexion.')
         }
       }
-    } catch (error) {
+    } catch {
       setError('Une erreur est survenue. Réessayez.')
     } finally {
       setIsLoading(false)
@@ -49,7 +49,7 @@ export default function SignInPage() {
 
     try {
       await signIn(provider, { callbackUrl: '/' })
-    } catch (error) {
+    } catch {
       setError('Erreur lors de la connexion avec ' + provider)
       setIsLoading(false)
     }

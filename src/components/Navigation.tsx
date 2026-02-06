@@ -3,13 +3,11 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, Music, Sparkles, Upload, Home, Menu, X, User, ShoppingBag, BarChart3 } from 'lucide-react';
-import { ThemeToggle } from './ThemeToggle';
+import { ShoppingCart, Music, Sparkles, Upload, Home, Menu, X, ShoppingBag, BarChart3 } from 'lucide-react';
 import { FloatingNav } from './ui/floating-navbar';
 import { useCartCount } from '@/hooks/useCart';
 import LanguageSwitcher from './LanguageSwitcher';
 import AuthButton from './AuthButton';
-import AdminDropdown from './AdminDropdown';
 import { useTranslation } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
 

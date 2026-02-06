@@ -45,10 +45,13 @@ export function useProfile() {
       if (!response.ok) {
         throw new Error('Erreur lors du chargement du profil')
       }
-      return response.json()
+      const json = await response.json()
+      return { user: json.user }
     },
     enabled: !!session?.user,
     staleTime: 5 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   })
 }
 

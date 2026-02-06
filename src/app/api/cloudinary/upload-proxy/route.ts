@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
-import { CloudinaryService, CLOUDINARY_FOLDERS } from '@/lib/cloudinary'
+import { CloudinaryService } from '@/lib/cloudinary'
 
 // Proxy pour l'upload Cloudinary - évite les problèmes CORS
 export async function POST(request: NextRequest) {
@@ -18,8 +18,6 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData()
     const file = formData.get('file') as File
     const folder = formData.get('folder') as string
-    const beatId = formData.get('beatId') as string
-
     if (!file) {
       return NextResponse.json(
         { error: 'Aucun fichier fourni' },

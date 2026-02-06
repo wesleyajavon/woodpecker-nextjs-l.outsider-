@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { Upload, FileAudio, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
+import { Upload, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
 import { useTranslation } from '@/contexts/LanguageContext'
 
 interface S3UploadProps {

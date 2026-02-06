@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withUpstashCache } from '@/lib/cache-upstash';
 import { WOODPECKER_CACHE_CONFIG } from '@/lib/cache-upstash';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
 
 // Configuration du cache pour les conditions d'utilisation
 const TERMS_CACHE_CONFIG = {
@@ -215,7 +212,7 @@ Nous privilégions la résolution amiable. En cas de litige persistant, le droit
 }
 
 // Keep the original function for backward compatibility
-export async function getTermsData(language: string = 'fr') {
+export async function getTermsData(_language: string = 'fr') {
   try {
     return {
       sections: "Static content for now",

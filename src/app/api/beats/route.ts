@@ -32,6 +32,7 @@ export async function GET(request: NextRequest) {
     const key = searchParams.get('key') || undefined
     const priceMin = searchParams.get('priceMin') ? parseFloat(searchParams.get('priceMin')!) : undefined
     const priceMax = searchParams.get('priceMax') ? parseFloat(searchParams.get('priceMax')!) : undefined
+    const hasStems = searchParams.get('hasStems') ? searchParams.get('hasStems') === 'true' : undefined
     const isExclusive = searchParams.get('isExclusive') ? searchParams.get('isExclusive') === 'true' : undefined
     const featured = searchParams.get('featured') ? searchParams.get('featured') === 'true' : undefined
     const sortField = (searchParams.get('sortField') || 'createdAt') as keyof BeatSortOptions['field']
@@ -54,6 +55,7 @@ export async function GET(request: NextRequest) {
       key,
       priceMin,
       priceMax,
+      hasStems,
       isExclusive,
       featured
     }

@@ -50,7 +50,7 @@ export default function ResendEmailButton({
         setStatus('error')
         setMessage(result.error || t('resendEmail.sendError'))
       }
-    } catch (error) {
+    } catch (_error) {
       setStatus('error')
       setMessage(t('resendEmail.connectionError'))
     } finally {

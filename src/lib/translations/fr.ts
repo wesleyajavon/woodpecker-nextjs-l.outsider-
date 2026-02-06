@@ -62,10 +62,19 @@ export const fr = {
     status: 'Statut',
   },
 
+  // SEO Metadata (used in layout/page metadata)
+  metadata: {
+    beats: {
+      title: 'Beats | l.outsider - Catalogue de beats professionnels',
+      description: 'Découvrez le catalogue de beats professionnels de l.outsider. Trap, Hip-Hop, Drill, Jazz et plus. Instrumentaux de qualité pour rappeurs, chanteurs et producteurs. Licences non-exclusives et exclusives disponibles.',
+    },
+  },
+
   // Navigation
   nav: {
     home: 'Accueil',
     beats: 'Beats',
+    breadcrumb: "Fil d'Ariane",
     cart: 'Panier',
     profile: 'Profil',
     contact: 'Contact',
@@ -128,9 +137,27 @@ export const fr = {
     errorLoading: 'Erreur de chargement',
     retry: 'Réessayer',
     noBeatsAvailable: 'Aucun beat disponible pour le moment',
+    activeFiltersCount: '{count} filtre actif',
+    activeFiltersCount_plural: '{count} filtres actifs',
     resetFilters: 'Réinitialiser les filtres',
     customBeatCTA: 'Commander un beat personnalisé',
     showingResults: 'Affichage de {start} à {end} sur {total} beats',
+    sortNewest: 'Plus récents',
+    sortOldest: 'Plus anciens',
+    sortPriceAsc: 'Prix : croissant',
+    sortPriceDesc: 'Prix : décroissant',
+    sortPopular: 'Les plus populaires',
+    advancedFilters: 'Filtres avancés',
+    moreFilters: 'Plus de filtres',
+    bpmRange: 'BPM',
+    bpmMin: 'BPM min',
+    bpmMax: 'BPM max',
+    keyFilter: 'Tonalité',
+    allKeys: 'Toutes',
+    priceRange: 'Prix',
+    priceMin: 'Prix min (€)',
+    priceMax: 'Prix max (€)',
+    withStems: 'Avec stems',
     stats: {
       beats: 'Beats',
       genres: 'Genres',
@@ -141,6 +168,7 @@ export const fr = {
 
   // Beat Card
   beatCard: {
+    viewDetails: 'Voir les détails',
     changeLicense: 'Changer de licence',
     selectLicense: 'Sélectionner une licence',
     licenseDetails: 'Détails de la licence',
@@ -148,6 +176,7 @@ export const fr = {
     buyWithPrice: 'Acheter - {price}',
     bpm: '{bpm} BPM',
     key: 'Gamme {key}',
+    mode: '{mode}',
     duration: '{duration}',
     genre: 'Genre: {genre}',
     tags: 'Tags',
@@ -413,8 +442,11 @@ export const fr = {
     searchBeats: 'Rechercher un beat...',
     beatsFound: 'beat trouvé | beats trouvés',
     featured: 'Vedette',
+    feature: 'Mettre en vedette',
+    unfeature: 'Retirer des vedettes',
     active: 'Actif',
     inactive: 'Inactif',
+    includeInactive: 'Inclure les inactifs',
     noBeatsWithCriteria: 'Aucun beat trouvé avec ces critères',
     searchOrders: 'Rechercher...',
     allOrders: 'Toutes les commandes',
@@ -628,6 +660,9 @@ export const fr = {
     genre: 'Genre',
     bpm: 'BPM',
     key: 'Tonalité',
+    mode: 'Mode',
+    modeMajeur: 'Majeur',
+    modeMineur: 'Mineur',
     duration: 'Durée',
     durationPlaceholder: '3:24',
     pricePerLicense: 'Prix par type de licence',

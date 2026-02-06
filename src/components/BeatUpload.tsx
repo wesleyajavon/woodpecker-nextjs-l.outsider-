@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Upload, Music, FileAudio, X, AlertCircle, Image, Archive } from 'lucide-react';
+import { Upload, Music, FileAudio, X, AlertCircle, Image as ImageIcon, Archive } from 'lucide-react';
 import { BEAT_CONFIG } from '@/config/constants';
 import { useTranslation } from '@/hooks/useApp';
 import { Beat } from '@/types/beat';
@@ -24,7 +24,7 @@ interface UploadProgress {
 export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploadProps) {
   const { t } = useTranslation();
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState<UploadProgress>({
+  const [, setUploadProgress] = useState<UploadProgress>({
     preview: 0,
     master: 0,
     artwork: 0,
@@ -45,6 +45,7 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
     genre: 'Trap',
     bpm: 140,
     key: 'C',
+    mode: 'majeur' as 'majeur' | 'mineur',
     duration: '3:00',
     wavLeasePrice: 19.99,
     trackoutLeasePrice: 39.99,
@@ -56,10 +57,6 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
   const [currentTag, setCurrentTag] = useState('');
   const [errors, setErrors] = useState<string[]>([]);
 
-  const fileInputRefs = {
-    preview: useRef<HTMLInputElement>(null),
-    artwork: useRef<HTMLInputElement>(null)
-  };
 
   // Gestion des fichiers sélectionnés supprimée - maintenant gérée par CloudinaryUpload et S3Upload
 
@@ -193,6 +190,7 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
           genre: 'Trap',
           bpm: 140,
           key: 'C',
+          mode: 'majeur',
           duration: '3:00',
           wavLeasePrice: 19.99,
           trackoutLeasePrice: 39.99,
@@ -275,7 +273,7 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
                 beatId="new-beat" // Placeholder pour les nouveaux beats
                 folder="previews"
                 onUploadComplete={(result) => setCloudinaryUploads(prev => ({ ...prev, preview: result }))}
-                onUploadError={(error) => {
+                onUploadError={() => {
                   // Preview upload error handled by component
                 }}
                 maxSize={100} // 100MB
@@ -334,7 +332,7 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-green-500/10 rounded-lg border border-green-500/20">
                   <div className="flex items-center gap-2">
-                    <Image className="w-4 h-4 text-green-400" />
+                    <ImageIcon className="w-4 h-4 text-green-400" aria-hidden />
                     <p className="text-green-300 text-sm">{t('upload.artworkUploaded')}</p>
                   </div>
                   <button
@@ -358,7 +356,7 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
                 beatId="new-beat" // Placeholder pour les nouveaux beats
                 folder="artworks"
                 onUploadComplete={(result) => setCloudinaryUploads(prev => ({ ...prev, artwork: result }))}
-                onUploadError={(error) => {
+                onUploadError={() => {
                   // Artwork upload error handled by component
                 }}
                 maxSize={20} // 20MB
@@ -478,8 +476,8 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
             </div>
           </div>
 
-          {/* Tonalité et Durée */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Tonalité, Mode et Durée */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-300">
                 {t('upload.key')} <span className="text-red-400">*</span>
@@ -492,6 +490,23 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
                 {BEAT_CONFIG.keys.map((key) => (
                   <option key={key} value={key} className="bg-gray-800 text-white">
                     {key}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-300">
+                {t('upload.mode')} <span className="text-red-400">*</span>
+              </label>
+              <select
+                value={formData.mode}
+                onChange={(e) => handleInputChange('mode', e.target.value as 'majeur' | 'mineur')}
+                className="w-full p-3 bg-white/20 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+              >
+                {BEAT_CONFIG.modes.map((mode) => (
+                  <option key={mode} value={mode} className="bg-gray-800 text-white">
+                    {mode === 'majeur' ? t('upload.modeMajeur') : t('upload.modeMineur')}
                   </option>
                 ))}
               </select>

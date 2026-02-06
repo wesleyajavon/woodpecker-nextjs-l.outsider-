@@ -10,9 +10,7 @@ import {
   Sun, 
   Moon, 
   BookOpen, 
-  ChevronRight,
-  Eye,
-  EyeOff
+  ChevronRight
 } from 'lucide-react';
 import { useTranslation, useLanguage } from '@/contexts/LanguageContext';
 import { termsContent } from '@/data/terms-content';
@@ -25,7 +23,7 @@ interface TableOfContentsItem {
 
 export default function TermsContent() {
   const { t } = useTranslation();
-  const { language } = useLanguage();
+  const { language: _language } = useLanguage();
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showTableOfContents, setShowTableOfContents] = useState(false);

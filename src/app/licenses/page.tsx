@@ -14,7 +14,6 @@ import {
   Radio,
   Building,
   Headphones,
-  Download,
   AlertCircle,
   Info,
   ExternalLink,
@@ -758,7 +757,7 @@ export default function LicensesPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {licenseFeatures.map((feature, index) => (
+                    {licenseFeatures.map((feature) => (
                       <tr key={feature.name} className="border-b border-border/10 hover:bg-card/5">
                         <td className="p-3 sm:p-4 font-medium text-foreground text-sm sm:text-base">{feature.name}</td>
                         <td className="p-3 sm:p-4 text-center">

@@ -1,28 +1,31 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
-import { Play, Pause, ShoppingCart, Star, Music, Archive, Crown, X, Check, ChevronDown, ChevronUp } from 'lucide-react';
+import { Play, Pause, Music, Crown, X, Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { Beat } from '@/types/beat';
 import { LicenseType } from '@/types/cart';
-import BeatPricing from './BeatPricing';
+import { formatTime } from '@/lib/utils';
 import AddToCartButton from './AddToCartButton';
 import { useTranslation } from '@/contexts/LanguageContext';
+
+export interface BeatProgress {
+  currentTime: number;
+  duration: number;
+}
 
 interface BeatCardProps {
   beat: Beat;
   isPlaying?: boolean;
   onPlay?: (beatId: string, previewUrl?: string) => void;
   onPause?: (beatId: string) => void;
+  progress?: BeatProgress;
+  onSeek?: (time: number) => void;
   className?: string;
 }
-
-const licenseIcons = {
-  WAV_LEASE: Music,
-  TRACKOUT_LEASE: Archive,
-  UNLIMITED_LEASE: Crown
-};
 
 const licenseColors = {
   WAV_LEASE: 'text-blue-400',
@@ -35,6 +38,8 @@ export default function BeatCard({
   isPlaying = false, 
   onPlay, 
   onPause, 
+  progress,
+  onSeek,
   className = '' 
 }: BeatCardProps) {
   const [selectedLicense, setSelectedLicense] = useState<LicenseType>('WAV_LEASE');
@@ -71,10 +76,6 @@ export default function BeatCard({
     }
   };
 
-  const handleLicenseSelect = (license: LicenseType) => {
-    setSelectedLicense(license);
-  };
-
   const openLicenseModal = () => {
     setShowLicenseModal(true);
   };
@@ -93,27 +94,40 @@ export default function BeatCard({
   return (
     <>
     <motion.div
+      data-beat-card
+      data-beat-id={beat.id}
       className={`bg-card/50 backdrop-blur-lg rounded-xl border border-border overflow-hidden hover:border-border/80 transition-all duration-300 ${className}`}
       whileHover={{ y: isListMode ? 0 : -2 }}
       whileTap={{ scale: 0.98 }}
     >
-      {/* Image/Artwork */}
-      <div className={`relative bg-gradient-to-br from-purple-900/20 to-blue-900/20 ${isListMode ? 'w-20 h-20 rounded-lg flex-shrink-0' : 'aspect-square'}`}>
-        {beat.artworkUrl ? (
-          <img
-            src={beat.artworkUrl}
-            alt={beat.title}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <Music className={`${isListMode ? 'w-6 h-6' : 'w-16 h-16'} text-muted-foreground`} />
-          </div>
-        )}
-        
-        {/* Play/Pause Button */}
-        <button
-          onClick={handlePlay}
+      {/* Image/Artwork + Title - Primary click target for navigation */}
+      <Link
+        href={`/beats/${beat.id}`}
+        aria-label={`${t('beatCard.viewDetails')} - ${beat.title}`}
+        className={isListMode ? 'flex items-center flex-1 min-w-0' : 'block'}
+      >
+        <div className={`relative bg-gradient-to-br from-purple-900/20 to-blue-900/20 ${isListMode ? 'w-20 h-20 rounded-lg flex-shrink-0' : 'aspect-square'}`}>
+          {beat.artworkUrl ? (
+            <Image
+              src={beat.artworkUrl}
+              alt={beat.title}
+              fill
+              sizes={isListMode ? '80px' : '(max-width: 768px) 100vw, 400px'}
+              className="object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <Music className={`${isListMode ? 'w-6 h-6' : 'w-16 h-16'} text-muted-foreground`} />
+            </div>
+          )}
+          
+          {/* Play/Pause Button - stopPropagation prevents navigation */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handlePlay();
+            }}
           className={`absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 active:opacity-100 transition-opacity duration-300 ${isListMode ? 'rounded-lg' : ''} touch-manipulation`}
           style={{ minHeight: '44px', minWidth: '44px' }}
         >
@@ -143,22 +157,65 @@ export default function BeatCard({
             </div>
           </div>
         )}
-      </div>
 
-      {/* Content */}
-      <div className={`${isListMode ? 'p-3 flex-1 min-w-0' : 'p-3 sm:p-4'}`}>
-        {/* Title and Genre */}
-        <div className={`${isListMode ? 'mb-2' : 'mb-3'}`}>
+        {/* Progress bar - only when playing with progress data */}
+        {isPlaying && progress && progress.duration > 0 && beat.previewUrl && (
+          <div
+            className={`absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm ${isListMode ? 'rounded-b-lg' : ''}`}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          >
+            <div className="px-2 py-1.5 sm:px-3 sm:py-2">
+              <div
+                role="progressbar"
+                aria-valuenow={progress.currentTime}
+                aria-valuemin={0}
+                aria-valuemax={progress.duration}
+                aria-label={`${formatTime(progress.currentTime)} / ${formatTime(progress.duration)}`}
+                className="h-1.5 sm:h-2 bg-muted/50 rounded-full overflow-hidden cursor-pointer hover:h-2 sm:hover:h-2.5 transition-all"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (!onSeek) return;
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const x = e.clientX - rect.left;
+                  const pct = Math.max(0, Math.min(1, x / rect.width));
+                  onSeek(pct * progress.duration);
+                }}
+              >
+                <div
+                  className="h-full bg-gradient-to-r from-purple-500 to-blue-500 transition-all duration-150"
+                  style={{ width: `${(progress.currentTime / progress.duration) * 100}%` }}
+                />
+              </div>
+              <div className="flex justify-between mt-1 text-[10px] sm:text-xs text-muted-foreground">
+                <span>{formatTime(progress.currentTime)}</span>
+                <span>{formatTime(progress.duration)}</span>
+              </div>
+            </div>
+          </div>
+        )}
+        </div>
+
+        {/* Title and Genre - part of navigation target */}
+        <div className={`${isListMode ? 'p-3 flex-1 min-w-0 mb-2' : 'px-3 sm:px-4 pt-3 sm:pt-4 mb-3'}`}>
           <h3 className={`${isListMode ? 'text-sm' : 'text-base sm:text-lg'} font-semibold text-foreground truncate`}>{beat.title}</h3>
           <p className={`text-xs sm:text-sm text-muted-foreground ${isListMode ? 'text-xs' : ''} truncate`}>{beat.genre}</p>
         </div>
+      </Link>
 
+      {/* Content - BPM, price, add to cart (outside Link to avoid navigation on these actions) */}
+      <div className={`${isListMode ? 'p-3 flex-1 min-w-0' : 'px-3 sm:px-4 pb-3 sm:pb-4'}`}>
         {isListMode ? (
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span>{beat.bpm}BPM</span>
               <span>•</span>
               <span>{beat.key}</span>
+              <span>•</span>
+              <span>{(beat.mode ?? 'majeur') === 'majeur' ? t('upload.modeMajeur') : t('upload.modeMineur')}</span>
               <span>•</span>
               <span>{beat.duration}</span>
               {beat.stemsUrl && <span className="text-orange-400">• STEMS</span>}
@@ -177,10 +234,11 @@ export default function BeatCard({
           </div>
         ) : (
           <>
-            {/* BPM and Key */}
+            {/* BPM, Key and Mode */}
             <div className="flex items-center gap-2 sm:gap-4 mb-3 text-xs sm:text-sm text-muted-foreground flex-wrap">
               <span className="whitespace-nowrap">{t('beatCard.bpm', { bpm: beat.bpm.toString() })}</span>
               <span className="whitespace-nowrap">{t('beatCard.key', { key: beat.key })}</span>
+              <span className="whitespace-nowrap">{t('beatCard.mode', { mode: (beat.mode ?? 'majeur') === 'majeur' ? t('upload.modeMajeur') : t('upload.modeMineur') })}</span>
               <span className="whitespace-nowrap">{t('beatCard.duration', { duration: beat.duration })}</span>
             </div>
 

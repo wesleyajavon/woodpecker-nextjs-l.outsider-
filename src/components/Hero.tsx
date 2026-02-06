@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { ArrowRight, Music } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { TextRewind } from './ui/text-rewind';
 import { HoverBorderGradient } from './ui/hover-border-gradient';
 import { useTranslation } from '@/contexts/LanguageContext';

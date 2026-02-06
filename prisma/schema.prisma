@@ -20,6 +20,7 @@ model Beat {
   genre       String
   bpm         Int
   key         String
+  mode        String  @default("majeur") @map("scale_mode") // majeur (Major) ou mineur (Minor) - scale_mode évite conflit avec mode() de PostgreSQL
   duration    String // Format: "3:24"
   // Prix par type de licence
   wavLeasePrice      Decimal  @db.Decimal(10, 2) @default(19.99)
@@ -70,6 +71,7 @@ model Beat {
   @@index([genre])
   @@index([bpm])
   @@index([key])
+  @@index([mode]) // index sur scale_mode en DB
   @@index([rating])
   @@index([isActive])
   @@index([featured])

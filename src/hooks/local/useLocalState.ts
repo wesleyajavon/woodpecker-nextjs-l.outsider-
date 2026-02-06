@@ -1,4 +1,4 @@
-import { useState, useReducer, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 
 // Hook pour gérer l'état de chargement
 export function useLoading(initialState = false) {

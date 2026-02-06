@@ -1,32 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { validateUploadedFiles } from '@/lib/upload';
-import { CloudinaryService, CLOUDINARY_FOLDERS } from '@/lib/cloudinary';
+import { CloudinaryService } from '@/lib/cloudinary';
 import { BeatService } from '@/services/beatService';
 import { CreateBeatInput } from '@/types/beat';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { getUserIdFromEmail } from '@/lib/userUtils';
 import { createBeatStripeProducts } from '@/lib/stripe';
-
-// Types pour les fichiers uploadés via Multer
-interface MulterFile {
-  fieldname: string;
-  originalname: string;
-  encoding: string;
-  mimetype: string;
-  buffer: Buffer;
-  size: number;
-}
-
-interface UploadedFiles {
-  preview?: MulterFile[];
-  master?: MulterFile[];
-  artwork?: MulterFile[];
-  stems?: MulterFile[];
-  [key: string]: MulterFile[] | undefined;
-}
-
-
 
 export async function POST(request: NextRequest) {
   try {
@@ -119,6 +98,7 @@ export async function POST(request: NextRequest) {
         genre: formData.get('genre') as string,
         bpm: parseInt(formData.get('bpm') as string),
         key: formData.get('key') as string,
+        mode: (formData.get('mode') as string) || 'majeur',
         duration: formData.get('duration') as string,
         wavLeasePrice: parseFloat(formData.get('wavLeasePrice') as string),
         trackoutLeasePrice: parseFloat(formData.get('trackoutLeasePrice') as string),

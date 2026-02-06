@@ -1,9 +1,9 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Shield, Home, Loader2 } from 'lucide-react'
+import { Shield, Home } from 'lucide-react'
 import { DottedSurface } from './ui/dotted-surface'
 import { useTranslation } from '@/hooks/useApp'
 import { useCurrentUser } from '@/hooks/useAuthSync'

@@ -14,32 +14,35 @@ export const BEAT_CONFIG = {
     'Trap',
     'Hip-Hop',
     'Drill',
-    'Jazz',
-    'Electronic',
-    'Boom Bap',
-    'Synthwave',
-    'R&B',
+    'Afro/R&B',
+    'Rap fr',
     'Pop',
-    'Rock'
+    'Mélo',
+    'Afrotouch',
+    'Afro',
+    'Rap'
   ] as const,
   
   // Tonalités musicales
   keys: [
     'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'
   ] as const,
+
+  // Modes musicaux (majeur = Major, mineur = Minor)
+  modes: ['majeur', 'mineur'] as const,
   
   // Ranges de BPM par genre
   bpmRanges: {
     'Trap': { min: 130, max: 150 },
     'Hip-Hop': { min: 120, max: 140 },
     'Drill': { min: 140, max: 160 },
-    'Jazz': { min: 100, max: 130 },
-    'Electronic': { min: 120, max: 140 },
-    'Boom Bap': { min: 80, max: 100 },
-    'Synthwave': { min: 100, max: 120 },
-    'R&B': { min: 110, max: 130 },
+    'Afro/R&B': { min: 110, max: 130 },
+    'Rap fr': { min: 120, max: 140 },
     'Pop': { min: 100, max: 130 },
-    'Rock': { min: 120, max: 140 }
+    'Mélo': { min: 120, max: 140 },
+    'Afrotouch': { min: 110, max: 130 },
+    'Afro': { min: 110, max: 135 },
+    'Rap': { min: 120, max: 140 }
   },
   
   // Prix par défaut

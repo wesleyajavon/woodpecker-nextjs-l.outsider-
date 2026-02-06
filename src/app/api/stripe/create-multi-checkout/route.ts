@@ -67,6 +67,12 @@ export async function POST(request: NextRequest) {
     // Create multi-item checkout session
     const session = await createMultiItemCheckoutSession(items, successUrl, cancelUrl, pendingOrder.id)
 
+    // Update order with real Stripe session ID so success page lookup works
+    await prisma.multiItemOrder.update({
+      where: { id: pendingOrder.id },
+      data: { sessionId: session.id }
+    })
+
     return NextResponse.json({
       url: session.url,
       sessionId: session.id,

@@ -145,7 +145,7 @@ export async function GET(request: NextRequest) {
 }
 
 // Keep the original function for backward compatibility (for test endpoints)
-export async function getLicenseData(language: string = 'fr') {
+export async function getLicenseData(_language: string = 'fr') {
   try {
     const [licenses, features] = await Promise.all([
       prisma.licenseInfo.findMany({

@@ -18,8 +18,6 @@ import {
   CheckCircle,
   Clock,
   UserCheck,
-  Trash2,
-  Download,
   Share2,
   BookOpen,
   ChevronRight,
@@ -61,18 +59,6 @@ export default function PrivacyPage() {
     if (section) {
       setSelectedContent(section);
     }
-  };
-
-  const getColorClasses = (color: string) => {
-    const colors = {
-      indigo: 'from-indigo-500/10 to-purple-500/10 border-indigo-500/20 text-indigo-400',
-      blue: 'from-blue-500/10 to-cyan-500/10 border-blue-500/20 text-blue-400',
-      purple: 'from-purple-500/10 to-pink-500/10 border-purple-500/20 text-purple-400',
-      orange: 'from-orange-500/10 to-yellow-500/10 border-orange-500/20 text-orange-400',
-      green: 'from-green-500/10 to-emerald-500/10 border-green-500/20 text-green-400',
-      yellow: 'from-yellow-500/10 to-amber-500/10 border-yellow-500/20 text-yellow-400'
-    };
-    return colors[color as keyof typeof colors] || colors.indigo;
   };
 
   const sections = [

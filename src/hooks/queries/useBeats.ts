@@ -37,8 +37,12 @@ export function useBeats(filters: {
   limit?: number
   search?: string
   genre?: string
+  bpmMin?: number
+  bpmMax?: number
+  key?: string
   priceMin?: number
   priceMax?: number
+  hasStems?: boolean
   sortBy?: 'newest' | 'oldest' | 'price_asc' | 'price_desc' | 'popular'
 } = {}) {
   return useQuery({
@@ -50,10 +54,13 @@ export function useBeats(filters: {
       if (filters.limit) params.append('limit', filters.limit.toString())
       if (filters.search) params.append('search', filters.search)
       if (filters.genre) params.append('genre', filters.genre)
-      if (filters.priceMin) params.append('priceMin', filters.priceMin.toString())
-      if (filters.priceMax) params.append('priceMax', filters.priceMax.toString())
+      if (filters.bpmMin != null) params.append('bpmMin', filters.bpmMin.toString())
+      if (filters.bpmMax != null) params.append('bpmMax', filters.bpmMax.toString())
+      if (filters.key) params.append('key', filters.key)
+      if (filters.priceMin != null) params.append('priceMin', filters.priceMin.toString())
+      if (filters.priceMax != null) params.append('priceMax', filters.priceMax.toString())
+      if (filters.hasStems) params.append('hasStems', 'true')
       if (filters.sortBy) {
-        // Convertir sortBy vers les paramètres de l'API
         if (filters.sortBy === 'newest') {
           params.append('sortField', 'createdAt')
           params.append('sortOrder', 'desc')
@@ -65,6 +72,9 @@ export function useBeats(filters: {
           params.append('sortOrder', 'asc')
         } else if (filters.sortBy === 'price_desc') {
           params.append('sortField', 'price')
+          params.append('sortOrder', 'desc')
+        } else if (filters.sortBy === 'popular') {
+          params.append('sortField', 'rating')
           params.append('sortOrder', 'desc')
         }
       }

@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { BarChart3, Music, ShoppingCart, Users, TrendingUp, DollarSign, Eye, Loader2 } from 'lucide-react';
+import { BarChart3, Music, ShoppingCart, TrendingUp, DollarSign, Eye } from 'lucide-react';
 import { DottedSurface } from '@/components/ui/dotted-surface';
 import { TextRewind } from '@/components/ui/text-rewind';
 import { cn } from '@/lib/utils';

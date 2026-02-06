@@ -230,7 +230,7 @@ export class CloudinaryService {
   static async uploadZip(
     file: Buffer | string,
     folder: string,
-    options: {
+    _options: {
       resource_type?: 'raw';
     } = {}
   ): Promise<CloudinaryResource> {

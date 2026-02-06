@@ -18,7 +18,7 @@ export default function AdminUploadPage() {
     setUploadedBeats(prev => [beat, ...prev]);
   };
 
-  const handleUploadError = (error: string) => {
+  const handleUploadError = () => {
     // Upload error handled by parent component
   };
 

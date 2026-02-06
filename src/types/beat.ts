@@ -5,6 +5,7 @@ export interface Beat {
   genre: string
   bpm: number
   key: string
+  mode?: string // 'majeur' (Major) ou 'mineur' (Minor)
   duration: string
   // Prix par type de licence
   wavLeasePrice: number
@@ -42,6 +43,7 @@ export interface CreateBeatInput {
   genre: string
   bpm: number
   key: string
+  mode?: string
   duration: string
   wavLeasePrice: number
   trackoutLeasePrice: number
@@ -65,6 +67,7 @@ export interface UpdateBeatInput {
   genre?: string
   bpm?: number
   key?: string
+  mode?: string
   duration?: string
   wavLeasePrice?: number
   trackoutLeasePrice?: number
@@ -95,6 +98,7 @@ export interface BeatFilters {
   key?: string
   priceMin?: number
   priceMax?: number
+  hasStems?: boolean
   isExclusive?: boolean
   featured?: boolean
   search?: string

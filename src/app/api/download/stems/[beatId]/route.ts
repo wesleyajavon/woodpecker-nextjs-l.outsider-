@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { BeatService } from '@/services/beatService';
-import { OrderService } from '@/services/orderService';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { getUserIdFromEmail } from '@/lib/userUtils';
 import { CloudinaryService } from '@/lib/cloudinary';
 import { prisma } from '@/lib/prisma';
-import { LicenseType } from '@prisma/client';
 
 interface RouteParams {
   params: Promise<{

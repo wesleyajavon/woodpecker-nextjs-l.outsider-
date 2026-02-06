@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Trash2, Music, Clock, Tag, Archive } from 'lucide-react'
 import { CartItem as CartItemType } from '@/types/cart'
@@ -59,11 +60,13 @@ export default function CartItem({ item }: CartItemProps) {
       <div className="flex items-start space-x-3 sm:space-x-4">
         {/* Beat Artwork */}
         {item.beat.artworkUrl && (
-          <div className="flex-shrink-0">
-            <img
+          <div className="relative flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16">
+            <Image
               src={item.beat.artworkUrl}
               alt={`${item.beat.title} artwork`}
-              className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg object-cover"
+              fill
+              sizes="64px"
+              className="rounded-lg object-cover"
             />
           </div>
         )}

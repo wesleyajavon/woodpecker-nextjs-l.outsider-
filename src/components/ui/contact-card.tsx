@@ -58,7 +58,7 @@ export function ContactCard({
 							{defaultDescription}
 						</p>
 					)}
-					<div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+					<div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
 						{contactInfo?.map((info, index) => (
 							<ContactInfo key={index} {...info} />
 						))}
@@ -84,14 +84,22 @@ function ContactInfo({
 	className,
 	...props
 }: ContactInfoProps) {
+	const isEmail = value.includes('@');
 	return (
-		<div className={cn('flex items-center gap-2 sm:gap-3 py-2 sm:py-3', className)} {...props}>
+		<div className={cn('flex items-start sm:items-center gap-2 sm:gap-3 py-2 sm:py-3', className)} {...props}>
 			<div className="bg-muted/40 rounded-lg p-2 sm:p-3 flex-shrink-0">
 				<Icon className="h-4 w-4 sm:h-5 sm:w-5" />
 			</div>
-			<div className="min-w-0 flex-1">
+			<div className="min-w-0 flex-1 overflow-hidden">
 				<p className="font-medium text-sm sm:text-base truncate">{label}</p>
-				<p className="text-muted-foreground text-xs sm:text-sm truncate">{value}</p>
+				<p
+					className={cn(
+						'text-muted-foreground text-xs sm:text-sm',
+						isEmail ? 'break-all' : 'truncate'
+					)}
+				>
+					{value}
+				</p>
 			</div>
 		</div>
 	);

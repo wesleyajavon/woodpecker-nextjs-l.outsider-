@@ -2,10 +2,37 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Beat } from '@/types/beat'
 
 // Types pour les réponses API admin
+interface AdminBeatsPagination {
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+  hasNext: boolean
+  hasPrev: boolean
+}
+
 interface AdminBeatsResponse {
   success: boolean
   data: Beat[]
+  pagination?: AdminBeatsPagination
   error?: string
+}
+
+export type AdminBeatsFilters = {
+  page?: number
+  limit?: number
+  search?: string
+  genre?: string
+  bpmMin?: number
+  bpmMax?: number
+  key?: string
+  priceMin?: number
+  priceMax?: number
+  hasStems?: boolean
+  isExclusive?: boolean
+  featured?: boolean
+  includeInactive?: boolean
+  sortBy?: 'newest' | 'oldest' | 'price_asc' | 'price_desc' | 'popular'
 }
 
 interface AdminBeatResponse {
@@ -23,33 +50,70 @@ export const adminBeatKeys = {
   detail: (id: string) => [...adminBeatKeys.details(), id] as const,
 }
 
-// Hook pour récupérer tous les beats admin (actifs et inactifs)
-export function useAdminBeats(filters: {
-  limit?: number
-  includeInactive?: boolean
-  page?: number
-} = {}) {
+// Map sortBy to API sortField/sortOrder
+function getSortParams(sortBy?: AdminBeatsFilters['sortBy']) {
+  switch (sortBy) {
+    case 'oldest':
+      return { sortField: 'createdAt', sortOrder: 'asc' as const }
+    case 'price_asc':
+      return { sortField: 'price', sortOrder: 'asc' as const }
+    case 'price_desc':
+      return { sortField: 'price', sortOrder: 'desc' as const }
+    case 'popular':
+      return { sortField: 'rating', sortOrder: 'desc' as const }
+    case 'newest':
+    default:
+      return { sortField: 'createdAt', sortOrder: 'desc' as const }
+  }
+}
+
+// Hook pour récupérer tous les beats admin avec filtres et pagination
+export function useAdminBeats(filters: AdminBeatsFilters = {}) {
   return useQuery({
     queryKey: adminBeatKeys.list(filters),
-    queryFn: async (): Promise<Beat[]> => {
+    queryFn: async (): Promise<{ data: Beat[]; pagination: AdminBeatsPagination }> => {
       const params = new URLSearchParams()
-      
-      if (filters.limit) params.append('limit', filters.limit.toString())
-      if (filters.includeInactive) params.append('includeInactive', 'true')
+
       if (filters.page) params.append('page', filters.page.toString())
+      if (filters.limit) params.append('limit', filters.limit.toString())
+      if (filters.search) params.append('search', filters.search)
+      if (filters.genre) params.append('genre', filters.genre)
+      if (filters.bpmMin != null) params.append('bpmMin', filters.bpmMin.toString())
+      if (filters.bpmMax != null) params.append('bpmMax', filters.bpmMax.toString())
+      if (filters.key) params.append('key', filters.key)
+      if (filters.priceMin != null) params.append('priceMin', filters.priceMin.toString())
+      if (filters.priceMax != null) params.append('priceMax', filters.priceMax.toString())
+      if (filters.hasStems) params.append('hasStems', 'true')
+      if (filters.isExclusive !== undefined) params.append('isExclusive', String(filters.isExclusive))
+      if (filters.featured !== undefined) params.append('featured', String(filters.featured))
+      if (filters.includeInactive) params.append('includeInactive', 'true')
+
+      const { sortField, sortOrder } = getSortParams(filters.sortBy)
+      params.append('sortField', sortField)
+      params.append('sortOrder', sortOrder)
 
       const response = await fetch(`/api/admin/beats?${params}`)
       if (!response.ok) {
         throw new Error('Erreur lors du chargement des beats admin')
       }
-      
+
       const result: AdminBeatsResponse = await response.json()
-      
+
       if (!result.success) {
         throw new Error(result.error || 'Erreur lors du chargement des beats')
       }
-      
-      return result.data
+
+      return {
+        data: result.data,
+        pagination: result.pagination ?? {
+          page: 1,
+          limit: filters.limit ?? 12,
+          total: result.data.length,
+          totalPages: 1,
+          hasNext: false,
+          hasPrev: false
+        }
+      }
     },
     staleTime: 2 * 60 * 1000, // 2 minutes
   })
