@@ -19,13 +19,13 @@ export default function BeatManagementPage() {
   const router = useRouter();
   const beatId = params?.id as string;
 
-  // TanStack Query hook
+  // TanStack Query hook (includeInactive pour voir les beats planifiés)
   const {
     data: beatData,
     isLoading: loading,
     error,
     refetch
-  } = useBeat(beatId);
+  } = useBeat(beatId, { includeInactive: true });
 
   const beat = beatData?.data || null;
 
@@ -36,7 +36,7 @@ export default function BeatManagementPage() {
   const [editData, setEditData] = useState<Partial<Beat>>({});
 
   // Gestion des modifications
-  const handleEditChange = (field: keyof Beat, value: string | number | boolean | string[]) => {
+  const handleEditChange = (field: keyof Beat, value: string | number | boolean | string[] | Date | null) => {
     // Exclure les prix des modifications inline
     if (field === 'wavLeasePrice' || field === 'trackoutLeasePrice' || field === 'unlimitedLeasePrice') {
       return;
@@ -54,12 +54,24 @@ export default function BeatManagementPage() {
 
     try {
       setIsSaving(true);
+      // Convertir scheduledReleaseAt (datetime-local) en ISO UTC avant envoi
+      const dataToSend: Record<string, unknown> = { ...editData };
+      const scheduledRaw = dataToSend.scheduledReleaseAt as Date | string | null | undefined;
+      if (typeof scheduledRaw === 'string' && scheduledRaw.trim()) {
+        const localDate = new Date(scheduledRaw);
+        if (!isNaN(localDate.getTime())) {
+          dataToSend.scheduledReleaseAt = localDate.toISOString();
+        }
+      } else if (scheduledRaw === null || scheduledRaw === '') {
+        dataToSend.scheduledReleaseAt = null;
+      }
+
       const response = await fetch(`/api/beats/${beatId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(editData)
+        body: JSON.stringify(dataToSend)
       });
 
       if (!response.ok) {

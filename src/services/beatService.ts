@@ -11,6 +11,14 @@ type PrismaBeatResult = Omit<Beat, 'wavLeasePrice' | 'trackoutLeasePrice' | 'unl
   unlimitedLeasePrice: Decimal
 }
 
+// Condition: beat is visible if (isActive AND (scheduledReleaseAt is null OR scheduledReleaseAt <= now))
+const visibleScheduledReleaseCondition = {
+  OR: [
+    { scheduledReleaseAt: null },
+    { scheduledReleaseAt: { lte: new Date() } }
+  ]
+}
+
 // Type for the where clause in Prisma queries
 type BeatWhereClause = {
   isActive?: boolean
@@ -48,12 +56,19 @@ export class BeatService {
 
   // Créer un nouveau beat
   static async createBeat(data: CreateBeatInput, userId?: string): Promise<Beat> {
+    // Option A: when scheduledReleaseAt is in the future, set isActive to false (cron will activate later)
+    const now = new Date()
+    const isScheduledForFuture = data.scheduledReleaseAt != null && new Date(data.scheduledReleaseAt) > now
+    const isActive = isScheduledForFuture ? false : true
+
     const beat = await prisma.beat.create({
       data: {
         ...data,
         wavLeasePrice: new Decimal(data.wavLeasePrice),
         trackoutLeasePrice: new Decimal(data.trackoutLeasePrice),
         unlimitedLeasePrice: new Decimal(data.unlimitedLeasePrice),
+        isActive,
+        scheduledReleaseAt: data.scheduledReleaseAt != null ? new Date(data.scheduledReleaseAt) : null,
         userId
       }
     })
@@ -110,9 +125,13 @@ export class BeatService {
   ): Promise<{ beats: Beat[]; total: number; totalPages: number }> {
     const where: BeatWhereClause = {}
     
-    // Only filter by isActive if not including inactive beats
+    // Visibility: isActive AND (scheduledReleaseAt is null OR scheduledReleaseAt <= now)
     if (!includeInactive) {
       where.isActive = true
+      where.AND = [
+        ...(where.AND || []),
+        visibleScheduledReleaseCondition
+      ]
     }
 
     // Filter by user only if provided AND user is admin
@@ -194,11 +213,15 @@ export class BeatService {
   }
 
   // Get a single beat by ID
-  static async getBeatById(id: string, userId?: string, isAdmin: boolean = false): Promise<Beat | null> {
+  static async getBeatById(
+    id: string,
+    userId?: string,
+    isAdmin: boolean = false,
+    includeInactive: boolean = false
+  ): Promise<Beat | null> {
     const where: { id: string; userId?: string } = { id }
     
     // Filter by user only if provided AND user is admin
-    // Regular users and non-authenticated users can see all beats
     if (userId && isAdmin) {
       where.userId = userId
     }
@@ -207,20 +230,35 @@ export class BeatService {
       where
     })
     
-    return beat ? this.convertPrismaBeat(beat as PrismaBeatResult) : null
+    if (!beat) return null
+
+    // Visibility: isActive AND (scheduledReleaseAt is null OR scheduledReleaseAt <= now)
+    if (!includeInactive) {
+      if (!beat.isActive) return null
+      if (beat.scheduledReleaseAt != null && beat.scheduledReleaseAt > new Date()) return null
+    }
+    
+    return this.convertPrismaBeat(beat as PrismaBeatResult)
   }
 
   // Get featured beats
-  static async getFeaturedBeats(limit: number = 4, userId?: string, isAdmin: boolean = false): Promise<Beat[]> {
+  static async getFeaturedBeats(
+    limit: number = 4,
+    userId?: string,
+    isAdmin: boolean = false,
+    includeInactive: boolean = false
+  ): Promise<Beat[]> {
     const where: BeatWhereClause = {
       featured: true,
       isActive: true
     }
     
-    // Filter by user only if provided AND user is admin
-    // Regular users and non-authenticated users can see all featured beats
     if (userId && isAdmin) {
       where.userId = userId
+    }
+
+    if (!includeInactive) {
+      where.AND = [visibleScheduledReleaseCondition]
     }
     
     const beats = await prisma.beat.findMany({
@@ -233,16 +271,24 @@ export class BeatService {
   }
 
   // Get beats by genre
-  static async getBeatsByGenre(genre: string, limit: number = 8, userId?: string, isAdmin: boolean = false): Promise<Beat[]> {
+  static async getBeatsByGenre(
+    genre: string,
+    limit: number = 8,
+    userId?: string,
+    isAdmin: boolean = false,
+    includeInactive: boolean = false
+  ): Promise<Beat[]> {
     const where: BeatWhereClause = {
       genre,
       isActive: true
     }
     
-    // Filter by user only if provided AND user is admin
-    // Regular users and non-authenticated users can see all beats by genre
     if (userId && isAdmin) {
       where.userId = userId
+    }
+
+    if (!includeInactive) {
+      where.AND = [visibleScheduledReleaseCondition]
     }
     
     const beats = await prisma.beat.findMany({
@@ -287,6 +333,7 @@ export class BeatService {
       isExclusive?: boolean
       isActive?: boolean
       featured?: boolean
+      scheduledReleaseAt?: Date | null
     } = { ...otherData }
     
     if (wavLeasePrice !== undefined) {
@@ -297,6 +344,14 @@ export class BeatService {
     }
     if (unlimitedLeasePrice !== undefined) {
       updateData.unlimitedLeasePrice = new Decimal(unlimitedLeasePrice)
+    }
+    if (otherData.scheduledReleaseAt !== undefined) {
+      const parsedDate = otherData.scheduledReleaseAt != null ? new Date(otherData.scheduledReleaseAt) : null
+      updateData.scheduledReleaseAt = parsedDate
+      // Cohérence avec createBeat : si date future -> isActive=false, sinon -> isActive=true
+      const now = new Date()
+      const isScheduledForFuture = parsedDate != null && parsedDate > now
+      updateData.isActive = isScheduledForFuture ? false : true
     }
 
     const updatedBeat = await prisma.beat.update({
@@ -355,20 +410,24 @@ export class BeatService {
     return this.convertPrismaBeat(updatedBeat as PrismaBeatResult)
   }
 
-  // Get beats statistics
+  // Get beats statistics (only visible beats: isActive AND scheduledReleaseAt passed)
   static async getBeatStats() {
-    const totalBeats = await prisma.beat.count({ where: { isActive: true } })
+    const visibleWhere = {
+      isActive: true,
+      AND: [visibleScheduledReleaseCondition]
+    }
+    const totalBeats = await prisma.beat.count({ where: visibleWhere })
     const totalGenres = await prisma.beat.groupBy({
       by: ['genre'],
-      where: { isActive: true },
+      where: visibleWhere,
       _count: { genre: true }
     })
     const averagePrice = await prisma.beat.aggregate({
-      where: { isActive: true },
+      where: visibleWhere,
       _avg: { wavLeasePrice: true }
     })
     const totalRevenue = await prisma.beat.aggregate({
-      where: { isActive: true },
+      where: visibleWhere,
       _sum: { wavLeasePrice: true }
     })
 
@@ -378,5 +437,22 @@ export class BeatService {
       averagePrice: averagePrice._avg.wavLeasePrice ? Number(averagePrice._avg.wavLeasePrice) : 0,
       totalRevenue: totalRevenue._sum.wavLeasePrice ? Number(totalRevenue._sum.wavLeasePrice) : 0
     }
+  }
+
+  /**
+   * Active les beats dont la date de publication planifiée est dépassée.
+   * Utilisé par le cron job (Option A).
+   * @returns Nombre de beats activés
+   */
+  static async activateScheduledBeats(): Promise<number> {
+    const now = new Date()
+    const result = await prisma.beat.updateMany({
+      where: {
+        scheduledReleaseAt: { not: null, lte: now },
+        isActive: false
+      },
+      data: { isActive: true }
+    })
+    return result.count
   }
 }

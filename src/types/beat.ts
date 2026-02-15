@@ -33,6 +33,7 @@ export interface Beat {
   isExclusive: boolean
   isActive: boolean
   featured: boolean
+  scheduledReleaseAt?: Date | null
   createdAt: Date
   updatedAt: Date
 }
@@ -59,6 +60,7 @@ export interface CreateBeatInput {
   s3StemsKey?: string
   isExclusive?: boolean
   featured?: boolean
+  scheduledReleaseAt?: Date | null
 }
 
 export interface UpdateBeatInput {
@@ -89,6 +91,7 @@ export interface UpdateBeatInput {
   stripeWavPriceId?: string | null
   stripeTrackoutPriceId?: string | null
   stripeUnlimitedPriceId?: string | null
+  scheduledReleaseAt?: Date | null
 }
 
 export interface BeatFilters {

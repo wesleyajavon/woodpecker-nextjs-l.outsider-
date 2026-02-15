@@ -6,7 +6,7 @@ import {
   AnimatePresence,
   useScroll,
   useMotionValueEvent,
-} from "motion/react";
+} from "framer-motion";
 import { cn } from "@/lib/utils";
 import AuthButton from "@/components/AuthButton";
 import AdminDropdown from "@/components/AdminDropdown";

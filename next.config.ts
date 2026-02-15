@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // lucide-react et @tabler/icons-react sont déjà optimisés par défaut dans Next.js
   images: {
     remotePatterns: [
       {

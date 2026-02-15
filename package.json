@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "dev:webpack": "next dev",
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
@@ -11,6 +12,7 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed:beats": "tsx scripts/seed-beats.ts",
     "db:studio": "prisma studio",
     "postinstall": "prisma generate",
     "stripe:create-product": "tsx scripts/create-stripe-product.ts",
@@ -19,13 +21,20 @@
     "stripe:run": "./scripts/run-stripe.sh",
     "stripe:create-beats": "tsx scripts/create-stripe-beats.ts",
     "stripe:run-beats": "./scripts/run-stripe-beats.sh",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "test:cache": "node scripts/test-cache.js",
     "test:cache:stats": "node scripts/test-cache.js stats",
     "test:cache:performance": "node scripts/test-cache.js performance",
     "test:cache:clear": "node scripts/test-cache.js clear",
     "warmup-cache": "node scripts/warmup-cache.js",
     "setup-cache": "./scripts/setup-cache-simple.sh",
-    "test:redis": "node scripts/test-redis-connection.js"
+    "test:redis": "node scripts/test-redis-connection.js",
+    "test:scheduled-release": "tsx scripts/test-scheduled-beat-release.ts",
+    "schedule-beat-10min": "tsx scripts/schedule-beat-in-10min.ts",
+    "diagnose:scheduled-beats": "tsx scripts/diagnose-scheduled-beats.ts",
+    "cron:activate-beats": "tsx scripts/run-cron-activate-beats.ts",
+    "db:link-beats-to-user": "tsx scripts/link-beats-to-user.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",
@@ -47,7 +56,6 @@
     "dotenv": "^17.2.1",
     "framer-motion": "^12.23.12",
     "lucide-react": "^0.541.0",
-    "motion": "^12.23.22",
     "multer": "^2.0.2",
     "next": "15.5.7",
     "next-auth": "^4.24.11",
@@ -77,6 +85,8 @@
     "pg": "^8.16.3",
     "tailwindcss": "^4",
     "tsx": "^4.20.5",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.0.18"
   }
 }

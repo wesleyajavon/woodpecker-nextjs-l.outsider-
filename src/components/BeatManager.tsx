@@ -637,6 +637,16 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
                         }`}>
                         {beat.isActive ? t('admin.active') : t('admin.inactive')}
                       </span>
+                      {beat.scheduledReleaseAt && (
+                        <span
+                          className="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs px-2 py-1 rounded-full"
+                          title={new Date(beat.scheduledReleaseAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}
+                        >
+                          {t('admin.scheduledFor', {
+                            date: new Date(beat.scheduledReleaseAt).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })
+                          })}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -748,6 +758,16 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
                       }`}>
                       {beat.isActive ? t('admin.active') : t('admin.inactive')}
                     </span>
+                    {beat.scheduledReleaseAt && (
+                      <span
+                        className="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs px-2 py-1 rounded-full"
+                        title={new Date(beat.scheduledReleaseAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}
+                      >
+                        {t('admin.scheduledFor', {
+                          date: new Date(beat.scheduledReleaseAt).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })
+                        })}
+                      </span>
+                    )}
                   </div>
                 </div>
 

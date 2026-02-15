@@ -18,13 +18,13 @@ export default function BeatEditPage() {
     const router = useRouter();
     const beatId = params?.id as string;
 
-    // TanStack Query hooks
+    // TanStack Query hooks (includeInactive pour éditer les beats planifiés)
     const {
         data: beatData,
         isLoading: loading,
         error,
         refetch
-    } = useBeat(beatId);
+    } = useBeat(beatId, { includeInactive: true });
 
     const updateBeatMutation = useUpdateBeat();
 

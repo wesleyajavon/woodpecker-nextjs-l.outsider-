@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import type { ComponentProps, ReactNode } from 'react';
-import { motion, useReducedMotion } from 'motion/react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { FrameIcon, InstagramIcon, YoutubeIcon } from 'lucide-react';
 import { useTranslation } from '@/contexts/LanguageContext';
 

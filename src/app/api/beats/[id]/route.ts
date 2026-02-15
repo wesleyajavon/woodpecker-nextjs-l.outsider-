@@ -3,6 +3,7 @@ import { BeatService } from '@/services/beatService';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { getUserIdFromEmail } from '@/lib/userUtils';
+import { isUserAdmin } from '@/lib/roleUtils';
 import { CloudinaryService } from '@/lib/cloudinary';
 
 interface RouteParams {
@@ -23,8 +24,15 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Récupération du beat
-    const beat = await BeatService.getBeatById(id);
+    // Admins can request includeInactive to see scheduled beats
+    const { searchParams } = new URL(request.url);
+    const includeInactiveParam = searchParams.get('includeInactive') === 'true';
+    const session = await getServerSession(authOptions);
+    const isAdmin = session?.user?.email ? await isUserAdmin(session.user.email) : false;
+    const userId = session?.user?.email ? (await getUserIdFromEmail(session.user.email)) ?? undefined : undefined;
+    const includeInactive = includeInactiveParam && isAdmin;
+
+    const beat = await BeatService.getBeatById(id, userId, isAdmin, includeInactive);
 
     if (!beat) {
       return NextResponse.json(
@@ -69,20 +77,19 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Vérification que le beat existe
-    const existingBeat = await BeatService.getBeatById(id);
-    if (!existingBeat) {
-      return NextResponse.json(
-        { error: 'Beat non trouvé' },
-        { status: 404 }
-      );
-    }
-
-    // Vérification des autorisations (optionnel - pour l'instant on permet à tous les admins)
     const userId = await getUserIdFromEmail(session.user.email);
     if (!userId) {
       return NextResponse.json(
         { error: 'Utilisateur non trouvé' },
+        { status: 404 }
+      );
+    }
+
+    // Vérification que le beat existe (includeInactive pour permettre l'édition de beats planifiés)
+    const existingBeat = await BeatService.getBeatById(id, undefined, false, true);
+    if (!existingBeat) {
+      return NextResponse.json(
+        { error: 'Beat non trouvé' },
         { status: 404 }
       );
     }
@@ -127,20 +134,19 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Vérification que le beat existe
-    const existingBeat = await BeatService.getBeatById(id);
-    if (!existingBeat) {
-      return NextResponse.json(
-        { error: 'Beat non trouvé' },
-        { status: 404 }
-      );
-    }
-
-    // Vérification des autorisations
     const userId = await getUserIdFromEmail(session.user.email);
     if (!userId) {
       return NextResponse.json(
         { error: 'Utilisateur non trouvé' },
+        { status: 404 }
+      );
+    }
+
+    // Vérification que le beat existe (includeInactive pour permettre l'édition de beats planifiés)
+    const existingBeat = await BeatService.getBeatById(id, undefined, false, true);
+    if (!existingBeat) {
+      return NextResponse.json(
+        { error: 'Beat non trouvé' },
         { status: 404 }
       );
     }
@@ -210,20 +216,19 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Vérification que le beat existe
-    const existingBeat = await BeatService.getBeatById(id);
-    if (!existingBeat) {
-      return NextResponse.json(
-        { error: 'Beat non trouvé' },
-        { status: 404 }
-      );
-    }
-
-    // Vérification des autorisations
     const userId = await getUserIdFromEmail(session.user.email);
     if (!userId) {
       return NextResponse.json(
         { error: 'Utilisateur non trouvé' },
+        { status: 404 }
+      );
+    }
+
+    // Vérification que le beat existe (includeInactive pour permettre la suppression de beats planifiés)
+    const existingBeat = await BeatService.getBeatById(id, undefined, false, true);
+    if (!existingBeat) {
+      return NextResponse.json(
+        { error: 'Beat non trouvé' },
         { status: 404 }
       );
     }

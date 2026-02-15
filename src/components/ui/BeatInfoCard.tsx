@@ -28,7 +28,7 @@ interface BeatInfoCardProps {
   beat: Beat;
   isEditing?: boolean;
   editData?: Partial<Beat>;
-  onEditChange?: (field: keyof Beat, value: string | number | boolean | string[]) => void;
+  onEditChange?: (field: keyof Beat, value: string | number | boolean | string[] | Date | null) => void;
   onSave?: () => void;
   onCancel?: () => void;
   onDelete?: () => void;
@@ -59,10 +59,19 @@ export default function BeatInfoCard({
   const [, setIsPlaying] = useState(false);
   const [showActions, setShowActions] = useState(false);
 
-  const handleEditChange = (field: keyof Beat, value: string | number | boolean | string[]) => {
+  const handleEditChange = (field: keyof Beat, value: string | number | boolean | string[] | Date | null) => {
     if (onEditChange) {
       onEditChange(field, value);
     }
+  };
+
+  // Helpers pour scheduledReleaseAt (datetime-local utilise YYYY-MM-DDTHH:mm)
+  const toDatetimeLocalValue = (date: Date | string | null | undefined): string => {
+    if (!date) return '';
+    const d = typeof date === 'string' ? new Date(date) : date;
+    if (isNaN(d.getTime())) return '';
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   };
 
   return (
@@ -125,7 +134,17 @@ export default function BeatInfoCard({
           </div>
 
           {/* Status Badge - cliquable pour basculer featured quand onToggleFeatured est fourni */}
-          <div className="absolute top-4 left-4 z-30">
+          <div className="absolute top-4 left-4 z-30 flex flex-wrap gap-2">
+            {beat.scheduledReleaseAt && (
+              <span
+                className="px-3 py-1 rounded-full text-xs font-medium backdrop-blur-sm bg-amber-500/20 text-amber-200 border border-amber-500/30"
+                title={new Date(beat.scheduledReleaseAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}
+              >
+                {t('admin.scheduledFor', {
+                  date: new Date(beat.scheduledReleaseAt).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })
+                })}
+              </span>
+            )}
             {onToggleFeatured ? (
               <button
                 type="button"
@@ -296,6 +315,48 @@ export default function BeatInfoCard({
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Scheduled Release */}
+          <div className="mb-6">
+            <div className="text-sm text-muted-foreground mb-3">{t('upload.scheduledReleaseAtLabel')}</div>
+            {isEditing ? (
+              <div className="space-y-2">
+                <input
+                  type="datetime-local"
+                  value={(() => {
+                    const v = editData.scheduledReleaseAt as Date | string | null | undefined;
+                    if (v === undefined) return toDatetimeLocalValue(beat.scheduledReleaseAt);
+                    if (v === null || v === '') return '';
+                    return typeof v === 'string' ? v : toDatetimeLocalValue(v);
+                  })()}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    handleEditChange('scheduledReleaseAt', val === '' ? null : val);
+                  }}
+                  className="w-full px-3 py-2 bg-background/50 border border-border/30 rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                />
+                <p className="text-xs text-muted-foreground">{t('upload.scheduledReleaseAtHelp')}</p>
+              </div>
+            ) : (
+              <div className="p-3 bg-gradient-to-br from-amber-500/10 to-orange-500/10 rounded-xl border border-amber-500/20">
+                {beat.scheduledReleaseAt ? (
+                  <div className="flex items-center gap-2 text-amber-200">
+                    <Clock className="w-4 h-4" />
+                    <span>
+                      {t('admin.scheduledFor', {
+                        date: new Date(beat.scheduledReleaseAt).toLocaleString(undefined, {
+                          dateStyle: 'medium',
+                          timeStyle: 'short'
+                        })
+                      })}
+                    </span>
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground text-sm">{t('admin.immediateRelease')}</p>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Tags */}

@@ -90,11 +90,14 @@ export function useBeats(filters: {
 }
 
 // Hook pour récupérer un beat spécifique
-export function useBeat(id: string) {
+export function useBeat(id: string, options?: { includeInactive?: boolean }) {
   return useQuery({
-    queryKey: beatKeys.detail(id),
+    queryKey: [...beatKeys.detail(id), options?.includeInactive ?? false],
     queryFn: async (): Promise<BeatResponse> => {
-      const response = await fetch(`/api/beats/${id}`)
+      const params = new URLSearchParams()
+      if (options?.includeInactive) params.append('includeInactive', 'true')
+      const url = params.toString() ? `/api/beats/${id}?${params}` : `/api/beats/${id}`
+      const response = await fetch(url)
       if (!response.ok) {
         throw new Error('Beat non trouvé')
       }

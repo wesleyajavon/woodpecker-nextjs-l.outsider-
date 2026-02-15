@@ -42,6 +42,16 @@ export async function POST(request: NextRequest) {
     const s3StemsUrl = formData.get('s3StemsUrl') as string | null || undefined;
     const s3StemsKey = formData.get('s3StemsKey') as string | null || undefined;
 
+    // Parse optional scheduledReleaseAt (ISO 8601). If in the past, treat as "release immediately".
+    let scheduledReleaseAt: Date | null = null;
+    const scheduledReleaseAtRaw = formData.get('scheduledReleaseAt') as string | null;
+    if (scheduledReleaseAtRaw && scheduledReleaseAtRaw.trim()) {
+      const parsed = new Date(scheduledReleaseAtRaw);
+      if (!isNaN(parsed.getTime()) && parsed > new Date()) {
+        scheduledReleaseAt = parsed;
+      }
+    }
+
     // Validation des données requises
     if (!previewUrl || !previewPublicId) {
       return NextResponse.json({
@@ -113,7 +123,8 @@ export async function POST(request: NextRequest) {
         s3StemsUrl: s3StemsUrl,
         s3StemsKey: s3StemsKey,
         isExclusive: formData.get('isExclusive') === 'true',
-        featured: formData.get('featured') === 'true'
+        featured: formData.get('featured') === 'true',
+        scheduledReleaseAt
       };
 
       const newBeat = await BeatService.createBeat(beatData, userId);

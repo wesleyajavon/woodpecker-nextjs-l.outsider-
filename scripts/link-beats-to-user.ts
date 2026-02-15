@@ -1,91 +1,38 @@
-#!/usr/bin/env tsx
-
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-const TARGET_USER_ID = 'cmf4axig300002g5s39lmzz2v'
+const USER_ID = 'cmln8qjnw0000275p5civxntr'
 
-async function main() {
+async function linkBeatsToUser() {
   try {
-    console.log('🔄 Linking existing beats to user...')
-    
-    // Vérifier que l'utilisateur existe
+    console.log('🔗 Linking all beats to user:', USER_ID)
+
+    // Verify user exists
     const user = await prisma.user.findUnique({
-      where: { id: TARGET_USER_ID }
+      where: { id: USER_ID },
     })
-    
+
     if (!user) {
-      console.error(`❌ User with ID ${TARGET_USER_ID} not found`)
+      console.error('❌ User not found with id:', USER_ID)
       process.exit(1)
     }
-    
-    console.log(`✅ Found user: ${user.name || user.email}`)
-    
-    // Compter les beats existants
-    const totalBeats = await prisma.beat.count()
-    const beatsWithoutUser = await prisma.beat.count({
-      where: { userId: null }
-    })
-    
-    console.log(`📊 Total beats: ${totalBeats}`)
-    console.log(`📊 Beats without user: ${beatsWithoutUser}`)
-    
-    if (beatsWithoutUser === 0) {
-      console.log('✅ All beats are already linked to users')
-      return
-    }
-    
-    // Lier tous les beats sans utilisateur à l'utilisateur cible
+
+    console.log(`✅ User found: ${user.email} (${user.name ?? 'No name'})`)
+
+    // Update all beats to link to this user
     const result = await prisma.beat.updateMany({
-      where: { userId: null },
-      data: { userId: TARGET_USER_ID }
+      where: {},
+      data: { userId: USER_ID },
     })
-    
-    console.log(`✅ Successfully linked ${result.count} beats to user ${user.name || user.email}`)
-    
-    // Vérifier le résultat
-    const beatsLinkedToUser = await prisma.beat.count({
-      where: { userId: TARGET_USER_ID }
-    })
-    
-    console.log(`📊 Beats now linked to user: ${beatsLinkedToUser}`)
-    
-    // Afficher quelques exemples de beats liés
-    const sampleBeats = await prisma.beat.findMany({
-      where: { userId: TARGET_USER_ID },
-      take: 5,
-      select: {
-        id: true,
-        title: true,
-        genre: true,
-        createdAt: true
-      }
-    })
-    
-    console.log('\n📋 Sample linked beats:')
-    sampleBeats.forEach(beat => {
-      console.log(`- ${beat.title} (${beat.genre}) - ${beat.createdAt.toISOString()}`)
-    })
-    
+
+    console.log(`\n🎉 Done! ${result.count} beat(s) linked to user ${user.email}`)
   } catch (error) {
-    console.error('❌ Error linking beats to user:', error)
-    process.exit(1)
+    console.error('❌ Error linking beats:', error)
+    throw error
   } finally {
     await prisma.$disconnect()
   }
 }
 
-main()
-
-
-
-
-
-
-
-
-
-
-
-
+linkBeatsToUser()

@@ -1,27 +1,20 @@
 {
   "functions": {
-    "src/app/api/beats/[id]/files/route.ts": {
-      "maxDuration": 300
-    },
-    "src/app/api/beats/upload/route.ts": {
-      "maxDuration": 300
-    },
-    "src/app/api/cloudinary/upload-proxy/route.ts": {
-      "maxDuration": 300
-    },
-    "src/app/api/s3/upload-proxy/route.ts": {
-      "maxDuration": 300
-    }
+    "src/app/api/beats/[id]/files/route.ts": { "maxDuration": 300 },
+    "src/app/api/beats/upload/route.ts": { "maxDuration": 300 },
+    "src/app/api/cloudinary/upload-proxy/route.ts": { "maxDuration": 300 },
+    "src/app/api/s3/upload-proxy/route.ts": { "maxDuration": 300 }
   },
   "headers": [
     {
       "source": "/api/beats/(.*)",
-      "headers": [
-        {
-          "key": "Access-Control-Max-Age",
-          "value": "86400"
-        }
-      ]
+      "headers": [{ "key": "Access-Control-Max-Age", "value": "86400" }]
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/activate-scheduled-beats",
+      "schedule": "0 0 * * *"
     }
   ]
 }

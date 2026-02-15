@@ -52,7 +52,8 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
     unlimitedLeasePrice: 79.99,
     tags: [] as string[],
     isExclusive: false,
-    featured: false
+    featured: false,
+    scheduledReleaseAt: '' as string
   });
   const [currentTag, setCurrentTag] = useState('');
   const [errors, setErrors] = useState<string[]>([]);
@@ -113,6 +114,14 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
     if (formData.trackoutLeasePrice <= 0) newErrors.push(t('upload.trackoutPriceRequired'));
     if (formData.unlimitedLeasePrice <= 0) newErrors.push(t('upload.unlimitedPriceRequired'));
     if (formData.bpm < 60 || formData.bpm > 200) newErrors.push(t('upload.bpmRange'));
+    if (formData.scheduledReleaseAt.trim()) {
+      const scheduledDate = new Date(formData.scheduledReleaseAt);
+      if (isNaN(scheduledDate.getTime())) {
+        newErrors.push(t('upload.scheduledReleaseAtInvalid'));
+      } else if (scheduledDate <= new Date()) {
+        newErrors.push(t('upload.scheduledReleaseAtPast'));
+      }
+    }
 
     setErrors(newErrors);
     return newErrors.length === 0;
@@ -150,7 +159,14 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
 
       // Ajout des données du formulaire
       Object.entries(formData).forEach(([key, value]) => {
-        if (key === 'tags') {
+        if (key === 'scheduledReleaseAt') {
+          if (value && typeof value === 'string' && value.trim()) {
+            const localDate = new Date(value);
+            if (!isNaN(localDate.getTime()) && localDate > new Date()) {
+              formDataToSend.append(key, localDate.toISOString());
+            }
+          }
+        } else if (key === 'tags') {
           formDataToSend.append(key, JSON.stringify(value));
         } else {
           formDataToSend.append(key, value.toString());
@@ -197,7 +213,8 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
           unlimitedLeasePrice: 79.99,
           tags: [],
           isExclusive: false,
-          featured: false
+          featured: false,
+          scheduledReleaseAt: ''
         });
         setS3Uploads({});
         setCloudinaryUploads({});
@@ -619,6 +636,27 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
                 ))}
               </div>
             )}
+          </div>
+
+          {/* Publication planifiée */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-300">
+              {t('upload.scheduledReleaseAtLabel')}
+            </label>
+            <input
+              type="datetime-local"
+              value={formData.scheduledReleaseAt}
+              onChange={(e) => handleInputChange('scheduledReleaseAt', e.target.value)}
+              className="w-full p-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 [color-scheme:dark]"
+              min={(() => {
+                const n = new Date();
+                const p = (x: number) => x.toString().padStart(2, '0');
+                return `${n.getFullYear()}-${p(n.getMonth() + 1)}-${p(n.getDate())}T${p(n.getHours())}:${p(n.getMinutes())}`;
+              })()}
+            />
+            <p className="text-xs text-gray-400">
+              {t('upload.scheduledReleaseAtHelp')}
+            </p>
           </div>
 
           {/* Options */}
