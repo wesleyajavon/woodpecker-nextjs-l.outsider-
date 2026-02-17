@@ -42,9 +42,11 @@ class EmailService {
       const html = this.generateOrderEmailHTML(data)
       const text = this.generateOrderEmailText(data)
 
-      const mailOptions = {
+      const ccEmail = process.env.ORDER_NOTIFICATION_CC ?? 'contact.loutsider@gmail.com'
+      const mailOptions: nodemailer.SendMailOptions = {
         from: process.env.EMAIL_FROM || process.env.EMAIL_SERVER_USER,
         to: customerEmail,
+        ...(ccEmail && { cc: ccEmail }),
         subject,
         html,
         text,
