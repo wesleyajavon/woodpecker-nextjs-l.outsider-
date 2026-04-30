@@ -1,6 +1,9 @@
 #!/usr/bin/env tsx
 
+import { loadPrismaEnv } from './load-prisma-env';
 import { PrismaClient } from '@prisma/client';
+
+loadPrismaEnv();
 
 const prisma = new PrismaClient();
 

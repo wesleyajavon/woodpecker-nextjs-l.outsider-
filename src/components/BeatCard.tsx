@@ -107,14 +107,14 @@ export default function BeatCard({
         aria-label={`${t('beatCard.viewDetails')} - ${beat.title}`}
         className="flex min-w-0 flex-1 items-center"
       >
-        <div className="relative h-20 w-20 shrink-0 rounded-lg bg-gradient-to-br from-purple-900/20 to-blue-900/20">
+        <div className="relative h-16 w-[113px] shrink-0 overflow-hidden rounded-lg bg-gradient-to-b from-zinc-950 via-neutral-950 to-black ring-1 ring-white/5 sm:h-20 sm:w-[142px]">
           {beat.artworkUrl ? (
             <Image
               src={beat.artworkUrl}
               alt={beat.title}
               fill
-              sizes="80px"
-              className="object-cover"
+              sizes="(max-width: 640px) 113px, 142px"
+              className="object-cover object-center"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center">
@@ -128,7 +128,7 @@ export default function BeatCard({
               e.stopPropagation();
               handlePlay();
             }}
-            className="absolute inset-0 flex touch-manipulation items-center justify-center rounded-lg bg-black/50 opacity-0 transition-opacity duration-300 hover:opacity-100 active:opacity-100"
+            className="absolute inset-0 z-10 flex touch-manipulation items-center justify-center rounded-lg bg-black/50 opacity-0 transition-opacity duration-300 hover:opacity-100 active:opacity-100"
             style={{ minHeight: '44px', minWidth: '44px' }}
           >
             {isPlaying ? (
@@ -140,7 +140,7 @@ export default function BeatCard({
 
           {isPlaying && progress && progress.duration > 0 && beat.previewUrl && (
             <div
-              className="absolute bottom-0 left-0 right-0 rounded-b-lg bg-black/60 backdrop-blur-sm"
+              className="absolute bottom-0 left-0 right-0 z-10 rounded-b-lg bg-black/60 backdrop-blur-sm"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -185,13 +185,13 @@ export default function BeatCard({
       </Link>
       ) : (
       <>
-      {/* Grille : miniature 16:9 pleine largeur (type YouTube), image remplie au cadre */}
+      {/* Grille : ratio exact des visuels 1024x578, simplifie en 512/289. */}
       <Link
         href={`/beats/${beat.id}`}
         aria-label={`${t('beatCard.viewDetails')} — ${beat.title}`}
         className="block"
       >
-        <div className="relative aspect-video w-full overflow-hidden bg-gradient-to-br from-purple-900/30 to-blue-900/30">
+        <div className="relative aspect-[512/289] w-full overflow-hidden bg-gradient-to-b from-zinc-950 via-neutral-950 to-black shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] ring-1 ring-white/5">
           {beat.artworkUrl ? (
             <Image
               src={beat.artworkUrl}
@@ -201,7 +201,7 @@ export default function BeatCard({
               className="object-cover object-center"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center">
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-purple-900/30 to-blue-900/30">
               <Music className="h-16 w-16 text-muted-foreground" />
             </div>
           )}
@@ -212,7 +212,7 @@ export default function BeatCard({
               e.stopPropagation();
               handlePlay();
             }}
-            className="absolute inset-0 flex touch-manipulation items-center justify-center bg-black/50 opacity-0 transition-opacity duration-300 hover:opacity-100 active:opacity-100"
+            className="absolute inset-0 z-10 flex touch-manipulation items-center justify-center bg-black/50 opacity-0 transition-opacity duration-300 hover:opacity-100 active:opacity-100"
             style={{ minHeight: '44px', minWidth: '44px' }}
           >
             {isPlaying ? (
@@ -222,7 +222,7 @@ export default function BeatCard({
             )}
           </button>
 
-          <div className="absolute top-2 right-2">
+          <div className="absolute top-2 right-2 z-10">
             <div className={`rounded-full bg-card/80 px-2 py-1 text-xs font-medium ${licenseColors[selectedLicense]}`}>
               {selectedLicense === 'WAV_LEASE'
                 ? t('licenses.wavLease')
@@ -233,7 +233,7 @@ export default function BeatCard({
           </div>
 
           {beat.stemsUrl && (
-            <div className="absolute top-2 left-2">
+            <div className="absolute top-2 left-2 z-10">
               <div className="rounded-full border border-orange-500/50 bg-orange-500/20 px-2 py-1 text-xs font-medium text-orange-300">
                 {t('beatCard.stems')}
               </div>
@@ -242,7 +242,7 @@ export default function BeatCard({
 
           {isPlaying && progress && progress.duration > 0 && beat.previewUrl && (
             <div
-              className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm"
+              className="absolute bottom-0 left-0 right-0 z-10 bg-black/60 backdrop-blur-sm"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();

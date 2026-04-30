@@ -1,8 +1,31 @@
+import { loadPrismaEnv } from './load-prisma-env'
 import { PrismaClient } from '@prisma/client'
+
+loadPrismaEnv()
 
 const prisma = new PrismaClient()
 
+/** YouTube hq thumbnail for video id 5GB_zLgWwTk (Palace visual). */
+const PALACE_ARTWORK_URL =
+  'https://i.ytimg.com/vi/5GB_zLgWwTk/hqdefault.jpg'
+
 const MOCK_BEATS = [
+  {
+    title: 'Palace',
+    description: 'Cinematic urban trap — wide skyline mood, 125 BPM hook energy.',
+    genre: 'Trap',
+    bpm: 125,
+    key: 'F',
+    mode: 'majeur',
+    duration: '3:15',
+    wavLeasePrice: 24.99,
+    trackoutLeasePrice: 49.99,
+    unlimitedLeasePrice: 94.99,
+    tags: ['Cinematic', 'Urban', 'Atmospheric'],
+    isExclusive: false,
+    featured: true,
+    artworkUrl: PALACE_ARTWORK_URL,
+  },
   {
     title: 'Midnight Trap',
     description: 'Dark and atmospheric trap beat with heavy 808s',
