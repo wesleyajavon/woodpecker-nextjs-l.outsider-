@@ -7,21 +7,7 @@ async function fixDatabase() {
     console.log('🔧 Fixing database schema...')
     
     // 1. Mettre à jour les valeurs NON_EXCLUSIVE vers WAV_LEASE
-    console.log('📝 Updating NON_EXCLUSIVE values to WAV_LEASE...')
-    
-    const orderUpdate = await prisma.$executeRaw`
-      UPDATE "Order" 
-      SET "licenseType" = 'WAV_LEASE' 
-      WHERE "licenseType" = 'NON_EXCLUSIVE'
-    `
-    console.log(`✅ Updated ${orderUpdate} orders`)
-    
-    const multiOrderUpdate = await prisma.$executeRaw`
-      UPDATE "MultiItemOrder" 
-      SET "licenseType" = 'WAV_LEASE' 
-      WHERE "licenseType" = 'NON_EXCLUSIVE'
-    `
-    console.log(`✅ Updated ${multiOrderUpdate} multi-item orders`)
+    console.log('📝 Skipping legacy Order table fixes (table removed)')
     
     // 2. Ajouter les nouveaux champs pour les priceId Stripe
     console.log('📝 Adding Stripe price ID columns...')

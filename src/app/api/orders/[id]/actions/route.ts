@@ -1,15 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { OrderService } from '@/services/orderService'
-import { Order } from '@/types/order'
+import { prisma } from '@/lib/prisma'
+import { OrderStatus } from '@prisma/client'
 
 interface RouteParams {
   params: Promise<{
     id: string
   }>
 }
-
-// Type pour les résultats des actions sur les commandes
-type OrderActionResult = Order | { success: boolean; message: string } | null;
 
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
@@ -18,62 +15,66 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     const { action } = body
 
     if (!id) {
-      return NextResponse.json(
-        { error: 'ID de la commande requis' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'ID de la commande requis' }, { status: 400 })
     }
 
     if (!action) {
-      return NextResponse.json(
-        { error: 'Action requise' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Action requise' }, { status: 400 })
     }
 
-    let result: OrderActionResult = null;
-    let message: string
+    const exists = await prisma.multiItemOrder.findUnique({ where: { id }, select: { id: true } })
+    if (!exists) {
+      return NextResponse.json({ error: 'Commande non trouvée' }, { status: 404 })
+    }
 
-    // Exécution de l'action demandée
+    let status: OrderStatus | null = null
+    let message = ''
+
     switch (action) {
       case 'cancel':
-        result = await OrderService.cancelOrder(id)
+        status = OrderStatus.CANCELLED
         message = 'Commande annulée avec succès'
         break
-        
       case 'refund':
-        result = await OrderService.refundOrder(id)
+        status = OrderStatus.REFUNDED
         message = 'Commande remboursée avec succès'
         break
-        
       case 'mark-paid':
-        result = await OrderService.updateOrderStatus(id, 'PAID')
+        status = OrderStatus.PAID
         message = 'Statut de la commande mis à jour : PAYÉ'
         break
-        
       case 'mark-completed':
-        result = await OrderService.updateOrderStatus(id, 'COMPLETED')
+        status = OrderStatus.COMPLETED
         message = 'Statut de la commande mis à jour : TERMINÉ'
         break
-        
       default:
         return NextResponse.json(
-          { error: 'Action non reconnue. Actions disponibles: cancel, refund, mark-paid, mark-completed' },
+          {
+            error:
+              'Action non reconnue. Actions disponibles: cancel, refund, mark-paid, mark-completed',
+          },
           { status: 400 }
         )
     }
 
+    const updated = await prisma.multiItemOrder.update({
+      where: { id },
+      data: {
+        status,
+        ...(status === OrderStatus.PAID ? { paidAt: new Date() } : {}),
+      },
+      include: {
+        items: { include: { beat: true } },
+      },
+    })
+
     return NextResponse.json({
       success: true,
       message,
-      data: result
+      data: updated,
     })
-
   } catch (error) {
-    console.error('Erreur lors de l\'exécution de l\'action:', error)
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 }
-    )
+    console.error("Erreur lors de l'exécution de l'action:", error)
+    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 })
   }
 }

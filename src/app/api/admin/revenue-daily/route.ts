@@ -43,24 +43,7 @@ export async function GET(request: NextRequest) {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    // Query for daily revenue from single orders
-    const singleOrders = await prisma.order.findMany({
-      where: {
-        beat: {
-          userId: userId
-        },
-        createdAt: {
-          gte: startDate,
-          lte: endDate
-        }
-      },
-      select: {
-        createdAt: true,
-        totalAmount: true
-      }
-    });
-
-    // Query for daily revenue from multi-item orders
+    // Query for daily revenue from cart (multi-item) orders
     const multiOrders = await prisma.multiItemOrder.findMany({
       where: {
         items: {
@@ -81,16 +64,8 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    // Combine and group data by day
     const dailyRevenue: { [key: string]: number } = {};
 
-    // Process single orders
-    singleOrders.forEach(order => {
-      const dateKey = order.createdAt.toISOString().split('T')[0];
-      dailyRevenue[dateKey] = (dailyRevenue[dateKey] || 0) + Number(order.totalAmount || 0);
-    });
-
-    // Process multi-item orders
     multiOrders.forEach(order => {
       const dateKey = order.createdAt.toISOString().split('T')[0];
       dailyRevenue[dateKey] = (dailyRevenue[dateKey] || 0) + Number(order.totalAmount || 0);

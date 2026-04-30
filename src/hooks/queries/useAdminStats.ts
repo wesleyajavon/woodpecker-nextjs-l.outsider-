@@ -4,11 +4,7 @@ interface AdminStats {
   totalBeats: number
   totalOrders: number
   totalRevenue: number
-  activeVisitors: number
-  beatsChange: number
-  ordersChange: number
-  revenueChange: number
-  visitorsChange: number
+  uniqueCustomers: number
 }
 
 interface AdminActivity {

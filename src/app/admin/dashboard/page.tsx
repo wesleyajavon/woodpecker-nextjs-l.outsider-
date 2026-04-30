@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { BarChart3, Music, ShoppingCart, TrendingUp, DollarSign, Eye } from 'lucide-react';
+import { BarChart3, Music, ShoppingCart, TrendingUp, DollarSign, Users } from 'lucide-react';
 import { DottedSurface } from '@/components/ui/dotted-surface';
 import { TextRewind } from '@/components/ui/text-rewind';
 import { cn } from '@/lib/utils';
@@ -29,33 +29,25 @@ export default function AdminDashboardPage() {
     {
       title: t('admin.totalBeats'),
       value: stats.totalBeats.toString(),
-      change: `+${stats.beatsChange}%`,
-      changeType: 'positive',
       icon: Music,
       color: 'text-blue-400'
     },
     {
       title: t('admin.totalOrders'),
       value: stats.totalOrders.toString(),
-      change: `+${stats.ordersChange}%`,
-      changeType: 'positive',
       icon: ShoppingCart,
       color: 'text-green-400'
     },
     {
       title: t('admin.totalRevenue'),
       value: `€${stats.totalRevenue.toLocaleString()}`,
-      change: `+${stats.revenueChange}%`,
-      changeType: 'positive',
       icon: DollarSign,
       color: 'text-purple-400'
     },
     {
-      title: t('admin.activeVisitors'),
-      value: stats.activeVisitors.toString(),
-      change: `+${stats.visitorsChange}%`,
-      changeType: 'positive',
-      icon: Eye,
+      title: t('admin.uniqueCustomers'),
+      value: stats.uniqueCustomers.toString(),
+      icon: Users,
       color: 'text-orange-400'
     }
   ] : [];
@@ -175,13 +167,10 @@ export default function AdminDashboardPage() {
               transition={{ delay: 0.3 + index * 0.1 }}
               className="bg-card/10 backdrop-blur-lg rounded-xl p-6 border border-border/20 hover:border-border/30 transition-all duration-300"
             >
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center mb-4">
                 <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center", stat.color === 'text-blue-400' ? 'bg-blue-500/20' : stat.color === 'text-green-400' ? 'bg-green-500/20' : stat.color === 'text-purple-400' ? 'bg-purple-500/20' : 'bg-orange-500/20')}>
                   <stat.icon className={cn("w-5 h-5", stat.color)} />
                 </div>
-                <span className={cn("text-sm font-medium", stat.changeType === 'positive' ? 'text-green-400' : 'text-red-400')}>
-                  {stat.change}
-                </span>
               </div>
               <h3 className="text-2xl font-bold text-foreground mb-1">{stat.value}</h3>
               <p className="text-sm text-muted-foreground">{stat.title}</p>

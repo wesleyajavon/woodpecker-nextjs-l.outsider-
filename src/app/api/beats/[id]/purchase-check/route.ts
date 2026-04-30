@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { OrderService } from '@/services/orderService'
+import { hasCustomerPurchasedBeat } from '@/services/orderService'
 
 interface RouteParams {
   params: Promise<{
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // Vérification de l'achat
-    const hasPurchased = await OrderService.hasCustomerPurchasedBeat(customerEmail, id)
+    const hasPurchased = await hasCustomerPurchasedBeat(customerEmail, id)
 
     return NextResponse.json({
       success: true,

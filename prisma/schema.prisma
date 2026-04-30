@@ -63,7 +63,6 @@ model Beat {
   updatedAt   DateTime @updatedAt
   
   // Relations
-  orders      Order[]
   orderItems  OrderItem[]
   userId      String?  // Optional user relation
   user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
@@ -78,46 +77,6 @@ model Beat {
   @@index([featured])
   @@index([userId])
   @@index([scheduledReleaseAt])
-}
-
-model Order {
-  id          String   @id @default(cuid())
-  
-  // Customer information
-  customerEmail String
-  customerName  String?
-  customerPhone String?
-  
-  // Order details
-  totalAmount   Decimal  @db.Decimal(10, 2)
-  currency      String   @default("EUR")
-  status        OrderStatus @default(PENDING)
-  
-  // Payment information
-  paymentMethod String?
-  paymentId     String?  // External payment provider ID
-  paidAt        DateTime?
-  
-  // License information
-  licenseType   LicenseType
-  usageRights  String[]    // Array of usage rights
-  
-  // Timestamps
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  
-  // Relations
-  beatId       String
-  beat         Beat     @relation(fields: [beatId], references: [id], onDelete: Cascade)
-  userId       String?  // Optional user relation
-  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  
-  // Indexes
-  @@index([customerEmail])
-  @@index([status])
-  @@index([createdAt])
-  @@index([beatId])
-  @@index([userId])
 }
 
 model MultiItemOrder {
@@ -241,7 +200,6 @@ model User {
 
   accounts Account[]
   sessions Session[]
-  orders   Order[]
   multiItemOrders MultiItemOrder[]
   beats    Beat[]
   

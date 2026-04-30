@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { OrderService } from '@/services/orderService'
+import { prisma } from '@/lib/prisma'
 
 interface RouteParams {
   params: Promise<{
@@ -10,38 +10,37 @@ interface RouteParams {
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { email } = await params
+    const decodedEmail = decodeURIComponent(email)
 
-    if (!email) {
-      return NextResponse.json(
-        { error: 'Email du client requis' },
-        { status: 400 }
-      )
+    if (!decodedEmail) {
+      return NextResponse.json({ error: 'Email du client requis' }, { status: 400 })
     }
 
-    // Validation de l'email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { error: 'Format d\'email invalide' },
-        { status: 400 }
-      )
+    if (!emailRegex.test(decodedEmail)) {
+      return NextResponse.json({ error: "Format d'email invalide" }, { status: 400 })
     }
 
-    // Récupération des commandes du client
-    const orders = await OrderService.getOrdersByCustomer(email)
+    const orders = await prisma.multiItemOrder.findMany({
+      where: { customerEmail: decodedEmail },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        items: {
+          include: {
+            beat: true,
+          },
+        },
+      },
+    })
 
     return NextResponse.json({
       success: true,
       data: orders,
-      customerEmail: email,
-      count: orders.length
+      customerEmail: decodedEmail,
+      count: orders.length,
     })
-
   } catch (error) {
     console.error('Erreur lors de la récupération des commandes du client:', error)
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 })
   }
 }

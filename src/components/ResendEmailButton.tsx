@@ -8,14 +8,12 @@ import { useTranslation } from '@/contexts/LanguageContext'
 interface ResendEmailButtonProps {
   orderId: string
   customerEmail: string
-  isMultiItem?: boolean
   className?: string
 }
 
 export default function ResendEmailButton({ 
   orderId, 
-  customerEmail, 
-  isMultiItem = false,
+  customerEmail,
   className = '' 
 }: ResendEmailButtonProps) {
   const { t } = useTranslation()
@@ -37,8 +35,7 @@ export default function ResendEmailButton({
         body: JSON.stringify({
           orderId,
           customerEmail,
-          isMultiItem
-        })
+        }),
       })
 
       const result = await response.json()

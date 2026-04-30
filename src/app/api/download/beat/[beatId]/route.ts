@@ -33,6 +33,39 @@ interface OrderWithBeat {
   }
 }
 
+async function resolveCustomerMultiItemBeat(
+  orderId: string,
+  customerEmail: string,
+  beatId: string
+): Promise<OrderWithBeat | null> {
+  const multiOrder = await prisma.multiItemOrder.findFirst({
+    where: {
+      id: orderId,
+      customerEmail,
+    },
+    include: {
+      items: {
+        include: {
+          beat: true,
+        },
+      },
+    },
+  })
+
+  if (!multiOrder) return null
+
+  const orderItem = multiOrder.items.find((item) => item.beatId === beatId)
+  if (!orderItem) return null
+
+  return {
+    id: multiOrder.id,
+    customerEmail: multiOrder.customerEmail,
+    beat: orderItem.beat,
+    licenseType: orderItem.licenseType,
+    totalAmount: multiOrder.totalAmount,
+  }
+}
+
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { beatId } = await params
@@ -125,48 +158,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    // Vérification que la commande existe et appartient au client
-    // First try single order
-    let order: OrderWithBeat | null = await prisma.order.findFirst({
-      where: {
-        id: orderId,
-        customerEmail: customerEmail,
-        // status: 'PAID' // Seulement les commandes payées
-      },
-      include: {
-        beat: true
-      }
-    })
-
-    // If not found, try multi-item order
-    if (!order) {
-      const multiOrder = await prisma.multiItemOrder.findFirst({
-        where: {
-          id: orderId,
-          customerEmail: customerEmail,
-        },
-        include: {
-          items: {
-            include: {
-              beat: true
-            }
-          }
-        }
-      })
-
-      if (multiOrder) {
-        // Find the specific beat in the multi-item order
-        const orderItem = multiOrder.items.find(item => item.beatId === beatId)
-        if (orderItem) {
-          order = {
-            id: multiOrder.id,
-            customerEmail: multiOrder.customerEmail,
-            beat: orderItem.beat,
-            licenseType: orderItem.licenseType
-          }
-        }
-      }
-    }
+    const order = await resolveCustomerMultiItemBeat(orderId, customerEmail, beatId)
 
     if (!order) {
       return NextResponse.json(
@@ -272,48 +264,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    // Vérification que la commande existe et appartient au client
-    // First try single order
-    let order: OrderWithBeat | null = await prisma.order.findFirst({
-      where: {
-        id: orderId,
-        customerEmail: customerEmail,
-        // status: 'PAID' // Seulement les commandes payées
-      },
-      include: {
-        beat: true
-      }
-    })
-
-    // If not found, try multi-item order
-    if (!order) {
-      const multiOrder = await prisma.multiItemOrder.findFirst({
-        where: {
-          id: orderId,
-          customerEmail: customerEmail,
-        },
-        include: {
-          items: {
-            include: {
-              beat: true
-            }
-          }
-        }
-      })
-
-      if (multiOrder) {
-        // Find the specific beat in the multi-item order
-        const orderItem = multiOrder.items.find(item => item.beatId === beatId)
-        if (orderItem) {
-          order = {
-            id: multiOrder.id,
-            customerEmail: multiOrder.customerEmail,
-            beat: orderItem.beat,
-            licenseType: orderItem.licenseType
-          }
-        }
-      }
-    }
+    const order = await resolveCustomerMultiItemBeat(orderId, customerEmail, beatId)
 
     if (!order) {
       return NextResponse.json(

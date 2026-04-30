@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Download, Music, Clock, Tag, ArrowRight } from 'lucide-react'
-import { Order, MultiItemOrder } from '@/types/order'
+import { MultiItemOrder } from '@/types/order'
 import { Beat } from '@/types/beat'
 import { useSession } from 'next-auth/react'
 import ResendEmailButton from '@/components/ResendEmailButton'
@@ -41,42 +41,32 @@ function SuccessContent() {
   const sessionId = searchParams?.get('session_id')
   const { t } = useTranslation()
   const [isLoading, setIsLoading] = useState(true)
-  const [orderDetails, setOrderDetails] = useState<Order | null>(null)
-  const [multiOrderDetails, setMultiOrderDetails] = useState<MultiItemOrder | null>(null)
-  const [downloadUrls, setDownloadUrls] = useState<DownloadUrls | null>(null)
+  const [orderDetails, setOrderDetails] = useState<MultiItemOrder | null>(null)
   const [multiOrderDownloads, setMultiOrderDownloads] = useState<MultiOrderDownloadData | null>(null)
   const [isGeneratingDownload, setIsGeneratingDownload] = useState(false)
-  const [isMultiItemOrder, setIsMultiItemOrder] = useState(false)
 
   useEffect(() => {
     if (sessionId) {
-      // Try to fetch multi-item order first, then fallback to single order
       const fetchOrderDetails = async () => {
-      try {
-        const response = await fetch(`/api/orders/lookup/${sessionId}`)
-        
-        if (response.ok) {
-          const result = await response.json()
-          if (result.success) {
-            if (result.type === 'multi-item') {
-              setMultiOrderDetails(result.data)
-              setIsMultiItemOrder(true)
-            } else {
+        try {
+          const response = await fetch(`/api/orders/lookup/${sessionId}`)
+
+          if (response.ok) {
+            const result = await response.json()
+            if (result.success && result.type === 'multi-item') {
               setOrderDetails(result.data)
-              setIsMultiItemOrder(false)
+            } else if (!result.success) {
+              console.error('Failed to fetch order:', result.error)
             }
           } else {
-            console.error('Failed to fetch order:', result.error)
+            console.error('Failed to fetch order details')
           }
-        } else {
-          console.error('Failed to fetch order details')
+        } catch (error) {
+          console.error('Error fetching order details:', error)
+        } finally {
+          setIsLoading(false)
         }
-      } catch (error) {
-        console.error('Error fetching order details:', error)
-      } finally {
-        setIsLoading(false)
       }
-    }
 
       fetchOrderDetails()
     } else {
@@ -84,52 +74,19 @@ function SuccessContent() {
     }
   }, [sessionId])
 
-  const generateDownloadUrls = async () => {
+  const generateMultiOrderDownloadUrls = async () => {
     if (!orderDetails) return
 
     setIsGeneratingDownload(true)
     try {
-      const response = await fetch(`/api/download/beat/${orderDetails.beat.id}`, {
+      const response = await fetch(`/api/download/multi-order/${orderDetails.id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          orderId: orderDetails.id,
-          customerEmail: orderDetails.customerEmail
-        })
-      })
-
-      if (response.ok) {
-        const result = await response.json()
-        if (result.success) {
-          setDownloadUrls(result.data.downloadUrls)
-        } else {
-          console.error('Failed to generate download URLs:', result.error)
-        }
-      } else {
-        console.error('Failed to generate download URLs')
-      }
-    } catch (error) {
-      console.error('Error generating download URLs:', error)
-    } finally {
-      setIsGeneratingDownload(false)
-    }
-  }
-
-  const generateMultiOrderDownloadUrls = async () => {
-    if (!multiOrderDetails) return
-
-    setIsGeneratingDownload(true)
-    try {
-      const response = await fetch(`/api/download/multi-order/${multiOrderDetails.id}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          customerEmail: multiOrderDetails.customerEmail
-        })
+          customerEmail: orderDetails.customerEmail,
+        }),
       })
 
       if (response.ok) {
@@ -154,7 +111,6 @@ function SuccessContent() {
       <div className="min-h-screen bg-background pt-20 pb-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
         <DottedSurface className="size-full z-0" />
 
-        {/* Gradient overlay */}
         <div className="absolute inset-0 z-0 flex items-center justify-center">
           <div
             aria-hidden="true"
@@ -179,7 +135,6 @@ function SuccessContent() {
       <div className="min-h-screen bg-background pt-20 pb-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
         <DottedSurface className="size-full z-0" />
 
-        {/* Gradient overlay */}
         <div className="absolute inset-0 z-0 flex items-center justify-center">
           <div
             aria-hidden="true"
@@ -215,12 +170,11 @@ function SuccessContent() {
     )
   }
 
-  if (!orderDetails && !multiOrderDetails) {
+  if (!orderDetails) {
     return (
       <div className="min-h-screen bg-background pt-20 pb-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
         <DottedSurface className="size-full z-0" />
 
-        {/* Gradient overlay */}
         <div className="absolute inset-0 z-0 flex items-center justify-center">
           <div
             aria-hidden="true"
@@ -278,7 +232,6 @@ function SuccessContent() {
     <div className="min-h-screen bg-background pt-20 pb-12 px-4 sm:px-6 lg:px-8">
       <DottedSurface className="size-full z-0" />
 
-      {/* Gradient overlay */}
       <div className="absolute inset-0 z-0 flex items-center justify-center">
         <div
           aria-hidden="true"
@@ -296,12 +249,11 @@ function SuccessContent() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-card/10 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden border border-border/20"
         >
-          {/* Header */}
           <div className="bg-gradient-to-r from-green-500 to-green-600 px-8 py-12 text-center">
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
               className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-white mb-6"
             >
               <svg className="h-10 w-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -314,267 +266,157 @@ function SuccessContent() {
             </h1>
 
             <p className="text-green-100 text-lg">
-              {isMultiItemOrder
-                ? t('success.descriptionMulti', { count: (multiOrderDetails?.items.length || 0).toString() })
-                : t('success.description')
-              }
+              {t('success.descriptionMulti', { count: (orderDetails?.items.length || 0).toString() })}
             </p>
           </div>
 
-          {/* Order Details */}
           <div className="p-8">
-            {isMultiItemOrder && multiOrderDetails ? (
-              <div className="mb-8">
-                <h2 className="text-2xl font-bold text-foreground mb-6">{t('success.orderDetails')}</h2>
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-foreground mb-6">{t('success.orderDetails')}</h2>
 
-                <div className="bg-card/20 backdrop-blur-lg rounded-xl p-6 mb-6 border border-border/20">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="font-medium text-muted-foreground">{t('success.orderId')}:</span>
-                      <p className="text-foreground font-mono">{multiOrderDetails.id}</p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-muted-foreground">{t('success.email')}:</span>
-                      <p className="text-foreground">{multiOrderDetails.customerEmail}</p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-muted-foreground">{t('success.totalAmount')}:</span>
-                      <p className="text-foreground text-lg font-semibold">€{multiOrderDetails.totalAmount}</p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-muted-foreground">{t('success.status')}:</span>
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-500/20 text-green-400 border border-green-500/30">
-                        {multiOrderDetails.status}
-                      </span>
-                    </div>
+              <div className="bg-card/20 backdrop-blur-lg rounded-xl p-6 mb-6 border border-border/20">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="font-medium text-muted-foreground">{t('success.orderId')}:</span>
+                    <p className="text-foreground font-mono">{orderDetails.id}</p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-muted-foreground">{t('success.email')}:</span>
+                    <p className="text-foreground">{orderDetails.customerEmail}</p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-muted-foreground">{t('success.totalAmount')}:</span>
+                    <p className="text-foreground text-lg font-semibold">€{orderDetails.totalAmount}</p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-muted-foreground">{t('success.status')}:</span>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-500/20 text-green-400 border border-green-500/30">
+                      {orderDetails.status}
+                    </span>
                   </div>
                 </div>
+              </div>
 
-                {/* Beats List */}
-                <div className="space-y-4 mb-8">
-                  <h3 className="text-xl font-semibold text-foreground">{t('success.purchasedBeats')}</h3>
-                  {multiOrderDetails.items.map((item, index) => (
-                    <motion.div
-                      key={item.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="bg-card/20 backdrop-blur-lg border border-border/20 rounded-xl p-4 hover:shadow-md hover:shadow-primary/10 transition-shadow"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-foreground">{item.beat.title}</h4>
-                          <div className="flex items-center space-x-4 mt-1 text-sm text-muted-foreground">
-                            <span className="flex items-center">
-                              <Music className="h-4 w-4 mr-1" />
-                              {item.beat.genre}
+              <div className="space-y-4 mb-8">
+                <h3 className="text-xl font-semibold text-foreground">{t('success.purchasedBeats')}</h3>
+                {orderDetails.items.map((item, index) => (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="bg-card/20 backdrop-blur-lg border border-border/20 rounded-xl p-4 hover:shadow-md hover:shadow-primary/10 transition-shadow"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-foreground">{item.beat.title}</h4>
+                        <div className="flex items-center space-x-4 mt-1 text-sm text-muted-foreground">
+                          <span className="flex items-center">
+                            <Music className="h-4 w-4 mr-1" />
+                            {item.beat.genre}
+                          </span>
+                          <span>{(item.beat as Beat).bpm} BPM</span>
+                          <span>{(item.beat as Beat).key}</span>
+                          <span className="flex items-center">
+                            <Clock className="h-4 w-4 mr-1" />
+                            {(item.beat as Beat).duration}
+                          </span>
+                          {(item.beat as Beat).isExclusive && (
+                            <span className="flex items-center text-primary">
+                              <Tag className="h-4 w-4 mr-1" />
+                              Exclusive
                             </span>
-                            <span>{(item.beat as Beat).bpm} BPM</span>
-                            <span>{(item.beat as Beat).key}</span>
-                            <span className="flex items-center">
-                              <Clock className="h-4 w-4 mr-1" />
-                              {(item.beat as Beat).duration}
-                            </span>
-                            {(item.beat as Beat).isExclusive && (
-                              <span className="flex items-center text-primary">
-                                <Tag className="h-4 w-4 mr-1" />
-                                Exclusive
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-semibold text-foreground">€{(item.unitPrice * item.quantity).toFixed(2)}</p>
-                          <p className="text-sm text-muted-foreground">€{item.unitPrice} × {item.quantity}</p>
+                          )}
                         </div>
                       </div>
-                    </motion.div>
-                  ))}
-                </div>
+                      <div className="text-right">
+                        <p className="font-semibold text-foreground">
+                          €{(Number(item.unitPrice) * item.quantity).toFixed(2)}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          €{item.unitPrice} × {item.quantity}
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
               </div>
-            ) : orderDetails && (
-              <div className="mb-8">
-                <h2 className="text-2xl font-bold text-foreground mb-6">{t('success.orderDetails')}</h2>
+            </div>
 
-                <div className="bg-card/20 backdrop-blur-lg rounded-xl p-6 border border-border/20">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="font-medium text-muted-foreground">{t('success.orderId')}:</span>
-                      <p className="text-foreground font-mono">{orderDetails.id}</p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-muted-foreground">{t('success.beat')}:</span>
-                      <p className="text-foreground">{orderDetails.beat.title}</p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-muted-foreground">{t('success.amount')}:</span>
-                      <p className="text-foreground text-lg font-semibold">€{orderDetails.totalAmount}</p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-muted-foreground">{t('success.status')}:</span>
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-500/20 text-green-400 border border-green-500/30">
-                        {orderDetails.status}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Download Section */}
             <div className="bg-primary/10 border border-primary/30 rounded-xl p-6 mb-8">
               <h3 className="text-xl font-semibold text-primary mb-4 flex items-center">
                 <Download className="w-6 h-6 mr-2" />
                 {t('success.downloadBeats')}
               </h3>
 
-              {isMultiItemOrder ? (
-                // Multi-item downloads
-                !multiOrderDownloads ? (
-                  <div className="text-center">
-                    <p className="text-primary mb-4">
-                      {t('success.generateDownloadLinks')}
-                    </p>
-                    <Button
-                      onClick={generateMultiOrderDownloadUrls}
-                      disabled={isGeneratingDownload}
-                      variant="primary"
-                      className="w-full"
-                    >
-                      {isGeneratingDownload ? t('success.generating') : t('success.generateDownloadLinksButton')}
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    <p className="text-primary">
-                      {t('success.downloadLinksReady')}
-                    </p>
-                    <p className="text-primary">
-                      {t('success.checkYourEmail')}
-                    </p>
+              {!multiOrderDownloads ? (
+                <div className="text-center">
+                  <p className="text-primary mb-4">
+                    {t('success.generateDownloadLinks')}
+                  </p>
+                  <Button
+                    onClick={generateMultiOrderDownloadUrls}
+                    disabled={isGeneratingDownload}
+                    variant="primary"
+                    className="w-full"
+                  >
+                    {isGeneratingDownload ? t('success.generating') : t('success.generateDownloadLinksButton')}
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <p className="text-primary">
+                    {t('success.downloadLinksReady')}
+                  </p>
+                  <p className="text-primary">
+                    {t('success.checkYourEmail')}
+                  </p>
 
-                    <div className="space-y-4">
-                      {multiOrderDownloads.beats.map((beatDownload, index) => (
-                        <motion.div
-                          key={beatDownload.beatId}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.1 }}
-                          className="bg-card/20 backdrop-blur-lg rounded-lg p-4 border border-primary/30"
-                        >
-                          <h4 className="font-semibold text-foreground mb-3">{beatDownload.beatTitle}</h4>
+                  <div className="space-y-4">
+                    {multiOrderDownloads.beats.map((beatDownload, index) => (
+                      <motion.div
+                        key={beatDownload.beatId}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="bg-card/20 backdrop-blur-lg rounded-lg p-4 border border-primary/30"
+                      >
+                        <h4 className="font-semibold text-foreground mb-3">{beatDownload.beatTitle}</h4>
 
-                          <div className="space-y-2">
-                            <Button asChild variant="primary" className="w-full">
-                              <a
-                                href={beatDownload.downloadUrls.master}
-                                download
-                              >
+                        <div className="space-y-2">
+                          <Button asChild variant="primary" className="w-full">
+                            <a href={beatDownload.downloadUrls.master} download>
+                              <Download className="w-4 h-4 mr-2" />
+                              {t('success.downloadMaster')}
+                            </a>
+                          </Button>
+
+                          {beatDownload.downloadUrls.stems && (
+                            <Button asChild variant="secondary" className="w-full">
+                              <a href={beatDownload.downloadUrls.stems} download>
                                 <Download className="w-4 h-4 mr-2" />
-                                {t('success.downloadMaster')}
+                                {t('success.downloadStems')}
                               </a>
                             </Button>
-
-                            {/* Afficher le lien stems si disponible */}
-                            {beatDownload.downloadUrls.stems && (
-                              <Button asChild variant="secondary" className="w-full">
-                                <a
-                                  href={beatDownload.downloadUrls.stems}
-                                  download
-                                >
-                                  <Download className="w-4 h-4 mr-2" />
-                                  {t('success.downloadStems')}
-                                </a>
-                              </Button>
-                            )}
-
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
-
-                    <p className="text-xs text-primary/70 text-center">
-                      ⏰ {t('success.expiresAt')} {new Date(multiOrderDownloads.expiresAt).toLocaleString('fr-FR')}
-                    </p>
-
-                    {multiOrderDetails && (
-                      <ResendEmailButton
-                        orderId={multiOrderDetails.id}
-                        customerEmail={multiOrderDetails.customerEmail}
-                        isMultiItem={true}
-                        className="mt-4"
-                      />
-                    )}
+                          )}
+                        </div>
+                      </motion.div>
+                    ))}
                   </div>
-                )
-              ) : (
-                // Single item downloads
-                !downloadUrls ? (
-                  <div className="text-center">
-                    <p className="text-primary mb-4">
-                      {t('success.generateDownloadLinks')}
-                    </p>
-                    <Button
-                      onClick={generateDownloadUrls}
-                      disabled={isGeneratingDownload}
-                      variant="primary"
-                      className="w-full"
-                    >
-                      {isGeneratingDownload ? t('success.generating') : t('success.generateDownloadLinksButton')}
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <p className="text-primary">
-                      {t('success.downloadLinksReady')}
-                    </p>
-                    <p className="text-primary">
-                      {t('success.checkYourEmail')}
-                    </p>
 
-                    <div className="space-y-2">
-                      <Button asChild variant="primary" className="w-full">
-                        <a
-                          href={downloadUrls.master}
-                          download
-                        >
-                          <Download className="w-4 h-4 mr-2" />
-                          {t('success.downloadMaster')}
-                        </a>
-                      </Button>
+                  <p className="text-xs text-primary/70 text-center">
+                    ⏰ {t('success.expiresAt')} {new Date(multiOrderDownloads.expiresAt).toLocaleString('fr-FR')}
+                  </p>
 
-                      {/* Afficher le lien stems si disponible */}
-                      {downloadUrls.stems && (
-                        <Button asChild variant="secondary" className="w-full">
-                          <a
-                            href={downloadUrls.stems}
-                            download
-                          >
-                            <Download className="w-4 h-4 mr-2" />
-                            {t('success.downloadStems')}
-                          </a>
-                        </Button>
-                      )}
-                    </div>
-
-                    <p className="text-xs text-primary/70 text-center">
-                      ⏰ {t('success.expiresAt')} {new Date(downloadUrls.expiresAt).toLocaleString('fr-FR')}
-                    </p>
-
-                    {orderDetails && (
-                      <ResendEmailButton
-                        orderId={orderDetails.id}
-                        customerEmail={orderDetails.customerEmail}
-                        isMultiItem={false}
-                        className="mt-4"
-                      />
-                    )}
-                  </div>
-                )
+                  <ResendEmailButton
+                    orderId={orderDetails.id}
+                    customerEmail={orderDetails.customerEmail}
+                    className="mt-4"
+                  />
+                </div>
               )}
             </div>
 
-            {/* Action Buttons */}
             <div className={`flex gap-4 ${session ? 'flex-col sm:flex-row' : 'justify-center'}`}>
               <Link href="/beats" className={`${session ? 'flex-1' : 'w-full max-w-xs'}`}>
                 <HoverBorderGradient
@@ -615,7 +457,6 @@ export default function SuccessPage() {
       <div className="min-h-screen bg-background pt-20 pb-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
         <DottedSurface className="size-full z-0" />
 
-        {/* Gradient overlay */}
         <div className="absolute inset-0 z-0 flex items-center justify-center">
           <div
             aria-hidden="true"

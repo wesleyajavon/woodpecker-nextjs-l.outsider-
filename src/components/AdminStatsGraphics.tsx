@@ -116,7 +116,7 @@ export default function AdminStatsGraphics() {
   const totalRevenue = stats.totalRevenue || 0;
   const totalOrders = stats.totalOrders || 0;
   const totalBeats = stats.totalBeats || 0;
-  const uniqueCustomers = stats.activeVisitors || 0;
+  const uniqueCustomers = stats.uniqueCustomers ?? 0;
   
   const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
   const revenuePerBeat = totalBeats > 0 ? totalRevenue / totalBeats : 0;

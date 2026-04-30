@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { headers } from 'next/headers'
-import { OrderService } from '@/services/orderService'
 import { BeatService } from '@/services/beatService'
 import { sendOrderConfirmationEmail } from '@/services/orderEmailService'
 import { PrismaClient, OrderStatus } from '@prisma/client'
@@ -45,36 +44,6 @@ interface OrderItem {
   quantity: number
   unitPrice: number
   totalPrice: number
-}
-
-interface OrderData {
-  customerEmail: string
-  customerName?: string
-  customerPhone?: string
-  totalAmount: number
-  currency: string
-  paymentMethod: string
-  paymentId: string
-  licenseType: LicenseType
-  usageRights: string[]
-  beatId: string
-  status: string
-}
-
-// Helper function to get usage rights based on license type
-function getUsageRights(licenseType: string): string[] {
-  switch (licenseType) {
-    case 'WAV_LEASE':
-      return ['WAV/MP3 files', 'Commercial use', 'Streaming', 'Limited distribution']
-    case 'TRACKOUT_LEASE':
-      return ['WAV/MP3 files', 'Stems', 'Commercial use', 'Streaming', 'Extended distribution']
-    case 'UNLIMITED_LEASE':
-      return ['WAV/MP3 files', 'Stems', 'Commercial use', 'Streaming', 'Unlimited distribution']
-    case 'EXCLUSIVE':
-      return ['Exclusive rights', 'WAV/MP3 files', 'Stems', 'Commercial use', 'Streaming', 'Unlimited distribution']
-    default:
-      return ['WAV/MP3 files', 'Commercial use', 'Streaming']
-  }
 }
 
 export async function POST(request: NextRequest) {
@@ -172,13 +141,7 @@ async function handleSuccessfulPayment(session: StripeCheckoutSession) {
           }
 
           const lineItems = fullSession.line_items.data
-          const isMultiItem = lineItems.length > 1 || fullSession.metadata?.order_id
-
-          if (isMultiItem) {
-            await handleMultiItemOrder(fullSession, lineItems)
-          } else {
-            await handleSingleItemOrder(fullSession, lineItems[0])
-          }
+          await handleMultiItemOrder(fullSession, lineItems)
 
   } catch (error) {
     console.error('Error processing checkout session:', error)
@@ -305,62 +268,32 @@ async function handleRefunded(charge: StripeCharge) {
 
 // Helper function to find order by payment ID
 async function findOrderByPaymentId(paymentId: string) {
-  // Try multi-item order first
   const multiOrder = await prisma.multiItemOrder.findFirst({
-    where: { paymentId }
+    where: { paymentId },
   })
-  
-  if (multiOrder) {
-    return { ...multiOrder, type: 'multi-item' }
-  }
-  
-  // Fallback to single order
-  const singleOrder = await prisma.order.findFirst({
-    where: { paymentId }
-  })
-  
-  if (singleOrder) {
-    return { ...singleOrder, type: 'single' }
-  }
-  
-  return null
+
+  return multiOrder
 }
 
-// Helper function to update order status
-async function updateOrderStatus(paymentId: string, status: OrderStatus, additionalData: OrderStatusUpdateData = {}) {
-  // Try multi-item order first
+async function updateOrderStatus(
+  paymentId: string,
+  status: OrderStatus,
+  additionalData: OrderStatusUpdateData = {},
+) {
   const multiOrder = await prisma.multiItemOrder.findFirst({
-    where: { paymentId }
+    where: { paymentId },
   })
-  
+
   if (multiOrder) {
     await prisma.multiItemOrder.update({
       where: { id: multiOrder.id },
       data: {
         status,
-        ...additionalData
-      }
-    })
-    return
-  }
-  
-  // Fallback to single order
-  const singleOrder = await prisma.order.findFirst({
-    where: { paymentId }
-  })
-  
-  if (singleOrder) {
-    await prisma.order.update({
-      where: { id: singleOrder.id },
-      data: {
-        status,
-        ...additionalData
-      }
+        ...additionalData,
+      },
     })
   }
 }
-
-// Handle multi-item order creation
 async function handleMultiItemOrder(fullSession: StripeCheckoutSession, lineItems: StripeLineItem[]) {
             console.log('Processing multi-item order with', lineItems.length, 'items')
             
@@ -475,117 +408,10 @@ async function handleMultiItemOrder(fullSession: StripeCheckoutSession, lineItem
             try {
               await sendOrderConfirmationEmail(
       updatedOrder.id,
-      updatedOrder.customerEmail,
-                true // isMultiItem
+      updatedOrder.customerEmail
               )
             } catch (emailError) {
               console.error('Failed to send confirmation email for multi-item order:', emailError)
-  }
-}
-
-// Handle single-item order creation
-async function handleSingleItemOrder(fullSession: StripeCheckoutSession, lineItem: StripeLineItem) {
-  const price = lineItem.price as StripePrice
-  const product = price?.product as StripeProduct
-
-            if (!product || typeof product === 'string' || product.deleted) {
-    console.error('Invalid or deleted product data in session:', fullSession.id)
-    return
-            }
-
-            // Get the beat ID from the product metadata
-            console.log('Product metadata:', product.metadata)
-            const beatId = product.metadata?.beat_id
-            if (!beatId) {
-              console.error('No beat_id found in product metadata:', product.id)
-              console.error('Available metadata keys:', Object.keys(product.metadata || {}))
-    return
-            }
-            
-            console.log('Found beat_id:', beatId)
-
-            // Get the beat details
-            const beat = await BeatService.getBeatById(beatId)
-            if (!beat) {
-              console.error('Beat not found:', beatId)
-    return
-            }
-
-            // Get license type from session metadata
-            const licenseType = fullSession.metadata?.license_type || 'WAV_LEASE'
-  const orderId = fullSession.metadata?.order_id
-  
-  console.log('🔍 Webhook - License type:', licenseType)
-  console.log('🔍 Webhook - Order ID from metadata:', orderId)
-  
-  // Find existing order by order_id from metadata or by paymentId
-  let existingOrder = null
-  
-  if (orderId) {
-    existingOrder = await prisma.order.findFirst({
-      where: { id: orderId }
-    })
-    console.log('🔍 Found order by order_id:', existingOrder?.id)
-  }
-  
-  if (!existingOrder) {
-    existingOrder = await prisma.order.findFirst({
-      where: { paymentId: fullSession.id }
-    })
-    console.log('🔍 Found order by paymentId:', existingOrder?.id)
-  }
-
-  let order
-
-  if (existingOrder) {
-    // Update existing order to PAID status
-    order = await prisma.order.update({
-      where: { id: existingOrder.id },
-      data: {
-        status: OrderStatus.PAID,
-        paidAt: new Date(),
-        paymentId: fullSession.id, // Mettre à jour le paymentId
-        customerEmail: fullSession.customer_email || fullSession.customer_details?.email || existingOrder.customerEmail,
-        customerName: fullSession.customer_details?.name || existingOrder.customerName,
-        customerPhone: fullSession.customer_details?.phone || existingOrder.customerPhone,
-        totalAmount: (fullSession.amount_total || 0) / 100,
-        currency: fullSession.currency?.toUpperCase() || 'EUR',
-        paymentMethod: 'card',
-        licenseType: licenseType as LicenseType,
-        usageRights: getUsageRights(licenseType)
-      }
-    })
-    console.log('Order updated to PAID status:', order.id)
-  } else {
-    // Fallback: create new order if none exists (shouldn't happen in normal flow)
-    console.warn('No existing order found for payment ID:', fullSession.id)
-    const orderData: OrderData = {
-              customerEmail: fullSession.customer_email || fullSession.customer_details?.email || 'unknown@example.com',
-              customerName: fullSession.customer_details?.name || undefined,
-              customerPhone: fullSession.customer_details?.phone || undefined,
-      totalAmount: (fullSession.amount_total || 0) / 100,
-              currency: fullSession.currency?.toUpperCase() || 'EUR',
-              paymentMethod: 'card',
-      paymentId: fullSession.id,
-              licenseType: licenseType as LicenseType,
-              usageRights: getUsageRights(licenseType),
-      beatId: beatId,
-      status: OrderStatus.PAID // Create as PAID since payment succeeded
-            }
-
-    order = await OrderService.createOrder(orderData)
-    console.log('Fallback order created successfully:', order.id)
-  }
-
-            // Send confirmation email with download links
-            try {
-              await sendOrderConfirmationEmail(
-                order.id,
-                order.customerEmail,
-                false // isMultiItem
-              )
-            } catch (emailError) {
-              console.error('Failed to send confirmation email for single order:', emailError)
   }
 }
 

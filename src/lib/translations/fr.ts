@@ -435,7 +435,6 @@ export const fr = {
     confirmDelete: 'Êtes-vous sûr de vouloir supprimer ce beat ?',
     statsError: 'Erreur lors de la récupération des statistiques',
     totalUsers: 'Utilisateurs',
-    activeVisitors: 'Visiteurs Actifs (96h)',
     beatsLoadError: 'Erreur lors de la récupération des beats',
     updateError: 'Erreur lors de la mise à jour',
     loadingBeats: 'Chargement des beats...',

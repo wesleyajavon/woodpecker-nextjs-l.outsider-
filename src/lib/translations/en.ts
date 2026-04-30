@@ -422,7 +422,6 @@ export const en = {
     confirmDelete: 'Are you sure you want to delete this beat?',
     statsError: 'Error retrieving statistics',
     totalUsers: 'Users',
-    activeVisitors: 'Active Visitors (96h)',
 
     beatsLoadError: 'Error loading beats',
     updateError: 'Update error',

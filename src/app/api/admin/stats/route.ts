@@ -6,25 +6,6 @@ import { isUserAdmin } from '@/lib/roleUtils'
 import { prisma } from '@/lib/prisma'
 import { withUserRateLimit } from '@/lib/rate-limit'
 
-// Fonction pour récupérer les visiteurs actifs des 96 dernières heures
-async function getActiveVisitors() {
-  try {
-    // Calculer la date de début (96 heures = 4 jours)
-    const fourDaysAgo = new Date()
-    fourDaysAgo.setDate(fourDaysAgo.getDate() - 4)
-    
-    // Pour l'instant, on retourne une valeur simulée
-    // En production, vous devrez utiliser l'API Vercel Analytics
-    // ou implémenter votre propre système de tracking
-    const mockActiveVisitors = Math.floor(Math.random() * 500) + 100
-    
-    return mockActiveVisitors
-  } catch (error) {
-    console.error('Erreur lors de la récupération des visiteurs actifs:', error)
-    return 0
-  }
-}
-
 export async function GET(request: NextRequest) {
   try {
     // Vérification du rate limiting pour les routes admin
@@ -65,50 +46,48 @@ export async function GET(request: NextRequest) {
       totalBeats,
       totalOrders,
       totalRevenue,
-      uniqueCustomers,
-      activeVisitors
+      uniqueCustomers
     ] = await Promise.all([
-      // Total des beats de l'admin
       prisma.beat.count({
         where: { userId }
       }),
-      
-      // Total des commandes pour les beats de l'admin
-      prisma.order.count({
+
+      prisma.multiItemOrder.count({
         where: {
-          beat: {
-            userId
+          items: {
+            some: {
+              beat: { userId }
+            }
           }
         }
       }),
-      
-      // Chiffre d'affaires total (somme des totalAmount)
-      prisma.order.aggregate({
+
+      prisma.multiItemOrder.aggregate({
         where: {
-          beat: {
-            userId
+          items: {
+            some: {
+              beat: { userId }
+            }
           }
         },
         _sum: {
           totalAmount: true
         }
       }),
-      
-      // Nombre unique de clients ayant acheté des beats de l'admin
-      prisma.order.findMany({
+
+      prisma.multiItemOrder.findMany({
         where: {
-          beat: {
-            userId
+          items: {
+            some: {
+              beat: { userId }
+            }
           }
         },
         select: {
           customerEmail: true
         },
         distinct: ['customerEmail']
-      }),
-      
-      // Visiteurs actifs des 96 dernières heures
-      getActiveVisitors()
+      })
     ])
 
     return NextResponse.json({
@@ -118,12 +97,6 @@ export async function GET(request: NextRequest) {
         totalOrders,
         totalRevenue: totalRevenue._sum.totalAmount || 0,
         uniqueCustomers: uniqueCustomers.length,
-        activeVisitors,
-        // Valeurs simulées pour les changements (à remplacer par de vrais calculs plus tard)
-        beatsChange: Math.floor(Math.random() * 20) + 5, // 5-25% d'augmentation
-        ordersChange: Math.floor(Math.random() * 30) + 10, // 10-40% d'augmentation
-        revenueChange: Math.floor(Math.random() * 25) + 8, // 8-33% d'augmentation
-        visitorsChange: Math.floor(Math.random() * 15) + 3 // 3-18% d'augmentation
       }
     })
 

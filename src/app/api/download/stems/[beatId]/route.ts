@@ -59,31 +59,20 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Vérifier que l'utilisateur a acheté ce beat avec une licence appropriée (Trackout ou Unlimited)
-    const hasPurchasedWithStemsLicense = await prisma.order.findFirst({
-      where: {
-        customerEmail: session.user.email,
-        beatId: beatId,
-        status: { in: ['PAID', 'COMPLETED'] },
-        licenseType: { in: ['TRACKOUT_LEASE', 'UNLIMITED_LEASE'] }
-      }
-    });
-
-    // Vérifier aussi dans les commandes multi-items
-    const hasPurchasedInMultiOrder = await prisma.multiItemOrder.findFirst({
+    const hasStemsPurchase = await prisma.multiItemOrder.findFirst({
       where: {
         customerEmail: session.user.email,
         status: { in: ['PAID', 'COMPLETED'] },
         items: {
           some: {
             beatId: beatId,
-            licenseType: { in: ['TRACKOUT_LEASE', 'UNLIMITED_LEASE'] }
-          }
-        }
-      }
-    });
+            licenseType: { in: ['TRACKOUT_LEASE', 'UNLIMITED_LEASE'] },
+          },
+        },
+      },
+    })
 
-    if (!hasPurchasedWithStemsLicense && !hasPurchasedInMultiOrder) {
+    if (!hasStemsPurchase) {
       return NextResponse.json(
         { error: 'Vous devez avoir acheté ce beat avec une licence Trackout ou Unlimited pour télécharger les stems' },
         { status: 403 }

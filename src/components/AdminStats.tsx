@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Music, ShoppingCart, DollarSign, Eye } from 'lucide-react';
+import { Music, ShoppingCart, DollarSign, Users } from 'lucide-react';
 import { useTranslation } from '@/hooks/useApp';
 import { useAdminStats } from '@/hooks/queries/useAdminStats';
 
@@ -77,9 +77,9 @@ export default function AdminStats() {
       borderColor: 'border-indigo-500/30'
     },
     {
-      icon: Eye,
-      value: 342,
-      label: t('admin.activeVisitors'),
+      icon: Users,
+      value: stats.uniqueCustomers,
+      label: t('admin.uniqueCustomers'),
       color: 'indigo',
       bgColor: 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20',
       textColor: 'text-indigo-400',
