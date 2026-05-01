@@ -164,10 +164,10 @@ export default function FeaturedProducts() {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-500/20 rounded-full mb-6 backdrop-blur-sm"
+            className="signal-glow mb-6 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-4 py-2 backdrop-blur-sm"
           >
-            <Sparkles className="w-4 h-4 text-purple-400" />
-            <span className="text-sm font-medium text-purple-300">{t('featured.badge')}</span>
+            <Sparkles className="w-4 h-4 text-primary" />
+            <span className="text-sm font-medium uppercase tracking-[0.22em] text-primary">{t('featured.badge')}</span>
           </motion.div>
 
           <motion.div className="relative mx-2 my-2 md:mx-4 md:my-4 flex flex-col items-center justify-center gap-2 md:gap-4 text-center sm:mx-0 sm:mb-0 sm:flex-row">
@@ -177,7 +177,7 @@ export default function FeaturedProducts() {
               duration={2500}
             />
           </motion.div>
-          <p className="mt-3 md:mt-4 text-center text-base sm:text-lg md:text-xl text-foreground max-w-2xl mx-auto px-4">
+          <p className="mt-3 md:mt-4 text-center text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
             {t('featured.description')}
           </p>
         </motion.div>
@@ -213,7 +213,7 @@ export default function FeaturedProducts() {
                 onPause={togglePlay}
                 progress={playingBeat === beat.id ? progress : undefined}
                 onSeek={playingBeat === beat.id ? handleSeek : undefined}
-                className="group relative bg-card/10 backdrop-blur-lg rounded-xl md:rounded-2xl overflow-hidden hover:bg-card/20 transition-all duration-500 w-full h-full"
+                className="group relative h-full w-full overflow-hidden rounded-xl bg-card/20 backdrop-blur-lg transition-all duration-500 hover:bg-card/30 md:rounded-2xl"
               />
             </motion.div>
             ))

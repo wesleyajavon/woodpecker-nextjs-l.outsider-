@@ -2,12 +2,13 @@
 
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
+import { useSession } from 'next-auth/react'
 import { motion } from 'framer-motion'
 import { Shield, Home } from 'lucide-react'
 import { DottedSurface } from './ui/dotted-surface'
 import { useTranslation } from '@/hooks/useApp'
-import { useCurrentUser } from '@/hooks/useAuthSync'
-import { useIsAdmin } from '@/hooks/useUser'
+import { useProfile } from '@/hooks/queries/useUsers'
+import { useUserData } from '@/hooks/useUser'
 
 interface AdminRouteProps {
   children: React.ReactNode
@@ -15,16 +16,21 @@ interface AdminRouteProps {
 }
 
 export default function AdminRoute({ children, fallback }: AdminRouteProps) {
-  const { isAuthenticated, isLoading } = useCurrentUser()
-  const isAdmin = useIsAdmin()
+  const { status } = useSession()
+  const { data: profileData, isLoading: profileLoading } = useProfile()
+  const storedUser = useUserData()
   const router = useRouter()
   const { t } = useTranslation()
+  const isAuthenticated = status === 'authenticated'
+  const isLoading = status === 'loading' || (isAuthenticated && profileLoading)
+  const user = profileData?.user ?? storedUser
+  const isAdmin = user?.role === 'ADMIN'
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    if (status === 'unauthenticated') {
       router.push('/auth/signin')
     }
-  }, [isAuthenticated, isLoading, router])
+  }, [status, router])
 
   if (isLoading) {
     return (

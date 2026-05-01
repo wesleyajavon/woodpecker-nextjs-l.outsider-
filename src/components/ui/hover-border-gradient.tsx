@@ -34,8 +34,8 @@ export function HoverBorderGradient({
   }, []);
 
   // Adapt colors based on theme, but use default dark theme colors during SSR
-  const gradientColor = mounted && theme === 'light' ? 'hsl(0, 0%, 0%)' : 'hsl(0, 0%, 100%)';
-  const transparentColor = mounted && theme === 'light' ? 'rgba(0, 0, 0, 0)' : 'rgba(255, 255, 255, 0)';
+  const gradientColor = mounted && theme === 'light' ? 'hsl(158, 89%, 42%)' : 'hsl(158, 89%, 54%)';
+  const transparentColor = mounted && theme === 'light' ? 'rgba(5, 8, 23, 0)' : 'rgba(34, 242, 166, 0)';
 
   const movingMap: Record<Direction, string> = {
     TOP: `radial-gradient(20.7% 50% at 50% 0%, ${gradientColor} 0%, ${transparentColor} 100%)`,
@@ -45,7 +45,7 @@ export function HoverBorderGradient({
   };
 
   const highlight =
-    "radial-gradient(75% 181.15942028985506% at 50% 50%, #8b5cf6 0%, rgba(139, 92, 246, 0) 100%)";
+    "radial-gradient(75% 181.15942028985506% at 50% 50%, #22f2a6 0%, rgba(34, 242, 166, 0) 100%)";
 
   useEffect(() => {
     if (!hovered) {
@@ -70,14 +70,14 @@ export function HoverBorderGradient({
       }}
       onMouseLeave={() => setHovered(false)}
       className={cn(
-        "relative flex rounded-full border content-center bg-card text-foreground hover:cursor-pointer hover:bg-background/10 transition duration-500 dark:bg-foreground/20 items-center flex-col flex-nowrap gap-10 h-min justify-center overflow-visible p-px decoration-clone w-fit",
+        "relative flex h-min w-fit flex-col flex-nowrap items-center justify-center gap-10 overflow-visible rounded-full border border-primary/25 bg-card text-foreground decoration-clone p-px transition duration-500 hover:cursor-pointer hover:bg-background/10 dark:bg-primary/10",
         containerClassName
       )}
       {...props}
     >
       <div
         className={cn(
-          "w-auto text-foreground z-10 bg-card px-4 py-2 rounded-[inherit]",
+          "z-10 w-auto rounded-[inherit] bg-card/95 px-4 py-2 text-foreground",
           className
         )}
       >
@@ -101,7 +101,7 @@ export function HoverBorderGradient({
         }}
         transition={{ ease: "linear", duration: duration ?? 1 }}
       />
-      <div className="bg-theme-gradient absolute z-1 flex-none inset-[2px] rounded-[100px]" />
+      <div className="absolute inset-[2px] z-1 flex-none rounded-[100px] bg-[var(--theme-gradient)]" />
     </Tag>
   );
 }

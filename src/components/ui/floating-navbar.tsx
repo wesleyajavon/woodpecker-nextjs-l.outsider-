@@ -69,7 +69,7 @@ export const FloatingNav = ({
           duration: 0.2,
         }}
         className={cn(
-          "flex max-w-fit fixed top-10 inset-x-0 mx-auto border border-border/20 rounded-full bg-background/80 backdrop-blur-xl shadow-lg z-[5000] pr-2 pl-8 py-2 items-center justify-center space-x-4",
+          "signal-glow fixed inset-x-0 top-10 z-[5000] mx-auto flex max-w-fit items-center justify-center space-x-4 rounded-full border border-primary/20 bg-background/80 py-2 pl-8 pr-2 shadow-lg shadow-primary/5 backdrop-blur-xl",
           className
         )}
       >
@@ -78,7 +78,7 @@ export const FloatingNav = ({
             key={`link=${idx}`}
             href={navItem.link}
             className={cn(
-              "relative items-center flex space-x-1 text-foreground hover:text-muted-foreground transition-colors"
+              "relative flex items-center space-x-1 text-foreground transition-colors hover:text-primary"
             )}
           >
             <span className="block sm:hidden">{navItem.icon}</span>
@@ -89,7 +89,7 @@ export const FloatingNav = ({
         {/* Admin Dropdown */}
         <AdminDropdown />
         
-        <div className="border border-border/20 rounded-full hover:bg-muted/50 transition-colors">
+        <div className="rounded-full border border-primary/20 transition-colors hover:bg-primary/10">
           <AuthButton variant="floating" />
         </div>
       </motion.div>

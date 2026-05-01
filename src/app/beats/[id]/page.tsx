@@ -123,8 +123,8 @@ export default function BeatDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background pt-20 pb-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-        <DottedSurface className="size-full z-0" />
+      <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4 pb-12 pt-20 sm:px-6 lg:px-8">
+        <DottedSurface className="size-full z-0 opacity-70" />
         
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -132,8 +132,8 @@ export default function BeatDetailPage() {
           className="flex flex-col items-center gap-4 relative z-10"
         >
           <div className="relative">
-            <div className="w-16 h-16 border-4 border-purple-500/20 rounded-full"></div>
-            <div className="absolute top-0 left-0 w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+            <div className="h-16 w-16 rounded-full border-4 border-primary/20"></div>
+            <div className="absolute left-0 top-0 h-16 w-16 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
           </div>
           <div className="text-center">
             <h3 className="text-lg font-semibold text-foreground mb-1">Chargement du beat...</h3>
@@ -146,8 +146,8 @@ export default function BeatDetailPage() {
 
   if (error || !beat) {
     return (
-      <div className="min-h-screen bg-background pt-20 pb-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-        <DottedSurface className="size-full z-0" />
+      <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4 pb-12 pt-20 sm:px-6 lg:px-8">
+        <DottedSurface className="size-full z-0 opacity-70" />
         
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -162,7 +162,7 @@ export default function BeatDetailPage() {
           <div className="flex gap-3 justify-center">
             <button
               onClick={() => refetch()}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors"
+              className="rounded-lg bg-primary px-4 py-2 text-primary-foreground transition-colors hover:bg-primary/90"
             >
               Réessayer
             </button>
@@ -179,8 +179,9 @@ export default function BeatDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background pt-20 pb-12 px-4 sm:px-6 lg:px-8">
-      <DottedSurface className="size-full z-0" />
+    <div className="relative min-h-screen overflow-hidden bg-background px-4 pb-12 pt-20 sm:px-6 lg:px-8">
+      <DottedSurface className="size-full z-0 opacity-70" />
+      <div aria-hidden="true" className="audio-scanlines pointer-events-none absolute inset-0 z-0 opacity-35" />
 
       {/* Gradient overlay */}
       <div className="absolute inset-0 z-0 flex items-center justify-center">
@@ -210,8 +211,8 @@ export default function BeatDetailPage() {
           </Link>
           
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
-              <Music className="w-4 h-4 text-white" />
+            <div className="signal-glow flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+              <Music className="w-4 h-4 text-primary-foreground" />
             </div>
             <h1 className="text-3xl font-bold text-foreground">{beat.title}</h1>
           </div>
@@ -242,7 +243,7 @@ export default function BeatDetailPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-card/50 backdrop-blur-lg rounded-xl border border-border p-6"
+              className="signal-glow rounded-xl border border-primary/15 bg-card/50 p-6 backdrop-blur-lg"
             >
               <h3 className="text-xl font-semibold text-foreground mb-4">Détails du beat</h3>
               <div className="grid grid-cols-2 gap-4 text-sm">
@@ -271,7 +272,7 @@ export default function BeatDetailPage() {
                 {beat.stemsUrl && (
                   <div className="col-span-2">
                     <span className="text-muted-foreground">STEMS:</span>
-                    <span className="ml-2 text-orange-400">Disponibles</span>
+                    <span className="ml-2 text-primary">Disponibles</span>
                   </div>
                 )}
               </div>
@@ -308,10 +309,10 @@ export default function BeatDetailPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="bg-card/50 backdrop-blur-lg rounded-xl border border-border p-6"
+              className="signal-glow rounded-xl border border-primary/15 bg-card/50 p-6 backdrop-blur-lg"
             >
               <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-                <Crown className="w-5 h-5 text-purple-400" />
+                <Crown className="w-5 h-5 text-primary" />
                 Choisir une licence
               </h3>
               
@@ -322,8 +323,8 @@ export default function BeatDetailPage() {
                     onClick={() => setSelectedLicense(license)}
                     className={`w-full p-3 rounded-lg border-2 transition-all ${
                       selectedLicense === license
-                        ? 'border-purple-500 bg-purple-500/10'
-                        : 'border-border hover:border-purple-400/50'
+                        ? 'border-primary bg-primary/10'
+                        : 'border-border hover:border-primary/50'
                     }`}
                   >
                     <div className="flex items-center justify-between">
@@ -361,10 +362,10 @@ export default function BeatDetailPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="bg-card/50 backdrop-blur-lg rounded-xl border border-border p-6"
+              className="signal-glow rounded-xl border border-primary/15 bg-card/50 p-6 backdrop-blur-lg"
             >
               <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-                <Star className="w-5 h-5 text-yellow-400" />
+              <Star className="w-5 h-5 text-primary" />
                 Beats similaires
               </h3>
               <p className="text-sm text-muted-foreground">
@@ -372,7 +373,7 @@ export default function BeatDetailPage() {
               </p>
               <Link
                 href="/beats"
-                className="mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors text-sm"
+                className="mt-4 inline-block rounded-lg bg-primary px-4 py-2 text-sm text-primary-foreground transition-colors hover:bg-primary/90"
               >
                 Voir tous les beats
               </Link>

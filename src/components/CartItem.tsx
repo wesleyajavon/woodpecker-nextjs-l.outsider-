@@ -53,8 +53,8 @@ export default function CartItem({ item }: CartItemProps) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20, scale: 0.95 }}
       transition={{ duration: 0.3 }}
-      className={`bg-card/10 backdrop-blur-lg rounded-xl border border-border/20 p-3 sm:p-4 shadow-sm transition-all duration-300 ${
-        isRemoving ? 'opacity-50 scale-95' : 'hover:shadow-md hover:shadow-gray-900/20'
+      className={`signal-glow rounded-xl border border-primary/15 bg-card/20 p-3 shadow-sm backdrop-blur-lg transition-all duration-300 sm:p-4 ${
+        isRemoving ? 'opacity-50 scale-95' : 'hover:shadow-md hover:shadow-primary/10'
       }`}
     >
       <div className="flex items-start space-x-3 sm:space-x-4">
@@ -85,9 +85,9 @@ export default function CartItem({ item }: CartItemProps) {
               {/* License Type */}
               <div className="mt-2">
                 <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                  item.licenseType === 'WAV_LEASE' ? 'bg-blue-500/20 text-blue-300' :
-                  item.licenseType === 'TRACKOUT_LEASE' ? 'bg-purple-500/20 text-purple-300' :
-                  'bg-orange-500/20 text-orange-300'
+                  item.licenseType === 'WAV_LEASE' ? 'bg-cyan-300/15 text-cyan-300 border border-cyan-300/20' :
+                  item.licenseType === 'TRACKOUT_LEASE' ? 'bg-primary/15 text-primary border border-primary/20' :
+                  'bg-white/10 text-white border border-white/20'
                 }`}>
                   {item.licenseType === 'WAV_LEASE' ? t('licenses.wavLease') :
                    item.licenseType === 'TRACKOUT_LEASE' ? t('licenses.trackoutLease') :
@@ -106,13 +106,13 @@ export default function CartItem({ item }: CartItemProps) {
                   <span>{item.beat.rating.toFixed(1)} ⭐</span>
                 </div>
                 {item.beat.isExclusive && (
-                  <div className="flex items-center space-x-1 text-purple-400">
+                  <div className="flex items-center space-x-1 text-primary">
                     <Tag className="h-3 w-3 sm:h-4 sm:w-4" />
                     <span className="font-medium text-xs sm:text-sm">{t('beatCard.exclusive')}</span>
                   </div>
                 )}
                 {item.beat.stemsUrl && (
-                  <div className="flex items-center space-x-1 text-orange-400">
+                  <div className="flex items-center space-x-1 text-cyan-300">
                     <Archive className="h-3 w-3 sm:h-4 sm:w-4" />
                     <span className="font-medium text-xs sm:text-sm">{t('beatCard.stems')}</span>
                   </div>

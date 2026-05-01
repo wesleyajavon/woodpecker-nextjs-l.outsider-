@@ -55,7 +55,7 @@ export default function AuthButton({
             className="text-sm font-medium relative hover:text-muted-foreground transition-colors px-4 py-2 bg-transparent border-none hover:bg-transparent"
           >
             <span className="relative z-10 text-foreground">{t('auth.signOut')}</span>
-            <span className="absolute inset-x-0 w-1/2 mx-auto -bottom-px bg-gradient-to-r from-transparent via-purple-500 to-transparent h-px" />
+            <span className="absolute inset-x-0 -bottom-px mx-auto h-px w-1/2 bg-gradient-to-r from-transparent via-primary to-transparent" />
           </Button>
         </div>
       )
@@ -70,7 +70,7 @@ export default function AuthButton({
           <Button
             onClick={() => signOut({ callbackUrl: '/' })}
             variant="outline"
-            className="w-full text-sm transition-all duration-300 border-border text-foreground hover:border-purple-300 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20 touch-manipulation"
+            className="w-full touch-manipulation border-border text-sm text-foreground transition-all duration-300 hover:border-primary/60 hover:bg-primary/10 hover:text-primary"
           >
             {t('auth.signOut')}
           </Button>
@@ -84,7 +84,7 @@ export default function AuthButton({
         <Button
           onClick={() => signOut({ callbackUrl: '/' })}
           variant="outline"
-          className="text-sm transition-all duration-300 border-border text-foreground hover:border-purple-300 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20"
+          className="border-border text-sm text-foreground transition-all duration-300 hover:border-primary/60 hover:bg-primary/10 hover:text-primary"
         >
           {t('auth.signOut')}
         </Button>
@@ -99,7 +99,7 @@ export default function AuthButton({
         className="text-sm font-medium relative text-foreground hover:text-muted-foreground transition-colors px-4 py-2 bg-transparent border-none hover:bg-transparent"
       >
         <span className="relative z-10">{t('auth.signIn')}</span>
-        <span className="absolute inset-x-0 w-1/2 mx-auto -bottom-px bg-gradient-to-r from-transparent via-purple-500 to-transparent h-px" />
+        <span className="absolute inset-x-0 -bottom-px mx-auto h-px w-1/2 bg-gradient-to-r from-transparent via-primary to-transparent" />
       </Button>
     )
   }
@@ -109,7 +109,7 @@ export default function AuthButton({
       <Button
         onClick={() => window.location.href = '/auth/signin'}
         variant="outline"
-        className="w-full text-sm transition-all duration-300 border-border text-foreground hover:border-purple-300 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20 touch-manipulation"
+        className="w-full touch-manipulation border-border text-sm text-foreground transition-all duration-300 hover:border-primary/60 hover:bg-primary/10 hover:text-primary"
       >
         {t('auth.signIn')}
       </Button>
@@ -121,7 +121,7 @@ export default function AuthButton({
       <Button
         onClick={() => window.location.href = '/auth/signin'}
         variant="outline"
-        className="text-sm transition-all duration-300 border-border text-foreground hover:border-purple-300 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20"
+        className="border-border text-sm text-foreground transition-all duration-300 hover:border-primary/60 hover:bg-primary/10 hover:text-primary"
       >
         {t('auth.signIn')}
       </Button>

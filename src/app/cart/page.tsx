@@ -92,7 +92,8 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      <DottedSurface className="size-full z-0" />
+      <DottedSurface className="size-full z-0 opacity-70" />
+      <div aria-hidden="true" className="audio-scanlines pointer-events-none absolute inset-0 z-0 opacity-35" />
       
       {/* Gradient overlay */}
       <div className="absolute inset-0 z-0 flex items-center justify-center">
@@ -107,7 +108,7 @@ export default function CartPage() {
       </div>
 
       {/* Mobile Header */}
-      <div className="bg-card/10 backdrop-blur-lg border-b border-border/20 relative z-10">
+      <div className="relative z-10 border-b border-primary/15 bg-card/20 backdrop-blur-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14 sm:h-16">
             <div className="flex items-center space-x-2 sm:space-x-4">
@@ -115,7 +116,7 @@ export default function CartPage() {
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="flex items-center space-x-1 sm:space-x-2 bg-card/20 backdrop-blur-lg border border-border/20 text-foreground hover:bg-card/30 touch-manipulation"
+                  className="flex touch-manipulation items-center space-x-1 border border-primary/20 bg-card/20 text-foreground backdrop-blur-lg hover:bg-card/30 sm:space-x-2"
                   style={{ minHeight: '40px' }}
                 >
                   <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -124,10 +125,10 @@ export default function CartPage() {
               </Link>
               
               <div className="flex items-center space-x-2 sm:space-x-3">
-                <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6 text-purple-400" />
+                <ShoppingCart className="h-5 w-5 text-primary sm:h-6 sm:w-6" />
                 <h1 className="text-lg sm:text-2xl font-bold text-foreground">{t('cart.title')}</h1>
                 {cart.totalItems > 0 && (
-                  <span className="bg-purple-600 text-purple-100 text-xs sm:text-sm font-medium px-2 py-0.5 rounded-full">
+                  <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-medium text-primary-foreground sm:text-sm">
                     {cart.totalItems} {cart.totalItems === 1 ? t('cart.item') : t('cart.items_plural')}
                   </span>
                 )}
@@ -147,7 +148,7 @@ export default function CartPage() {
             className="text-center py-6 sm:py-8 lg:py-16"
           >
             <div className="max-w-md mx-auto px-3 sm:px-4">
-              <div className="bg-card/20 backdrop-blur-lg rounded-full w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg border border-border/20">
+              <div className="signal-glow mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-primary/15 bg-card/20 shadow-lg backdrop-blur-lg sm:mb-6 sm:h-20 sm:w-20 lg:h-24 lg:w-24">
                 <ShoppingCart className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-muted-foreground" />
               </div>
               
@@ -158,7 +159,7 @@ export default function CartPage() {
               
               <div className="space-y-3 sm:space-y-4">
                 <Link href="/beats" className="block">
-                  <Button className="w-full sm:w-auto bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-semibold py-3 px-6 sm:px-8 rounded-xl touch-manipulation">
+                  <Button className="signal-glow w-full touch-manipulation rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground hover:bg-primary/90 sm:w-auto sm:px-8">
                     <Music className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                     {t('cart.browseBeat')}
                   </Button>
@@ -180,7 +181,7 @@ export default function CartPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="space-y-3 sm:space-y-4 lg:space-y-6"
               >
-                <div className="bg-card/10 backdrop-blur-lg rounded-xl p-3 sm:p-4 lg:p-6 border border-border/20">
+                <div className="signal-glow rounded-xl border border-primary/15 bg-card/20 p-3 backdrop-blur-lg sm:p-4 lg:p-6">
                   <div className="flex items-center justify-between mb-3 sm:mb-4 lg:mb-6">
                     <h2 className="text-base sm:text-lg lg:text-xl font-semibold text-foreground">
                       {t('cart.cartItems', { count: cart.totalItems })}
@@ -213,8 +214,8 @@ export default function CartPage() {
           animate={{ opacity: 1 }}
           className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-3 sm:p-4"
         >
-          <div className="bg-card/10 backdrop-blur-lg rounded-xl p-4 sm:p-6 lg:p-8 text-center border border-border/20 w-full max-w-xs sm:max-w-sm">
-            <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 lg:h-12 lg:w-12 border-b-2 border-purple-400 mx-auto mb-3 sm:mb-4"></div>
+          <div className="signal-glow w-full max-w-xs rounded-xl border border-primary/15 bg-card/20 p-4 text-center backdrop-blur-lg sm:max-w-sm sm:p-6 lg:p-8">
+            <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-b-2 border-primary sm:mb-4 sm:h-8 sm:w-8 lg:h-12 lg:w-12"></div>
             <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-foreground mb-2">{t('cart.processingCheckout')}</h3>
             <p className="text-xs sm:text-sm lg:text-base text-muted-foreground">{t('cart.processingDescription')}</p>
           </div>

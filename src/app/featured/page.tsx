@@ -78,8 +78,8 @@ export default function FeaturedBeatsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background pt-20 pb-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-        <DottedSurface className="size-full z-0" />
+      <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4 pb-12 pt-20 sm:px-6 lg:px-8">
+        <DottedSurface className="size-full z-0 opacity-70" />
         
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -87,8 +87,8 @@ export default function FeaturedBeatsPage() {
           className="flex flex-col items-center gap-4 relative z-10"
         >
           <div className="relative">
-            <div className="w-16 h-16 border-4 border-purple-500/20 rounded-full"></div>
-            <div className="absolute top-0 left-0 w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+            <div className="h-16 w-16 rounded-full border-4 border-primary/20"></div>
+            <div className="absolute left-0 top-0 h-16 w-16 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
           </div>
           <div className="text-center">
             <h3 className="text-lg font-semibold text-foreground mb-1">Chargement des beats en vedette...</h3>
@@ -101,8 +101,8 @@ export default function FeaturedBeatsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background pt-20 pb-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-        <DottedSurface className="size-full z-0" />
+      <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4 pb-12 pt-20 sm:px-6 lg:px-8">
+        <DottedSurface className="size-full z-0 opacity-70" />
         
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -116,7 +116,7 @@ export default function FeaturedBeatsPage() {
           </p>
           <button
             onClick={() => refetch()}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors"
+            className="rounded-lg bg-primary px-4 py-2 text-primary-foreground transition-colors hover:bg-primary/90"
           >
             Réessayer
           </button>
@@ -126,8 +126,9 @@ export default function FeaturedBeatsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background pt-20 pb-12 px-4 sm:px-6 lg:px-8">
-      <DottedSurface className="size-full z-0" />
+    <div className="relative min-h-screen overflow-hidden bg-background px-4 pb-12 pt-20 sm:px-6 lg:px-8">
+      <DottedSurface className="size-full z-0 opacity-70" />
+      <div aria-hidden="true" className="audio-scanlines pointer-events-none absolute inset-0 z-0 opacity-35" />
 
       {/* Gradient overlay */}
       <div className="absolute inset-0 z-0 flex items-center justify-center">
@@ -149,8 +150,8 @@ export default function FeaturedBeatsPage() {
           className="text-center mb-12"
         >
           <div className="flex items-center justify-center gap-3 mb-6">
-            <div className="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center">
-              <Star className="w-6 h-6 text-white" />
+            <div className="signal-glow flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
+              <Star className="w-6 h-6 text-primary-foreground" />
             </div>
             <h1 className="text-4xl font-bold text-foreground">Beats en Vedette</h1>
           </div>
@@ -178,22 +179,22 @@ export default function FeaturedBeatsPage() {
           transition={{ delay: 0.3 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
         >
-          <div className="bg-card/50 backdrop-blur-lg rounded-xl border border-border p-6 text-center">
-            <TrendingUp className="w-8 h-8 text-green-400 mx-auto mb-3" />
+          <div className="signal-glow rounded-xl border border-primary/15 bg-card/50 p-6 text-center backdrop-blur-lg">
+            <TrendingUp className="mx-auto mb-3 h-8 w-8 text-primary" />
             <div className="text-2xl font-bold text-foreground mb-1">{featuredBeats.length}</div>
             <div className="text-sm text-muted-foreground">Beats en vedette</div>
           </div>
           
-          <div className="bg-card/50 backdrop-blur-lg rounded-xl border border-border p-6 text-center">
-            <Music className="w-8 h-8 text-blue-400 mx-auto mb-3" />
+          <div className="signal-glow rounded-xl border border-primary/15 bg-card/50 p-6 text-center backdrop-blur-lg">
+            <Music className="mx-auto mb-3 h-8 w-8 text-cyan-300" />
             <div className="text-2xl font-bold text-foreground mb-1">
               {new Set(featuredBeats.map(beat => beat.genre)).size}
             </div>
             <div className="text-sm text-muted-foreground">Genres différents</div>
           </div>
           
-          <div className="bg-card/50 backdrop-blur-lg rounded-xl border border-border p-6 text-center">
-            <Star className="w-8 h-8 text-yellow-400 mx-auto mb-3" />
+          <div className="signal-glow rounded-xl border border-primary/15 bg-card/50 p-6 text-center backdrop-blur-lg">
+            <Star className="mx-auto mb-3 h-8 w-8 text-primary" />
             <div className="text-2xl font-bold text-foreground mb-1">
               {featuredBeats.filter(beat => beat.stemsUrl).length}
             </div>
@@ -219,7 +220,7 @@ export default function FeaturedBeatsPage() {
               >
                 {/* Featured Badge */}
                 <div className="absolute -top-2 -right-2 z-10">
-                  <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                  <div className="flex items-center gap-1 rounded-full bg-primary px-2 py-1 text-xs font-medium text-primary-foreground">
                     <Star className="w-3 h-3" />
                     Vedette
                   </div>
@@ -249,7 +250,7 @@ export default function FeaturedBeatsPage() {
             </p>
             <Link
               href="/beats"
-              className="inline-block bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition-colors"
+              className="inline-block rounded-lg bg-primary px-6 py-3 text-primary-foreground transition-colors hover:bg-primary/90"
             >
               Voir tous les beats
             </Link>
@@ -263,7 +264,7 @@ export default function FeaturedBeatsPage() {
           transition={{ delay: 0.5 }}
           className="text-center mt-16"
         >
-          <div className="bg-card/50 backdrop-blur-lg rounded-xl border border-border p-8 max-w-2xl mx-auto">
+          <div className="signal-glow mx-auto max-w-2xl rounded-xl border border-primary/15 bg-card/50 p-8 backdrop-blur-lg">
             <h3 className="text-2xl font-bold text-foreground mb-4">
               Vous cherchez autre chose ?
             </h3>
@@ -273,7 +274,7 @@ export default function FeaturedBeatsPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 href="/beats"
-                className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition-colors"
+                className="rounded-lg bg-primary px-6 py-3 text-primary-foreground transition-colors hover:bg-primary/90"
               >
                 Voir tous les beats
               </Link>

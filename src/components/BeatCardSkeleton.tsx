@@ -7,10 +7,10 @@ interface BeatCardSkeletonProps {
 export default function BeatCardSkeleton({ className = '' }: BeatCardSkeletonProps) {
   return (
     <div
-      className={`overflow-hidden rounded-xl border border-border bg-card/50 backdrop-blur-lg animate-pulse ${className}`}
+      className={`signal-glow animate-pulse overflow-hidden rounded-xl border border-primary/15 bg-card/50 backdrop-blur-lg ${className}`}
       aria-hidden
     >
-      <div className="aspect-[512/289] w-full bg-gradient-to-b from-zinc-950 via-neutral-950 to-black ring-1 ring-white/5" />
+      <div className="audio-scanlines aspect-[512/289] w-full bg-gradient-to-b from-background via-card to-black ring-1 ring-primary/10" />
 
       <div className="px-3 pt-3 sm:px-4 sm:pt-4">
         <div className="mb-2 h-5 w-3/4 rounded bg-muted/60" />

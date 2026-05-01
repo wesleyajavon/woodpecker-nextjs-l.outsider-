@@ -28,9 +28,9 @@ interface BeatCardProps {
 }
 
 const licenseColors = {
-  WAV_LEASE: 'text-blue-400',
-  TRACKOUT_LEASE: 'text-purple-400',
-  UNLIMITED_LEASE: 'text-orange-400'
+  WAV_LEASE: 'text-cyan-300',
+  TRACKOUT_LEASE: 'text-primary',
+  UNLIMITED_LEASE: 'text-white'
 };
 
 export default function BeatCard({ 
@@ -96,7 +96,7 @@ export default function BeatCard({
     <motion.div
       data-beat-card
       data-beat-id={beat.id}
-      className={`bg-card/50 backdrop-blur-lg rounded-xl border border-border overflow-hidden hover:border-border/80 transition-all duration-300 ${className}`}
+      className={`signal-glow overflow-hidden rounded-xl border border-primary/15 bg-card/55 backdrop-blur-lg transition-all duration-300 hover:border-primary/45 ${className}`}
       whileHover={{ y: isListMode ? 0 : -2 }}
       whileTap={{ scale: 0.98 }}
     >
@@ -107,7 +107,7 @@ export default function BeatCard({
         aria-label={`${t('beatCard.viewDetails')} - ${beat.title}`}
         className="flex min-w-0 flex-1 items-center"
       >
-        <div className="relative h-16 w-[113px] shrink-0 overflow-hidden rounded-lg bg-gradient-to-b from-zinc-950 via-neutral-950 to-black ring-1 ring-white/5 sm:h-20 sm:w-[142px]">
+        <div className="relative h-16 w-[113px] shrink-0 overflow-hidden rounded-lg bg-gradient-to-b from-background via-card to-black ring-1 ring-primary/10 sm:h-20 sm:w-[142px]">
           {beat.artworkUrl ? (
             <Image
               src={beat.artworkUrl}
@@ -128,7 +128,7 @@ export default function BeatCard({
               e.stopPropagation();
               handlePlay();
             }}
-            className="absolute inset-0 z-10 flex touch-manipulation items-center justify-center rounded-lg bg-black/50 opacity-0 transition-opacity duration-300 hover:opacity-100 active:opacity-100"
+            className="absolute inset-0 z-10 flex touch-manipulation items-center justify-center rounded-lg bg-background/65 opacity-0 transition-opacity duration-300 hover:opacity-100 active:opacity-100"
             style={{ minHeight: '44px', minWidth: '44px' }}
           >
             {isPlaying ? (
@@ -165,7 +165,7 @@ export default function BeatCard({
                   }}
                 >
                   <div
-                    className="h-full bg-gradient-to-r from-purple-500 to-blue-500 transition-all duration-150"
+                    className="h-full bg-gradient-to-r from-primary to-cyan-300 transition-all duration-150"
                     style={{ width: `${(progress.currentTime / progress.duration) * 100}%` }}
                   />
                 </div>
@@ -191,7 +191,7 @@ export default function BeatCard({
         aria-label={`${t('beatCard.viewDetails')} — ${beat.title}`}
         className="block"
       >
-        <div className="relative aspect-[512/289] w-full overflow-hidden bg-gradient-to-b from-zinc-950 via-neutral-950 to-black shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] ring-1 ring-white/5">
+        <div className="audio-scanlines relative aspect-[512/289] w-full overflow-hidden bg-gradient-to-b from-background via-card to-black shadow-[inset_0_1px_0_0_rgba(34,242,166,0.14)] ring-1 ring-primary/10">
           {beat.artworkUrl ? (
             <Image
               src={beat.artworkUrl}
@@ -201,7 +201,7 @@ export default function BeatCard({
               className="object-cover object-center"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-purple-900/30 to-blue-900/30">
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/15 to-cyan-300/10">
               <Music className="h-16 w-16 text-muted-foreground" />
             </div>
           )}
@@ -212,7 +212,7 @@ export default function BeatCard({
               e.stopPropagation();
               handlePlay();
             }}
-            className="absolute inset-0 z-10 flex touch-manipulation items-center justify-center bg-black/50 opacity-0 transition-opacity duration-300 hover:opacity-100 active:opacity-100"
+            className="absolute inset-0 z-10 flex touch-manipulation items-center justify-center bg-background/65 opacity-0 transition-opacity duration-300 hover:opacity-100 active:opacity-100"
             style={{ minHeight: '44px', minWidth: '44px' }}
           >
             {isPlaying ? (
@@ -223,7 +223,7 @@ export default function BeatCard({
           </button>
 
           <div className="absolute top-2 right-2 z-10">
-            <div className={`rounded-full bg-card/80 px-2 py-1 text-xs font-medium ${licenseColors[selectedLicense]}`}>
+            <div className={`rounded-full border border-primary/15 bg-card/85 px-2 py-1 text-xs font-medium backdrop-blur ${licenseColors[selectedLicense]}`}>
               {selectedLicense === 'WAV_LEASE'
                 ? t('licenses.wavLease')
                 : selectedLicense === 'TRACKOUT_LEASE'
@@ -234,7 +234,7 @@ export default function BeatCard({
 
           {beat.stemsUrl && (
             <div className="absolute top-2 left-2 z-10">
-              <div className="rounded-full border border-orange-500/50 bg-orange-500/20 px-2 py-1 text-xs font-medium text-orange-300">
+              <div className="rounded-full border border-primary/40 bg-primary/15 px-2 py-1 text-xs font-medium text-primary">
                 {t('beatCard.stems')}
               </div>
             </div>
@@ -267,7 +267,7 @@ export default function BeatCard({
                   }}
                 >
                   <div
-                    className="h-full bg-gradient-to-r from-purple-500 to-blue-500 transition-all duration-150"
+                    className="h-full bg-gradient-to-r from-primary to-cyan-300 transition-all duration-150"
                     style={{ width: `${(progress.currentTime / progress.duration) * 100}%` }}
                   />
                 </div>
@@ -307,7 +307,7 @@ export default function BeatCard({
             <button
               type="button"
               onClick={openLicenseModal}
-              className="flex flex-shrink-0 items-center gap-1 whitespace-nowrap text-xs text-purple-400 transition-colors hover:text-purple-300 sm:text-sm"
+              className="flex flex-shrink-0 items-center gap-1 whitespace-nowrap text-xs text-primary transition-colors hover:text-cyan-200 sm:text-sm"
             >
               <Crown className="h-3 w-3 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">{t('beatCard.changeLicense')}</span>
@@ -354,7 +354,7 @@ export default function BeatCard({
               </span>
               <span>•</span>
               <span>{beat.duration}</span>
-              {beat.stemsUrl && <span className="text-orange-400">• STEMS</span>}
+              {beat.stemsUrl && <span className="text-primary">• STEMS</span>}
             </div>
 
             <div className="flex items-center gap-2">
@@ -378,7 +378,7 @@ export default function BeatCard({
             <button
               type="button"
               onClick={openLicenseModal}
-              className="flex-shrink-0 p-2 text-purple-400 transition-colors hover:text-purple-300"
+              className="flex-shrink-0 p-2 text-primary transition-colors hover:text-cyan-200"
               title={t('beatCard.changeLicense')}
             >
               <Crown className="h-3 w-3" />
@@ -415,7 +415,7 @@ export default function BeatCard({
                 {/* Modal Header */}
                 <div className="flex items-center justify-between p-4 sm:p-6 border-b border-border/20 flex-shrink-0">
                   <h3 className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2 truncate">
-                    <Crown className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400 flex-shrink-0" />
+                    <Crown className="w-4 h-4 sm:w-5 sm:h-5 text-primary flex-shrink-0" />
                     <span className="truncate">{t('beatCard.selectLicense')}</span>
                   </h3>
                   <button
@@ -433,8 +433,8 @@ export default function BeatCard({
                     {/* WAV Lease */}
                     <div className={`w-full rounded-xl border-2 transition-all ${
                       selectedLicense === 'WAV_LEASE'
-                        ? 'border-purple-500 bg-purple-500/10'
-                        : 'border-border hover:border-purple-400/50 hover:bg-purple-400/5'
+                        ? 'border-primary bg-primary/10'
+                        : 'border-border hover:border-primary/50 hover:bg-primary/5'
                     }`}>
                         <div className="flex items-start justify-between p-3 sm:p-4">
                           <motion.div
@@ -448,7 +448,7 @@ export default function BeatCard({
                             <div className="flex items-center gap-2 mb-1">
                               <h4 className="font-semibold text-foreground text-sm sm:text-base truncate">WAV Lease</h4>
                               {selectedLicense === 'WAV_LEASE' && (
-                                <Check className="w-3 h-3 sm:w-4 sm:h-4 text-purple-400 flex-shrink-0" />
+                                <Check className="w-3 h-3 sm:w-4 sm:h-4 text-primary flex-shrink-0" />
                               )}
                             </div>
                             <p className="font-medium text-xs sm:text-sm text-foreground truncate">WAV & MP3</p>
@@ -494,8 +494,8 @@ export default function BeatCard({
                     {/* Trackout Lease */}
                     <div className={`w-full rounded-xl border-2 transition-all ${
                       selectedLicense === 'TRACKOUT_LEASE'
-                        ? 'border-purple-500 bg-purple-500/10'
-                        : 'border-border hover:border-purple-400/50 hover:bg-purple-400/5'
+                        ? 'border-primary bg-primary/10'
+                        : 'border-border hover:border-primary/50 hover:bg-primary/5'
                     }`}>
                         <div className="flex items-start justify-between p-3 sm:p-4">
                           <motion.div
@@ -509,7 +509,7 @@ export default function BeatCard({
                             <div className="flex items-center gap-2 mb-1">
                               <h4 className="font-semibold text-foreground text-sm sm:text-base truncate">Trackout Lease</h4>
                               {selectedLicense === 'TRACKOUT_LEASE' && (
-                                <Check className="w-3 h-3 sm:w-4 sm:h-4 text-purple-400 flex-shrink-0" />
+                                <Check className="w-3 h-3 sm:w-4 sm:h-4 text-primary flex-shrink-0" />
                               )}
                             </div>
                             <p className="font-medium text-xs sm:text-sm text-foreground truncate">WAV, STEMS & MP3</p>
@@ -555,8 +555,8 @@ export default function BeatCard({
                     {/* Unlimited Lease */}
                     <div className={`w-full rounded-xl border-2 transition-all ${
                       selectedLicense === 'UNLIMITED_LEASE'
-                        ? 'border-purple-500 bg-purple-500/10'
-                        : 'border-border hover:border-purple-400/50 hover:bg-purple-400/5'
+                        ? 'border-primary bg-primary/10'
+                        : 'border-border hover:border-primary/50 hover:bg-primary/5'
                     }`}>
                         <div className="flex items-start justify-between p-3 sm:p-4">
                           <motion.div
@@ -570,7 +570,7 @@ export default function BeatCard({
                             <div className="flex items-center gap-2 mb-1">
                               <h4 className="font-semibold text-foreground text-sm sm:text-base truncate">Unlimited Lease</h4>
                               {selectedLicense === 'UNLIMITED_LEASE' && (
-                                <Check className="w-3 h-3 sm:w-4 sm:h-4 text-purple-400 flex-shrink-0" />
+                                <Check className="w-3 h-3 sm:w-4 sm:h-4 text-primary flex-shrink-0" />
                               )}
                             </div>
                             <p className="font-medium text-xs sm:text-sm text-foreground truncate">WAV, STEMS & MP3</p>
@@ -628,7 +628,7 @@ export default function BeatCard({
                       // License is already selected, just close the modal
                       closeLicenseModal();
                     }}
-                    className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors font-medium"
+                    className="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors font-medium"
                   >
                     {t('common.confirm')}
                   </button>

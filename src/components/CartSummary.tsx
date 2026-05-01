@@ -60,7 +60,7 @@ export default function CartSummary({ onCheckout }: CartSummaryProps) {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-card/10 backdrop-blur-lg rounded-xl border border-border/20 p-8 text-center"
+        className="signal-glow rounded-xl border border-primary/15 bg-card/20 p-8 text-center backdrop-blur-lg"
       >
         <ShoppingCart className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
         <h3 className="text-xl font-semibold text-foreground mb-2">{t('cart.empty')}</h3>
@@ -69,7 +69,7 @@ export default function CartSummary({ onCheckout }: CartSummaryProps) {
         </p>
         <Button
           onClick={() => window.location.href = '/beats'}
-          className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"
+          className="signal-glow bg-primary text-primary-foreground hover:bg-primary/90"
         >
           {t('cart.browseBeat')}
         </Button>
@@ -81,7 +81,7 @@ export default function CartSummary({ onCheckout }: CartSummaryProps) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-card/10 backdrop-blur-lg rounded-xl border border-border/20 p-4 sm:p-6 shadow-sm"
+      className="signal-glow rounded-xl border border-primary/15 bg-card/20 p-4 shadow-sm backdrop-blur-lg sm:p-6"
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
         <h3 className="text-lg sm:text-xl font-semibold text-foreground">{t('cart.orderSummary')}</h3>
@@ -104,7 +104,7 @@ export default function CartSummary({ onCheckout }: CartSummaryProps) {
             <div className="flex-1 min-w-0">
               <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                 <span className="font-medium text-foreground text-sm sm:text-base truncate">{item.beat.title}</span>
-                <span className="text-xs bg-purple-600/20 text-purple-300 px-2 py-1 rounded-full w-fit">
+                <span className="w-fit rounded-full border border-primary/20 bg-primary/15 px-2 py-1 text-xs text-primary">
                   {getLicenseDisplayName(item.licenseType)}
                 </span>
               </div>
@@ -151,7 +151,7 @@ export default function CartSummary({ onCheckout }: CartSummaryProps) {
       {/* Checkout Button */}
       <Button
         onClick={onCheckout}
-        className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-semibold py-3 sm:py-4 px-4 sm:px-6 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/25 touch-manipulation"
+        className="signal-glow w-full touch-manipulation rounded-xl bg-primary px-4 py-3 font-semibold text-primary-foreground transition-all duration-300 hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/25 sm:px-6 sm:py-4"
       >
         <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
         <span className="text-sm sm:text-base">{t('cart.proceedToCheckout')}</span>

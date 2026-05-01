@@ -12,7 +12,6 @@ import BeatCardSkeleton from '@/components/BeatCardSkeleton';
 import { BeatsStructuredData } from '@/components/BeatsStructuredData';
 import { DottedSurface } from '@/components/ui/dotted-surface';
 import { HoverBorderGradient } from '@/components/ui/hover-border-gradient';
-import { TextRewind } from '@/components/ui/text-rewind';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useApp';
 import { BEAT_CONFIG } from '@/config/constants';
@@ -68,8 +67,8 @@ export default function BeatsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const allGenresLabel = t('beats.allGenres');
-  const { data: existingGenres = [] } = useBeatGenres();
   const allKeysLabel = t('beats.allKeys');
+  const { data: existingGenres = [] } = useBeatGenres();
 
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [playingBeat, setPlayingBeat] = useState<string | null>(null);
@@ -90,12 +89,12 @@ export default function BeatsPage() {
     allGenresLabel,
     allKeysLabel,
     BEAT_CONFIG.keys
+  );
   const genres = useMemo(() => {
     const options = new Set<string>([allGenresLabel, ...BEAT_CONFIG.genres, ...existingGenres]);
     if (genre !== allGenresLabel) options.add(genre);
     return Array.from(options);
   }, [allGenresLabel, existingGenres, genre]);
-  );
 
   const updateUrl = useCallback(
     (updates: {
@@ -361,8 +360,9 @@ export default function BeatsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background pt-20">
-        <DottedSurface className="size-full z-0" />
+      <div className="relative min-h-screen overflow-hidden bg-background pt-20">
+        <DottedSurface className="size-full z-0 opacity-70" />
+        <div aria-hidden="true" className="audio-scanlines pointer-events-none absolute inset-0 z-0 opacity-35" />
         
         {/* Gradient overlay */}
         <div className="absolute inset-0 z-0 flex items-center justify-center">
@@ -410,8 +410,9 @@ export default function BeatsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background pt-20">
-      <DottedSurface className="size-full z-0" />
+    <div className="relative min-h-screen overflow-hidden bg-background pt-20">
+      <DottedSurface className="size-full z-0 opacity-70" />
+      <div aria-hidden="true" className="audio-scanlines pointer-events-none absolute inset-0 z-0 opacity-35" />
       
       {/* Gradient overlay */}
       <div className="absolute inset-0 z-0 flex items-center justify-center">
@@ -425,10 +426,20 @@ export default function BeatsPage() {
         />
       </div>
 
-      <div className="container mx-auto px-4 py-8 relative z-10">
+      <div className="signal-glow fixed left-4 top-4 z-[5001] hidden items-center gap-3 rounded-xl border border-primary/20 bg-background/80 px-4 py-3 text-foreground shadow-lg shadow-primary/5 backdrop-blur-lg md:flex">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+          <Music className="h-4 w-4" />
+        </div>
+        <div className="leading-tight">
+          <h1 className="text-sm font-semibold">{t('beats.title')}</h1>
+          <p className="text-xs text-muted-foreground">{t('nav.beats')}</p>
+        </div>
+      </div>
+
+      <div className="container relative z-10 mx-auto max-w-[1500px] px-4 py-4 sm:py-6">
         <BeatsStructuredData beats={beats} />
         {/* Breadcrumb */}
-        <nav aria-label={t('nav.breadcrumb')} className="mb-6">
+        <nav aria-label={t('nav.breadcrumb')} className="sr-only">
           <ol className="flex items-center gap-2 text-sm text-muted-foreground">
             <li>
               <Link href="/" className="hover:text-foreground transition-colors">
@@ -442,33 +453,31 @@ export default function BeatsPage() {
           </ol>
         </nav>
 
-        {/* Header */}
-        <div className="text-center mb-8 sm:mb-12 px-2">
+        {/* Compact page context */}
+        <div className="mb-4 flex flex-col gap-2 px-1 md:hidden">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-16 mt-6"
+            className="flex items-center gap-3"
           >
-            <TextRewind text={t('beats.title')} />
+            <div className="signal-glow flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+              <Music className="h-5 w-5" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-foreground">{t('beats.title')}</h1>
+              <p className="text-sm text-muted-foreground">{t('beats.description')}</p>
+            </div>
           </motion.div>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
-          >
-{t('beats.description')}
-          </motion.p>
         </div>
 
         {/* Filtres et recherche */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-card/10 backdrop-blur-lg rounded-xl sm:rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8 border border-border/20"
+          transition={{ delay: 0.1 }}
+          className="signal-glow mb-4 rounded-xl border border-primary/15 bg-card/20 p-3 shadow-sm backdrop-blur-lg sm:mb-5 sm:p-4"
         >
-          <div className="flex flex-col gap-4 sm:gap-6">
+          <div className="flex flex-col gap-3 sm:gap-4">
             {/* Barre de recherche */}
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 sm:w-5 sm:h-5" />
@@ -477,7 +486,7 @@ export default function BeatsPage() {
                 placeholder={t('beats.searchPlaceholder')}
                 value={searchInput}
                 onChange={(e) => handleSearch(e.target.value)}
-                className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 bg-card/20 border border-border/30 rounded-lg text-sm sm:text-base text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent touch-manipulation"
+                className="w-full touch-manipulation rounded-lg border border-primary/20 bg-card/30 py-2.5 pl-9 pr-3 text-sm text-foreground placeholder-muted-foreground focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary sm:py-3 sm:pl-10 sm:pr-4 sm:text-base"
               />
             </div>
 
@@ -489,7 +498,7 @@ export default function BeatsPage() {
                 <select
                   value={genre}
                   onChange={(e) => handleGenreFilter(e.target.value)}
-                  className="w-full bg-card/20 border border-border/30 rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-foreground focus:outline-none focus:ring-2 focus:ring-purple-500 touch-manipulation"
+                  className="w-full touch-manipulation rounded-lg border border-primary/20 bg-card/30 px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary sm:px-4 sm:py-3 sm:text-base"
                 >
                   {genres.map((g) => (
                     <option key={g} value={g} className="bg-card text-foreground">
@@ -503,7 +512,7 @@ export default function BeatsPage() {
               <select
                 value={key}
                 onChange={(e) => updateUrl({ key: e.target.value, resetPage: true })}
-                className="w-full sm:w-auto bg-card/20 border border-border/30 rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-foreground focus:outline-none focus:ring-2 focus:ring-purple-500 touch-manipulation"
+                className="w-full touch-manipulation rounded-lg border border-primary/20 bg-card/30 px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary sm:w-auto sm:px-4 sm:py-3 sm:text-base"
                 aria-label={t('beats.keyFilter')}
               >
                 {keys.map((k) => (
@@ -517,7 +526,7 @@ export default function BeatsPage() {
               <select
                 value={sortBy}
                 onChange={(e) => handleSortChange(e.target.value)}
-                className="w-full sm:w-auto bg-card/20 border border-border/30 rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-foreground focus:outline-none focus:ring-2 focus:ring-purple-500 touch-manipulation"
+                className="w-full touch-manipulation rounded-lg border border-primary/20 bg-card/30 px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary sm:w-auto sm:px-4 sm:py-3 sm:text-base"
               >
                 <option value="newest" className="bg-card text-foreground">{t('beats.sortNewest')}</option>
                 <option value="oldest" className="bg-card text-foreground">{t('beats.sortOldest')}</option>
@@ -530,7 +539,7 @@ export default function BeatsPage() {
               <select
                 value={limit}
                 onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-                className="w-full sm:w-auto bg-card/20 border border-border/30 rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-foreground focus:outline-none focus:ring-2 focus:ring-purple-500 touch-manipulation"
+                className="w-full touch-manipulation rounded-lg border border-primary/20 bg-card/30 px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary sm:w-auto sm:px-4 sm:py-3 sm:text-base"
               >
                 <option value={4} className="bg-card text-foreground">{t('beats.itemsPerPage', { count: '4' })}</option>
                 <option value={8} className="bg-card text-foreground">{t('beats.itemsPerPage', { count: '8' })}</option>
@@ -543,7 +552,7 @@ export default function BeatsPage() {
                 <button
                   onClick={() => setViewMode('grid')}
                   className={`p-2 sm:p-2 rounded-md transition-colors touch-manipulation ${
-                    viewMode === 'grid' ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white' : 'text-muted-foreground hover:text-foreground'
+                    viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   <Grid3X3 className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -551,7 +560,7 @@ export default function BeatsPage() {
                 <button
                   onClick={() => setViewMode('list')}
                   className={`p-2 sm:p-2 rounded-md transition-colors touch-manipulation ${
-                    viewMode === 'list' ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white' : 'text-muted-foreground hover:text-foreground'
+                    viewMode === 'list' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   <List className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -562,7 +571,7 @@ export default function BeatsPage() {
               {hasActiveFilters && (
                 <div className="flex items-center gap-2 w-full sm:w-auto">
                   <span
-                    className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs sm:text-sm font-medium bg-purple-500/20 text-purple-400 border border-purple-500/30"
+                    className="inline-flex items-center rounded-lg border border-primary/30 bg-primary/15 px-2.5 py-1 text-xs font-medium text-primary sm:text-sm"
                     aria-live="polite"
                   >
                     {activeFiltersCount === 1
@@ -581,11 +590,11 @@ export default function BeatsPage() {
             </div>
 
             {/* Filtres avancés - collapsible sur mobile, aligné avec les filtres principaux */}
-            <div className="border-t border-border/20 pt-4 sm:pt-5 mt-1 sm:mt-0">
+            <div className="border-t border-border/15 pt-3 sm:pt-4 mt-1 sm:mt-0">
               <button
                 type="button"
                 onClick={() => setAdvancedFiltersOpen(!advancedFiltersOpen)}
-                className="flex sm:hidden w-full items-center justify-between py-2.5 px-3 rounded-lg bg-card/10 border border-border/20 text-sm font-medium text-foreground hover:bg-card/20 hover:border-border/30 transition-colors"
+                    className="flex w-full items-center justify-between rounded-lg border border-primary/20 bg-card/20 px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-primary/35 hover:bg-card/30 sm:hidden"
                 aria-expanded={advancedFiltersOpen}
               >
                 <span className="flex items-center gap-2">
@@ -621,7 +630,7 @@ export default function BeatsPage() {
                           updateUrl({ bpmMin: !isNaN(v as number) ? v : undefined, resetPage: true });
                         }}
                         aria-label={`${t('beats.bpmRange')} min (${bpmRangeHint.min}-${bpmRangeHint.max})`}
-                        className="w-20 sm:w-24 bg-card/20 border border-border/30 rounded-lg px-3 py-2.5 sm:py-3 text-sm sm:text-base text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent touch-manipulation [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        className="w-20 touch-manipulation rounded-lg border border-primary/20 bg-card/30 px-3 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary sm:w-24 sm:py-3 sm:text-base [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                       />
                       <span className="text-muted-foreground text-sm font-medium" aria-hidden="true">–</span>
                       <label htmlFor="bpm-max" className="sr-only">
@@ -639,19 +648,19 @@ export default function BeatsPage() {
                           updateUrl({ bpmMax: !isNaN(v as number) ? v : undefined, resetPage: true });
                         }}
                         aria-label={`${t('beats.bpmRange')} max (${bpmRangeHint.min}-${bpmRangeHint.max})`}
-                        className="w-20 sm:w-24 bg-card/20 border border-border/30 rounded-lg px-3 py-2.5 sm:py-3 text-sm sm:text-base text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent touch-manipulation [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        className="w-20 touch-manipulation rounded-lg border border-primary/20 bg-card/30 px-3 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary sm:w-24 sm:py-3 sm:text-base [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                       />
                     </div>
                     <span className="text-xs text-muted-foreground ml-1">BPM</span>
                   </div>
 
                   {/* Avec stems - style pill aligné */}
-                  <label className="flex items-center gap-2.5 cursor-pointer px-3 py-2.5 sm:py-3 rounded-lg bg-card/20 border border-border/30 hover:bg-card/30 hover:border-border/50 transition-colors touch-manipulation min-h-[44px] sm:min-h-[48px]">
+                  <label className="flex min-h-[44px] cursor-pointer touch-manipulation items-center gap-2.5 rounded-lg border border-primary/20 bg-card/30 px-3 py-2.5 transition-colors hover:border-primary/35 hover:bg-card/40 sm:min-h-[48px] sm:py-3">
                     <input
                       type="checkbox"
                       checked={hasStems}
                       onChange={(e) => updateUrl({ hasStems: e.target.checked, resetPage: true })}
-                      className="rounded border-border/50 bg-card/20 text-purple-500 focus:ring-2 focus:ring-purple-500 focus:ring-offset-0 w-4 h-4"
+                      className="h-4 w-4 rounded border-border/50 bg-card/20 text-primary focus:ring-2 focus:ring-primary focus:ring-offset-0"
                     />
                     <span className="text-sm sm:text-base text-foreground select-none">{t('beats.withStems')}</span>
                   </label>
@@ -661,7 +670,7 @@ export default function BeatsPage() {
                     <button
                       type="button"
                       onClick={() => setMoreFiltersOpen(!moreFiltersOpen)}
-                      className="flex items-center gap-2 px-3 py-2.5 sm:py-3 rounded-lg bg-card/20 border border-border/30 hover:bg-card/30 hover:border-border/50 transition-colors text-sm sm:text-base text-foreground w-full sm:w-auto justify-between sm:justify-start min-h-[44px] sm:min-h-[48px] touch-manipulation"
+                      className="flex min-h-[44px] w-full touch-manipulation items-center justify-between gap-2 rounded-lg border border-primary/20 bg-card/30 px-3 py-2.5 text-sm text-foreground transition-colors hover:border-primary/35 hover:bg-card/40 sm:min-h-[48px] sm:w-auto sm:justify-start sm:py-3 sm:text-base"
                       aria-expanded={moreFiltersOpen}
                     >
                       <span className="flex items-center gap-2">
@@ -692,7 +701,7 @@ export default function BeatsPage() {
                               const v = e.target.value === '' ? undefined : parseFloat(e.target.value);
                               updateUrl({ priceMin: v != null && !isNaN(v) ? v : undefined, resetPage: true });
                             }}
-                            className="w-full min-w-[100px] bg-card/20 border border-border/30 rounded-lg px-3 py-2.5 sm:py-3 text-sm sm:text-base text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent touch-manipulation [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            className="w-full min-w-[100px] touch-manipulation rounded-lg border border-primary/20 bg-card/30 px-3 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary sm:py-3 sm:text-base [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                           />
                         </div>
                         <div className="flex flex-col gap-1.5 min-w-[100px] flex-1 sm:flex-initial">
@@ -710,7 +719,7 @@ export default function BeatsPage() {
                               const v = e.target.value === '' ? undefined : parseFloat(e.target.value);
                               updateUrl({ priceMax: v != null && !isNaN(v) ? v : undefined, resetPage: true });
                             }}
-                            className="w-full min-w-[100px] bg-card/20 border border-border/30 rounded-lg px-3 py-2.5 sm:py-3 text-sm sm:text-base text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent touch-manipulation [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            className="w-full min-w-[100px] touch-manipulation rounded-lg border border-primary/20 bg-card/30 px-3 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary sm:py-3 sm:text-base [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                           />
                         </div>
                       </div>
@@ -726,7 +735,7 @@ export default function BeatsPage() {
         <div
           aria-live="polite"
           aria-atomic="true"
-          className="text-muted-foreground text-xs sm:text-sm text-center sm:text-left mb-4 min-h-[1.25rem]"
+          className="mb-3 min-h-[1.25rem] text-center text-xs text-muted-foreground sm:text-left sm:text-sm"
         >
           {loading && beats.length === 0
             ? t('beats.loadingBeats')
@@ -744,7 +753,7 @@ export default function BeatsPage() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+            className="grid grid-cols-1 gap-7 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
           >
             {Array.from({ length: 8 }).map((_, i) => (
               <BeatCardSkeleton key={i} />
@@ -755,10 +764,10 @@ export default function BeatsPage() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className={`grid gap-6 ${
+              transition={{ delay: 0.2 }}
+              className={`grid gap-7 ${
                 viewMode === 'grid'
-                  ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                  ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4'
                   : 'grid-cols-1'
               }`}
             >
@@ -788,7 +797,7 @@ export default function BeatsPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className="bg-card/10 backdrop-blur-lg rounded-xl p-4 sm:p-6 border border-border/20 mt-8 sm:mt-12"
+                className="signal-glow mt-8 rounded-xl border border-primary/15 bg-card/20 p-4 backdrop-blur-lg sm:mt-12 sm:p-6"
               >
                 {/* Pagination controls */}
                 <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-end gap-3 sm:gap-2">
@@ -823,7 +832,7 @@ export default function BeatsPage() {
                           onClick={() => goToPage(pageNum)}
                           className={`px-3 sm:px-3 py-2 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors touch-manipulation ${
                             page === pageNum
-                              ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white'
+                              ? 'bg-primary text-primary-foreground'
                               : 'bg-card/10 text-muted-foreground hover:bg-card/20'
                           }`}
                         >
@@ -858,7 +867,7 @@ export default function BeatsPage() {
             </div>
             <button
               onClick={handleResetFilters}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg transition-colors text-sm sm:text-base touch-manipulation"
+              className="touch-manipulation rounded-lg bg-primary px-4 py-2.5 text-sm text-primary-foreground transition-colors hover:bg-primary/90 sm:px-6 sm:py-3 sm:text-base"
             >
               {t('beats.resetFilters')}
             </button>

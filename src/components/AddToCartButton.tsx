@@ -79,9 +79,9 @@ export default function AddToCartButton({
       variant={variant}
       className={`${getSizeClasses()} ${className} ${
         isAdded 
-          ? 'bg-green-500 hover:bg-green-600 text-white' 
+          ? 'bg-primary hover:bg-primary/90 text-primary-foreground' 
           : variant === 'primary' 
-            ? 'bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white' 
+            ? 'signal-glow bg-primary text-primary-foreground hover:bg-primary/90' 
             : ''
       } transition-all duration-300`}
     >

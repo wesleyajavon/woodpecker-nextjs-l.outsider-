@@ -30,7 +30,7 @@ export default function LicenseSelector({
       name: t('licenses.wavLease'),
       description: t('licenses.wavLeaseDescription'),
       icon: Music,
-      color: 'from-blue-600 to-blue-700',
+      color: 'from-cyan-300 to-primary',
       features: [
         t('licenses.wavLeaseFeatures.highQualityWav'),
         t('licenses.wavLeaseFeatures.mp3File'),
@@ -41,7 +41,7 @@ export default function LicenseSelector({
       name: t('licenses.trackoutLease'),
       description: t('licenses.trackoutLeaseDescription'),
       icon: Archive,
-      color: 'from-purple-600 to-purple-700',
+      color: 'from-primary to-cyan-300',
       features: [
         t('licenses.trackoutLeaseFeatures.highQualityWav'),
         t('licenses.trackoutLeaseFeatures.mp3File'),
@@ -53,7 +53,7 @@ export default function LicenseSelector({
       name: t('licenses.unlimitedLease'),
       description: t('licenses.unlimitedLeaseDescription'),
       icon: Crown,
-      color: 'from-orange-600 to-orange-700',
+      color: 'from-white to-primary',
       features: [
         t('licenses.unlimitedLeaseFeatures.highQualityWav'),
         t('licenses.unlimitedLeaseFeatures.mp3File'),
@@ -101,8 +101,8 @@ export default function LicenseSelector({
               className={`
                 relative p-6 rounded-xl border-2 cursor-pointer transition-all duration-300
                 ${isSelected 
-                  ? 'border-purple-500 bg-purple-500/10' 
-                  : 'border-gray-600 bg-gray-800/50 hover:border-gray-500'
+                  ? 'border-primary bg-primary/10' 
+                  : 'border-border bg-card/50 hover:border-primary/45'
                 }
               `}
               whileHover={{ scale: 1.02 }}
@@ -110,8 +110,8 @@ export default function LicenseSelector({
             >
               {/* Badge de sélection */}
               {isSelected && (
-                <div className="absolute -top-2 -right-2 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
-                  <Check className="w-4 h-4 text-white" />
+                <div className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary">
+                  <Check className="w-4 h-4 text-primary-foreground" />
                 </div>
               )}
               
@@ -135,7 +135,7 @@ export default function LicenseSelector({
               <ul className="space-y-2">
                 {config.features.map((feature, index) => (
                   <li key={index} className="flex items-center gap-2 text-sm text-gray-300">
-                    <Check className="w-4 h-4 text-green-400 flex-shrink-0" />
+                    <Check className="w-4 h-4 text-primary flex-shrink-0" />
                     <span>{feature}</span>
                   </li>
                 ))}

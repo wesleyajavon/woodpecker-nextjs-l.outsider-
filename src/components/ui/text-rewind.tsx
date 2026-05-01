@@ -19,11 +19,11 @@ export function TextRewind({
     text = "L.OUTSIDER",
     className = "",
     shadowColors = {
-        first: "#8b5cf6",
-        second: "#ec4899",
-        third: "#f59e0b",
-        fourth: "#ef4444",
-        glow: "#8b5cf6",
+        first: "#22f2a6",
+        second: "#3ad7ff",
+        third: "#1b2b52",
+        fourth: "#0a1026",
+        glow: "#22f2a6",
     },
 }: AnimatedTextProps) {
     const textShadowStyle = {
@@ -35,7 +35,7 @@ export function TextRewind({
     };
 
     const regularShadowStyle = {
-        textShadow: "0 4px 8px rgba(0, 0, 0, 0.3), 0 8px 16px rgba(0, 0, 0, 0.2), 0 0 20px rgba(139, 92, 246, 0.4), 0 0 40px rgba(236, 72, 153, 0.3), 0 0 60px rgba(245, 158, 11, 0.2)",
+        textShadow: "0 4px 8px rgba(0, 0, 0, 0.35), 0 8px 20px rgba(0, 0, 0, 0.28), 0 0 24px rgba(34, 242, 166, 0.32), 0 0 52px rgba(58, 215, 255, 0.18)",
     };
 
     return (
@@ -43,8 +43,8 @@ export function TextRewind({
             <motion.div
                 className={cn(
                     "w-full text-center cursor-pointer text-4xl sm:text-6xl lg:text-7xl font-bold",
-                    "transition-all duration-300 ease-in-out tracking-wider",
-                    "bg-gradient-to-r from-indigo-300 to-purple-300 bg-clip-text text-transparent",
+                    "transition-all duration-300 ease-in-out tracking-[0.08em] uppercase",
+                    "bg-gradient-to-r from-white via-white to-primary bg-clip-text text-transparent",
                     "hover:scale-105 transform-gpu",
                     "leading-normal py-6 sm:py-8 lg:py-12 overflow-visible",
                     className

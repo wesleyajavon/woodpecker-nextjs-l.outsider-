@@ -37,7 +37,7 @@ export function ContactCard({
 	return (
 		<div
 			className={cn(
-				'bg-card border relative grid h-full w-full shadow sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 rounded-xl overflow-hidden',
+				'signal-glow relative grid h-full w-full overflow-hidden rounded-xl border border-primary/15 bg-card/70 shadow sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
 				className,
 			)}
 			{...props}
@@ -67,7 +67,7 @@ export function ContactCard({
 			</div>
 			<div
 				className={cn(
-					'bg-muted/40 flex h-full w-full items-center border-t p-4 sm:p-5 md:col-span-1 md:border-t-0 md:border-l',
+					'flex h-full w-full items-center border-t border-primary/15 bg-muted/40 p-4 sm:p-5 md:col-span-1 md:border-l md:border-t-0',
 					formSectionClassName,
 				)}
 			>
@@ -87,7 +87,7 @@ function ContactInfo({
 	const isEmail = value.includes('@');
 	return (
 		<div className={cn('flex items-start sm:items-center gap-2 sm:gap-3 py-2 sm:py-3', className)} {...props}>
-			<div className="bg-muted/40 rounded-lg p-2 sm:p-3 flex-shrink-0">
+			<div className="flex-shrink-0 rounded-lg bg-primary/10 p-2 text-primary sm:p-3">
 				<Icon className="h-4 w-4 sm:h-5 sm:w-5" />
 			</div>
 			<div className="min-w-0 flex-1 overflow-hidden">

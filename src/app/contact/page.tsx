@@ -85,8 +85,9 @@ const ContactPage = () => {
   ];
 
   return (
-    <main className="min-h-screen bg-background pt-16 sm:pt-20 pb-8 sm:pb-12">
-      <DottedSurface className="size-full z-0" />
+    <main className="relative min-h-screen overflow-hidden bg-background pb-8 pt-16 sm:pb-12 sm:pt-20">
+      <DottedSurface className="size-full z-0 opacity-70" />
+      <div aria-hidden="true" className="audio-scanlines pointer-events-none absolute inset-0 z-0 opacity-35" />
       
       {/* Gradient overlay */}
       <div className="absolute inset-0 z-0 flex items-center justify-center">
@@ -137,7 +138,7 @@ const ContactPage = () => {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-background border border-border text-foreground rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors placeholder-muted-foreground text-sm sm:text-base touch-manipulation"
+                  className="w-full touch-manipulation rounded-lg border border-primary/20 bg-card/30 px-3 py-2.5 text-sm text-foreground placeholder-muted-foreground transition-colors focus:border-transparent focus:ring-2 focus:ring-primary sm:px-4 sm:py-3 sm:text-base"
                   placeholder={t('contact.form.namePlaceholder')}
                 />
               </div>
@@ -153,7 +154,7 @@ const ContactPage = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-background border border-border text-foreground rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors placeholder-muted-foreground text-sm sm:text-base touch-manipulation"
+                  className="w-full touch-manipulation rounded-lg border border-primary/20 bg-card/30 px-3 py-2.5 text-sm text-foreground placeholder-muted-foreground transition-colors focus:border-transparent focus:ring-2 focus:ring-primary sm:px-4 sm:py-3 sm:text-base"
                   placeholder="votre@email.com"
                 />
               </div>
@@ -169,7 +170,7 @@ const ContactPage = () => {
                 value={formData.subject}
                 onChange={handleChange}
                 required
-                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-background border border-border text-foreground rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors text-sm sm:text-base touch-manipulation"
+                className="w-full touch-manipulation rounded-lg border border-primary/20 bg-card/30 px-3 py-2.5 text-sm text-foreground transition-colors focus:border-transparent focus:ring-2 focus:ring-primary sm:px-4 sm:py-3 sm:text-base"
               >
                 <option value="">{t('contact.form.selectSubject')}</option>
                 <option value="support">{t('contact.form.subjects.support')}</option>
@@ -190,7 +191,7 @@ const ContactPage = () => {
                 onChange={handleChange}
                 required
                 rows={5}
-                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-background border border-border text-foreground rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors resize-none placeholder-muted-foreground text-sm sm:text-base touch-manipulation"
+                className="w-full touch-manipulation resize-none rounded-lg border border-primary/20 bg-card/30 px-3 py-2.5 text-sm text-foreground placeholder-muted-foreground transition-colors focus:border-transparent focus:ring-2 focus:ring-primary sm:px-4 sm:py-3 sm:text-base"
                 placeholder={t('contact.form.messagePlaceholder')}
               />
             </div>
@@ -215,7 +216,7 @@ const ContactPage = () => {
                 "w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 text-sm sm:text-base touch-manipulation",
                 isSubmitting
                   ? "bg-muted text-muted-foreground cursor-not-allowed"
-                  : "bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600  hover:to-purple-600 text-white transform hover:scale-105"
+                  : "signal-glow bg-primary text-primary-foreground transform hover:scale-105 hover:bg-primary/90"
               )}
             >
               {isSubmitting ? (

@@ -67,7 +67,7 @@ function DottedSurfaceInner({ className, ...props }: DottedSurfaceProps) {
 
 		// Scene setup
 		const scene = new THREE.Scene();
-		scene.fog = new THREE.Fog(0xffffff, 2000, 10000);
+		scene.fog = new THREE.Fog(0x050817, 2000, 10000);
 
 		const camera = new THREE.PerspectiveCamera(
 			60,
@@ -104,9 +104,9 @@ function DottedSurfaceInner({ className, ...props }: DottedSurfaceProps) {
 				positions.push(x, y, z);
 				// Use theme-based colors
 				if (theme === 'light') {
-					colors.push(0, 0, 0);
+					colors.push(0.03, 0.08, 0.07);
 				} else {
-					colors.push(200, 200, 200);
+					colors.push(0.13, 0.95, 0.65);
 				}
 			}
 		}
@@ -119,10 +119,10 @@ function DottedSurfaceInner({ className, ...props }: DottedSurfaceProps) {
 
 		// Create material
 		const material = new THREE.PointsMaterial({
-			size: 8,
+			size: 7,
 			vertexColors: true,
 			transparent: true,
-			opacity: 0.3,
+			opacity: 0.22,
 			sizeAttenuation: true,
 		});
 
@@ -223,7 +223,7 @@ function DottedSurfaceInner({ className, ...props }: DottedSurfaceProps) {
 			<div
 				className={cn('pointer-events-none absolute inset-0 z-0', className)}
 				style={{
-					background: 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1) 0%, transparent 50%)',
+					background: 'radial-gradient(circle at 50% 50%, rgba(34,242,166,0.14) 0%, transparent 50%)',
 					backgroundSize: '20px 20px',
 					backgroundPosition: '0 0, 10px 10px',
 					opacity: 0.3

@@ -2,9 +2,11 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, Music, ShoppingBag, BarChart3, ChevronDown, LayoutDashboard } from 'lucide-react';
 import { useTranslation } from '@/contexts/LanguageContext';
+import { useIsAdmin } from '@/hooks/useUser';
 import { cn } from '@/lib/utils';
 
 interface AdminDropdownProps {
@@ -13,6 +15,8 @@ interface AdminDropdownProps {
 
 export default function AdminDropdown({ className }: AdminDropdownProps) {
   const { t } = useTranslation();
+  const { status } = useSession();
+  const isAdmin = useIsAdmin();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -60,6 +64,10 @@ export default function AdminDropdown({ className }: AdminDropdownProps) {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  if (status !== 'authenticated' || !isAdmin) {
+    return null;
+  }
 
   return (
     <div className={cn('relative', className)} ref={dropdownRef}>
