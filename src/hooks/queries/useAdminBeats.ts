@@ -167,6 +167,7 @@ export function useCreateAdminBeat() {
     onSuccess: () => {
       // Invalider les requêtes pour rafraîchir les données
       queryClient.invalidateQueries({ queryKey: adminBeatKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: ['beats', 'genres'] })
     },
   })
 }
@@ -201,6 +202,7 @@ export function useUpdateAdminBeat() {
       queryClient.setQueryData(adminBeatKeys.detail(variables.id), data)
       // Invalider les listes
       queryClient.invalidateQueries({ queryKey: adminBeatKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: ['beats', 'genres'] })
     },
   })
 }
@@ -229,6 +231,7 @@ export function useDeleteAdminBeat() {
       queryClient.removeQueries({ queryKey: adminBeatKeys.detail(id) })
       // Invalider les listes
       queryClient.invalidateQueries({ queryKey: adminBeatKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: ['beats', 'genres'] })
     },
   })
 }
@@ -263,6 +266,7 @@ export function useToggleBeatStatus() {
       queryClient.setQueryData(adminBeatKeys.detail(variables.id), data)
       // Invalider les listes
       queryClient.invalidateQueries({ queryKey: adminBeatKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: ['beats', 'genres'] })
     },
   })
 }

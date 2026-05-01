@@ -18,11 +18,12 @@ import {
   Share2,
   MoreVertical
 } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Beat } from '@/types/beat';
 import { BEAT_CONFIG } from '@/config/constants';
 import { useTranslation } from '@/contexts/LanguageContext';
+import { useBeatGenres } from '@/hooks/queries/useBeats';
 
 interface BeatInfoCardProps {
   beat: Beat;
@@ -56,8 +57,14 @@ export default function BeatInfoCard({
   isTogglingFeatured = false
 }: BeatInfoCardProps) {
   const { t } = useTranslation();
+  const { data: existingGenres = [] } = useBeatGenres({ includeInactive: true });
   const [, setIsPlaying] = useState(false);
   const [showActions, setShowActions] = useState(false);
+  const genreOptions = useMemo(() => {
+    const currentGenre = editData.genre || beat.genre;
+    return Array.from(new Set([...BEAT_CONFIG.genres, ...existingGenres, currentGenre]))
+      .sort((a, b) => a.localeCompare(b));
+  }, [beat.genre, editData.genre, existingGenres]);
 
   const handleEditChange = (field: keyof Beat, value: string | number | boolean | string[] | Date | null) => {
     if (onEditChange) {
@@ -232,15 +239,20 @@ export default function BeatInfoCard({
             <div className="text-center p-3 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-xl border border-indigo-500/20">
               <div className="text-sm text-muted-foreground mb-1">{t('upload.genre')}</div>
               {isEditing ? (
-                <select
-                  value={editData.genre || beat.genre}
-                  onChange={(e) => handleEditChange('genre', e.target.value)}
-                  className="w-full text-sm font-medium text-foreground bg-transparent border-none focus:outline-none"
-                >
-                  {BEAT_CONFIG.genres.map((genre) => (
-                    <option key={genre} value={genre}>{genre}</option>
-                  ))}
-                </select>
+                <>
+                  <input
+                    type="text"
+                    list={`beat-edit-genres-${beat.id}`}
+                    value={editData.genre || beat.genre}
+                    onChange={(e) => handleEditChange('genre', e.target.value)}
+                    className="w-full text-center text-sm font-medium text-foreground bg-transparent border-none focus:outline-none"
+                  />
+                  <datalist id={`beat-edit-genres-${beat.id}`}>
+                    {genreOptions.map((genre) => (
+                      <option key={genre} value={genre} />
+                    ))}
+                  </datalist>
+                </>
               ) : (
                 <div className="text-sm font-medium text-foreground">{beat.genre}</div>
               )}

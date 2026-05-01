@@ -20,6 +20,11 @@ interface BeatResponse {
   data: Beat
 }
 
+interface BeatGenresResponse {
+  success: boolean
+  data: string[]
+}
+
 // Clés de requête
 export const beatKeys = {
   all: ['beats'] as const,
@@ -28,6 +33,7 @@ export const beatKeys = {
   details: () => [...beatKeys.all, 'detail'] as const,
   detail: (id: string) => [...beatKeys.details(), id] as const,
   featured: () => [...beatKeys.all, 'featured'] as const,
+  genres: (includeInactive = false) => [...beatKeys.all, 'genres', includeInactive] as const,
   user: (userId: string) => [...beatKeys.all, 'user', userId] as const,
 }
 
@@ -123,6 +129,33 @@ export function useFeaturedBeats() {
   })
 }
 
+// Hook pour récupérer les genres déjà utilisés
+export function useBeatGenres(options: { includeInactive?: boolean } = {}) {
+  const includeInactive = options.includeInactive ?? false
+
+  return useQuery({
+    queryKey: beatKeys.genres(includeInactive),
+    queryFn: async (): Promise<string[]> => {
+      const params = new URLSearchParams()
+      if (includeInactive) params.append('includeInactive', 'true')
+      const query = params.toString()
+
+      const response = await fetch(query ? `/api/beats/genres?${query}` : '/api/beats/genres')
+      if (!response.ok) {
+        throw new Error('Erreur lors du chargement des genres')
+      }
+
+      const result: BeatGenresResponse = await response.json()
+      if (!result.success) {
+        throw new Error('Erreur lors du chargement des genres')
+      }
+
+      return result.data
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
 // Hook pour récupérer les beats d'un utilisateur
 export function useUserBeats(userId: string) {
   return useQuery({
@@ -158,6 +191,7 @@ export function useCreateBeat() {
       // Invalider les requêtes pour rafraîchir les données
       queryClient.invalidateQueries({ queryKey: beatKeys.lists() })
       queryClient.invalidateQueries({ queryKey: beatKeys.featured() })
+      queryClient.invalidateQueries({ queryKey: [...beatKeys.all, 'genres'] })
     },
   })
 }
@@ -185,6 +219,7 @@ export function useUpdateBeat() {
       queryClient.setQueryData(beatKeys.detail(variables.id), data)
       // Invalider les listes
       queryClient.invalidateQueries({ queryKey: beatKeys.lists() })
+      queryClient.invalidateQueries({ queryKey: [...beatKeys.all, 'genres'] })
     },
   })
 }
@@ -208,6 +243,7 @@ export function useDeleteBeat() {
       // Invalider les listes
       queryClient.invalidateQueries({ queryKey: beatKeys.lists() })
       queryClient.invalidateQueries({ queryKey: beatKeys.featured() })
+      queryClient.invalidateQueries({ queryKey: [...beatKeys.all, 'genres'] })
     },
   })
 }

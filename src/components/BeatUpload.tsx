@@ -1,13 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useQueryClient } from '@tanstack/react-query';
 import { Upload, Music, FileAudio, X, AlertCircle, Image as ImageIcon, Archive } from 'lucide-react';
 import { BEAT_CONFIG } from '@/config/constants';
 import { useTranslation } from '@/hooks/useApp';
 import { Beat } from '@/types/beat';
 import { S3Upload } from '@/components/S3Upload';
 import { CloudinaryUpload } from '@/components/CloudinaryUpload';
+import { useBeatGenres } from '@/hooks/queries/useBeats';
 
 interface BeatUploadProps {
   onUploadSuccess?: (beat: Beat) => void;
@@ -23,6 +25,8 @@ interface UploadProgress {
 
 export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploadProps) {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const { data: existingGenres = [] } = useBeatGenres({ includeInactive: true });
   const [isUploading, setIsUploading] = useState(false);
   const [, setUploadProgress] = useState<UploadProgress>({
     preview: 0,
@@ -57,6 +61,11 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
   });
   const [currentTag, setCurrentTag] = useState('');
   const [errors, setErrors] = useState<string[]>([]);
+
+  const genreOptions = useMemo(
+    () => Array.from(new Set([...BEAT_CONFIG.genres, ...existingGenres])).sort((a, b) => a.localeCompare(b)),
+    [existingGenres]
+  );
 
 
   // Gestion des fichiers sélectionnés supprimée - maintenant gérée par CloudinaryUpload et S3Upload
@@ -110,6 +119,7 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
     }
     if (!cloudinaryUploads.preview) newErrors.push(t('upload.previewRequired'));
     if (!s3Uploads.master) newErrors.push(t('upload.masterRequired'));
+    if (!formData.genre.trim()) newErrors.push(t('upload.genreRequired'));
     if (formData.wavLeasePrice <= 0) newErrors.push(t('upload.wavPriceRequired'));
     if (formData.trackoutLeasePrice <= 0) newErrors.push(t('upload.trackoutPriceRequired'));
     if (formData.unlimitedLeasePrice <= 0) newErrors.push(t('upload.unlimitedPriceRequired'));
@@ -168,6 +178,8 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
           }
         } else if (key === 'tags') {
           formDataToSend.append(key, JSON.stringify(value));
+        } else if (key === 'genre') {
+          formDataToSend.append(key, value.toString().trim());
         } else {
           formDataToSend.append(key, value.toString());
         }
@@ -198,6 +210,8 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
       const result = await response.json();
       
       if (result.success) {
+        queryClient.invalidateQueries({ queryKey: ['beats'] });
+        queryClient.invalidateQueries({ queryKey: ['admin', 'beats'] });
         onUploadSuccess?.(result.data.beat);
         // Reset du formulaire
         setFormData({
@@ -465,17 +479,20 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
               <label className="block text-sm font-medium text-gray-300">
                 {t('upload.genre')} <span className="text-red-400">*</span>
               </label>
-              <select
+              <input
+                type="text"
+                list="beat-upload-genres"
                 value={formData.genre}
                 onChange={(e) => handleInputChange('genre', e.target.value)}
-                className="w-full p-3 bg-white/20 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-              >
-                {BEAT_CONFIG.genres.map((genre) => (
-                  <option key={genre} value={genre} className="bg-gray-800 text-white">
-                    {genre}
-                  </option>
+                className="w-full p-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                placeholder={t('upload.genrePlaceholder')}
+              />
+              <datalist id="beat-upload-genres">
+                {genreOptions.map((genre) => (
+                  <option key={genre} value={genre} />
                 ))}
-              </select>
+              </datalist>
+              <p className="text-xs text-gray-400">{t('upload.genreHelp')}</p>
             </div>
 
             <div className="space-y-2">

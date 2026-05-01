@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Search, Filter, Grid3X3, List, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Music, RotateCcw, SlidersHorizontal, Gauge, DollarSign } from 'lucide-react';
 import Link from 'next/link';
-import { useBeats } from '@/hooks/queries/useBeats';
+import { useBeatGenres, useBeats } from '@/hooks/queries/useBeats';
 import { useDebounce } from '@/hooks/useDebounce';
 import BeatCard from '@/components/BeatCard';
 import BeatCardSkeleton from '@/components/BeatCardSkeleton';
@@ -35,14 +35,11 @@ function parseSearchParams(
   searchParams: URLSearchParams,
   allGenresLabel: string,
   allKeysLabel: string,
-  validGenres: readonly string[],
   validKeys: readonly string[]
 ) {
   const search = searchParams.get('search') || '';
   const genreParam = searchParams.get('genre') || allGenresLabel;
-  const genre = genreParam === allGenresLabel || validGenres.includes(genreParam)
-    ? genreParam
-    : allGenresLabel;
+  const genre = genreParam.trim() || allGenresLabel;
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1);
   const limitParam = parseInt(searchParams.get('limit') || '4', 10);
   const limit = VALID_LIMIT_VALUES.includes(limitParam) ? limitParam : 4;
@@ -71,6 +68,7 @@ export default function BeatsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const allGenresLabel = t('beats.allGenres');
+  const { data: existingGenres = [] } = useBeatGenres();
   const allKeysLabel = t('beats.allKeys');
 
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -86,14 +84,17 @@ export default function BeatsPage() {
   const debouncedSearch = useDebounce(searchInput, 350);
 
   const paramsForParse = searchParams ?? new URLSearchParams();
-  const genres = [allGenresLabel, ...BEAT_CONFIG.genres];
   const keys = [allKeysLabel, ...BEAT_CONFIG.keys];
   const { search, genre, page, limit, sortBy, bpmMin, bpmMax, key, priceMin, priceMax, hasStems } = parseSearchParams(
     paramsForParse,
     allGenresLabel,
     allKeysLabel,
-    BEAT_CONFIG.genres,
     BEAT_CONFIG.keys
+  const genres = useMemo(() => {
+    const options = new Set<string>([allGenresLabel, ...BEAT_CONFIG.genres, ...existingGenres]);
+    if (genre !== allGenresLabel) options.add(genre);
+    return Array.from(options);
+  }, [allGenresLabel, existingGenres, genre]);
   );
 
   const updateUrl = useCallback(

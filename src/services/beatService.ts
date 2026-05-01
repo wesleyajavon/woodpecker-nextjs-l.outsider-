@@ -300,6 +300,34 @@ export class BeatService {
     return beats.map(beat => this.convertPrismaBeat(beat as PrismaBeatResult))
   }
 
+  // Get distinct genres used by beats
+  static async getGenres(
+    userId?: string,
+    isAdmin: boolean = false,
+    includeInactive: boolean = false
+  ): Promise<string[]> {
+    const where: BeatWhereClause = {}
+
+    if (!includeInactive) {
+      where.isActive = true
+      where.AND = [visibleScheduledReleaseCondition]
+    }
+
+    if (userId && isAdmin) {
+      where.userId = userId
+    }
+
+    const genres = await prisma.beat.groupBy({
+      by: ['genre'],
+      where,
+      orderBy: { genre: 'asc' }
+    })
+
+    return genres
+      .map(({ genre }) => genre.trim())
+      .filter(Boolean)
+  }
+
   // Update a beat
   static async updateBeat(id: string, data: UpdateBeatInput, userId?: string): Promise<Beat> {
     const { wavLeasePrice, trackoutLeasePrice, unlimitedLeasePrice, ...otherData } = data

@@ -65,6 +65,13 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
+    const genre = (formData.get('genre') as string | null)?.trim();
+    if (!genre) {
+      return NextResponse.json({
+        error: 'Genre requis'
+      }, { status: 400 });
+    }
+
     // Préparation des résultats d'upload
     const uploadResults: Record<string, { public_id: string; secure_url: string; resource_type: string; duration?: number }> = {};
     
@@ -105,7 +112,7 @@ export async function POST(request: NextRequest) {
       const beatData: CreateBeatInput = {
         title: formData.get('title') as string,
         description: formData.get('description') as string,
-        genre: formData.get('genre') as string,
+        genre,
         bpm: parseInt(formData.get('bpm') as string),
         key: formData.get('key') as string,
         mode: (formData.get('mode') as string) || 'majeur',

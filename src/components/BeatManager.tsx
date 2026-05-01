@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Edit, Star, Lock, ChevronLeft, ChevronRight, Grid3X3, List, Music, Search, Filter, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { Beat } from '@/types/beat';
 import { useTranslation, useLanguage } from '@/hooks/useApp';
 import { useAdminBeats, useToggleBeatStatus } from '@/hooks/queries/useAdminBeats';
+import { useBeatGenres } from '@/hooks/queries/useBeats';
 import { useDebounce } from '@/hooks/useDebounce';
 import { BEAT_CONFIG } from '@/config/constants';
 import { cn } from '@/lib/utils';
@@ -30,13 +31,12 @@ function parseSearchParams(
   searchParams: URLSearchParams | null,
   allGenresLabel: string,
   allKeysLabel: string,
-  validGenres: readonly string[],
   validKeys: readonly string[]
 ) {
   const params = searchParams ?? new URLSearchParams();
   const search = params.get('search') || '';
   const genreParam = params.get('genre') || allGenresLabel;
-  const genre = genreParam === allGenresLabel || validGenres.includes(genreParam) ? genreParam : allGenresLabel;
+  const genre = genreParam.trim() || allGenresLabel;
   const page = Math.max(1, parseInt(params.get('page') || '1', 10) || 1);
   const limitParam = parseInt(params.get('limit') || '12', 10);
   const limit = VALID_LIMIT_VALUES.includes(limitParam) ? limitParam : 12;
@@ -76,6 +76,7 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
   const router = useRouter();
   const allGenresLabel = t('beats.allGenres');
   const allKeysLabel = t('beats.allKeys');
+  const { data: existingGenres = [] } = useBeatGenres({ includeInactive: true });
 
   const [searchInput, setSearchInput] = useState(() => searchParams?.get('search') || '');
   const [advancedFiltersOpen, setAdvancedFiltersOpen] = useState(false);
@@ -84,15 +85,18 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
 
   const debouncedSearch = useDebounce(searchInput, 350);
 
-  const genres = [allGenresLabel, ...BEAT_CONFIG.genres];
   const keys = [allKeysLabel, ...BEAT_CONFIG.keys];
   const { search, genre, page, limit, sortBy, bpmMin, bpmMax, key, priceMin, priceMax, hasStems, featured, isExclusive, includeInactive } = parseSearchParams(
     searchParams,
     allGenresLabel,
     allKeysLabel,
-    BEAT_CONFIG.genres,
     BEAT_CONFIG.keys
   );
+  const genres = useMemo(() => {
+    const options = new Set<string>([allGenresLabel, ...BEAT_CONFIG.genres, ...existingGenres]);
+    if (genre !== allGenresLabel) options.add(genre);
+    return Array.from(options);
+  }, [allGenresLabel, existingGenres, genre]);
 
   const updateUrl = useCallback(
     (updates: {
