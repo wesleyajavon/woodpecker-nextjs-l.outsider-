@@ -87,6 +87,7 @@ export const TRANSFORMATIONS = {
       width: 1200,
       height: 1200,
       crop: 'fill',
+      format: 'webp',
       quality: 'auto:best'
     }
   }
