@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 type AdminPageShellProps = {
   children: ReactNode;
   className?: string;
-  maxWidth?: 'max-w-6xl' | 'max-w-7xl';
+  maxWidth?: 'max-w-4xl' | 'max-w-6xl' | 'max-w-7xl';
 };
 
 export function AdminPageShell({
