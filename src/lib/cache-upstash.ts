@@ -252,10 +252,20 @@ export async function withUpstashCache<T>(
     // Si pas en cache, exécuter la fonction
     console.log(`[CACHE MISS] ${key}`);
     const result = await fetchFunction();
-    
-    // Stocker le résultat en cache
-    await UpstashCacheManager.set(key, result, ttl);
-    
+
+    // Ne pas mettre en cache les réponses FAQ vides (évite de figer un état pré-seed)
+    const isEmptyFaqPayload =
+      result !== null &&
+      typeof result === 'object' &&
+      'totalActiveCount' in result &&
+      (result as { totalActiveCount?: number }).totalActiveCount === 0;
+
+    if (!isEmptyFaqPayload) {
+      await UpstashCacheManager.set(key, result, ttl);
+    } else {
+      console.log(`[CACHE SKIP SET] ${key} — empty FAQ payload not cached`);
+    }
+
     return result;
   } catch (error) {
     console.error(`[CACHE ERROR] ${key}:`, error);

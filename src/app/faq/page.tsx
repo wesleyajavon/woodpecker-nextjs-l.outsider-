@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronDown,
@@ -15,6 +15,7 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
+  type LucideIcon,
 } from 'lucide-react';
 import { PublicPageShell } from '@/components/home/PublicPageShell';
 import { PublicPageHeader } from '@/components/home/PublicPageHeader';
@@ -24,72 +25,123 @@ import {
   catalogPanelClass,
 } from '@/components/catalog/catalog-styles';
 import { cn } from '@/lib/utils';
-import { useTranslation } from '@/contexts/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import type { FAQCategoryDto, FAQItemDto, FAQListResponse } from '@/lib/faq';
 
-interface FAQItem {
-  id: string;
-  question: string;
-  answer: string;
-  category: string;
-  featured: boolean;
+const ITEMS_PER_PAGE = 3;
+const SEARCH_DEBOUNCE_MS = 300;
+
+const CATEGORY_ICONS: Record<string, LucideIcon> = {
+  licenses: Shield,
+  payment: CreditCard,
+  download: Download,
+  usage: Music,
+  account: Users,
+};
+
+function getCategoryLabel(
+  slug: string,
+  displayName: string,
+  t: (key: string) => string,
+): string {
+  const key = `faq.categories.${slug}`;
+  const translated = t(key);
+  return translated !== key ? translated : displayName;
 }
 
 export default function FAQPage() {
-  const { t } = useTranslation();
+  const { t, language } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
-  const [faqData, setFaqData] = useState<FAQItem[]>([]);
+  const [faqs, setFaqs] = useState<FAQItemDto[]>([]);
+  const [categories, setCategories] = useState<FAQCategoryDto[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalActiveCount, setTotalActiveCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [fetching, setFetching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-
-  const faqCategories = [
-    { id: 'all', name: t('faq.categories.all'), icon: HelpCircle },
-    { id: 'licenses', name: t('faq.categories.licenses'), icon: Shield },
-    { id: 'payment', name: t('faq.categories.payment'), icon: CreditCard },
-    { id: 'download', name: t('faq.categories.download'), icon: Download },
-    { id: 'usage', name: t('faq.categories.usage'), icon: Music },
-    { id: 'account', name: t('faq.categories.account'), icon: Users },
-  ];
-
-  const ITEMS_PER_PAGE = 3;
+  const isFirstLoad = useRef(true);
 
   useEffect(() => {
-    const fetchFAQs = async () => {
-      try {
+    const timer = setTimeout(() => setDebouncedSearch(searchQuery), SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadFaqs() {
+      if (isFirstLoad.current) {
         setLoading(true);
-        const response = await fetch('/api/faq');
+      } else {
+        setFetching(true);
+      }
+
+      try {
+        const params = new URLSearchParams({
+          language,
+          page: String(currentPage),
+          limit: String(ITEMS_PER_PAGE),
+        });
+        if (selectedCategory !== 'all') {
+          params.set('category', selectedCategory);
+        }
+        if (debouncedSearch.trim()) {
+          params.set('search', debouncedSearch.trim());
+        }
+
+        const response = await fetch(`/api/faq?${params.toString()}`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const data = await response.json();
-        setFaqData(data.faqs || []);
+
+        const data: FAQListResponse = await response.json();
+        if (cancelled) return;
+
+        setFaqs(data.faqs ?? []);
+        setCategories(data.categories ?? []);
+        setTotalCount(data.totalCount ?? 0);
+        setTotalActiveCount(data.totalActiveCount ?? 0);
+        setTotalPages(data.pagination?.totalPages ?? 0);
         setError(null);
+        isFirstLoad.current = false;
       } catch (err) {
+        if (cancelled) return;
         setError(err instanceof Error ? err.message : 'Unknown error');
         console.error('Failed to fetch FAQs:', err);
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+          setFetching(false);
+        }
       }
+    }
+
+    loadFaqs();
+    return () => {
+      cancelled = true;
     };
+  }, [language, selectedCategory, debouncedSearch, currentPage]);
 
-    fetchFAQs();
-  }, []);
+  const filterCategories = [
+    { id: 'all', name: t('faq.categories.all'), icon: HelpCircle },
+    ...categories.map((category) => ({
+      id: category.slug,
+      name: getCategoryLabel(category.slug, category.displayName, t),
+      icon: CATEGORY_ICONS[category.slug] ?? HelpCircle,
+    })),
+  ];
 
-  const filteredFAQs = faqData.filter((faq) => {
-    const matchesCategory = selectedCategory === 'all' || faq.category === selectedCategory;
-    const matchesSearch =
-      searchQuery === '' ||
-      faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      faq.answer.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
-
-  const totalPages = Math.ceil(filteredFAQs.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const paginatedFAQs = filteredFAQs.slice(startIndex, endIndex);
+  const startIndex = totalCount === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
+  const endIndex = totalCount === 0 ? 0 : Math.min(currentPage * ITEMS_PER_PAGE, totalCount);
 
   const handleCategoryChange = (categoryId: string) => {
     setSelectedCategory(categoryId);
@@ -98,7 +150,6 @@ export default function FAQPage() {
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
-    setCurrentPage(1);
   };
 
   function toggleExpanded(id: string) {
@@ -145,8 +196,8 @@ export default function FAQPage() {
         title={t('faq.title')}
         subtitle={t('faq.subtitle')}
         meta={
-          <span>
-            {faqData.length} {t('faq.totalQuestions')}
+          <span className={cn(fetching && 'opacity-60')}>
+            {totalActiveCount} {t('faq.totalQuestions')}
           </span>
         }
       />
@@ -179,13 +230,14 @@ export default function FAQPage() {
           {t('faq.filterByCategory')}
         </p>
         <div className="flex flex-wrap gap-2">
-          {faqCategories.map((category) => (
+          {filterCategories.map((category) => (
             <button
               key={category.id}
               type="button"
               onClick={() => handleCategoryChange(category.id)}
+              disabled={fetching}
               className={cn(
-                'inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-colors',
+                'inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50',
                 selectedCategory === category.id
                   ? 'border-white/20 bg-white text-black'
                   : 'border-white/10 text-muted-foreground hover:border-white/14 hover:bg-white/[0.04] hover:text-foreground',
@@ -202,16 +254,16 @@ export default function FAQPage() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="mb-10 space-y-4"
+        className={cn('mb-10 space-y-4', fetching && 'pointer-events-none opacity-60')}
       >
-        {filteredFAQs.length === 0 ? (
+        {totalCount === 0 ? (
           <div className={cn(catalogPanelClass, 'py-16 text-center')}>
             <HelpCircle className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
             <h3 className="text-lg font-semibold text-foreground">{t('faq.noResults')}</h3>
             <p className="mt-2 text-sm text-muted-foreground">{t('faq.noResultsDescription')}</p>
           </div>
         ) : (
-          paginatedFAQs.map((faq, index) => (
+          faqs.map((faq, index) => (
             <motion.div
               key={faq.id}
               initial={{ opacity: 0, y: 12 }}
@@ -228,7 +280,7 @@ export default function FAQPage() {
                   <h3 className="text-base font-semibold text-foreground sm:text-lg">{faq.question}</h3>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
                     <span className="rounded-full border border-white/10 px-2.5 py-0.5 font-mono text-xs uppercase tracking-wide text-muted-foreground">
-                      {faq.category}
+                      {getCategoryLabel(faq.category, faq.categoryName, t)}
                     </span>
                     {faq.featured && (
                       <span className="rounded-full border border-white/10 px-2.5 py-0.5 font-mono text-xs uppercase tracking-wide text-muted-foreground">
@@ -273,13 +325,14 @@ export default function FAQPage() {
           className={cn(
             catalogPanelClass,
             'flex flex-col items-center justify-between gap-4 p-4 sm:flex-row sm:p-5',
+            fetching && 'opacity-60',
           )}
         >
           <p className="font-mono text-xs text-muted-foreground">
             {t('faq.showingResults', {
-              start: String(startIndex + 1),
-              end: String(Math.min(endIndex, filteredFAQs.length)),
-              total: String(filteredFAQs.length),
+              start: String(startIndex),
+              end: String(endIndex),
+              total: String(totalCount),
             })}
           </p>
 
@@ -287,7 +340,7 @@ export default function FAQPage() {
             <button
               type="button"
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1}
+              disabled={currentPage === 1 || fetching}
               className="inline-flex h-10 items-center gap-1 rounded-lg border border-white/10 px-4 text-sm transition-colors hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-40"
             >
               <ChevronLeft className="h-4 w-4" />
@@ -307,6 +360,7 @@ export default function FAQPage() {
                     key={pageNum}
                     type="button"
                     onClick={() => setCurrentPage(pageNum)}
+                    disabled={fetching}
                     className={cn(
                       'flex h-10 min-w-10 items-center justify-center rounded-lg px-3 text-sm font-medium transition-colors',
                       currentPage === pageNum
@@ -323,7 +377,7 @@ export default function FAQPage() {
             <button
               type="button"
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-              disabled={currentPage === totalPages}
+              disabled={currentPage === totalPages || fetching}
               className="inline-flex h-10 items-center gap-1 rounded-lg border border-white/10 px-4 text-sm transition-colors hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-40"
             >
               {t('common.next')}

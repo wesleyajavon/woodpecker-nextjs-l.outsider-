@@ -11,46 +11,7 @@ async function main() {
   console.log('🌱 Starting basic content seeding...');
 
   try {
-    // Create FAQ Categories
-    console.log('📁 Creating FAQ categories...');
-    
-    const categories = await Promise.all([
-      prisma.fAQCategory.upsert({
-        where: { slug: 'licenses' },
-        update: {},
-        create: {
-          name: 'licenses',
-          slug: 'licenses',
-          displayName: 'Licenses',
-          icon: 'Shield',
-          sortOrder: 1,
-        },
-      }),
-      prisma.fAQCategory.upsert({
-        where: { slug: 'payment' },
-        update: {},
-        create: {
-          name: 'payment',
-          slug: 'payment',
-          displayName: 'Payment',
-          icon: 'CreditCard',
-          sortOrder: 2,
-        },
-      }),
-      prisma.fAQCategory.upsert({
-        where: { slug: 'download' },
-        update: {},
-        create: {
-          name: 'download',
-          slug: 'download',
-          displayName: 'Download',
-          icon: 'Download',
-          sortOrder: 3,
-        },
-      }),
-    ]);
-
-    console.log(`✅ Created ${categories.length} FAQ categories`);
+    // FAQ: use `pnpm db:seed:faq` (see scripts/seed-faq.ts)
 
     // Create License Types
     console.log('📄 Creating license types...');

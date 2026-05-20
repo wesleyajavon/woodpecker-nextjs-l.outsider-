@@ -15,6 +15,8 @@
     "db:reset": "node scripts/prisma-env.mjs migrate reset",
     "db:seed": "tsx prisma/seed.ts",
     "db:seed:beats": "tsx scripts/seed-beats.ts",
+    "db:seed:faq": "tsx scripts/seed-faq.ts",
+    "db:invalidate-faq-cache": "tsx scripts/invalidate-faq-cache.ts",
     "db:studio": "node scripts/prisma-env.mjs studio",
     "postinstall": "node scripts/prisma-env.mjs generate",
     "stripe:create-product": "tsx scripts/create-stripe-product.ts",

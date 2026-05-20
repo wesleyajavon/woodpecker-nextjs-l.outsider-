@@ -63,7 +63,7 @@ export default function RecruitersPage() {
           </p>
           <div className="relative aspect-video w-full overflow-hidden rounded-lg border border-white/10">
             <iframe
-              src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+              src="https://www.youtube.com/embed/Wz2JQCfJcaE"
               title={t('recruiters.adminFlow.title')}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
