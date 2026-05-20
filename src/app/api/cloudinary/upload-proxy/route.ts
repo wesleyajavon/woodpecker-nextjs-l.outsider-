@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
-import { CloudinaryService } from '@/lib/cloudinary'
+import { CloudinaryService, getImageUploadOptions } from '@/lib/cloudinary'
 
 // Proxy pour l'upload Cloudinary - évite les problèmes CORS
 export async function POST(request: NextRequest) {
@@ -86,13 +86,7 @@ export async function POST(request: NextRequest) {
       uploadResult = await CloudinaryService.uploadImage(
         buffer,
         folder,
-        {
-          format: 'webp',
-          quality: 'auto:best',
-          width: 1200,
-          height: 1200,
-          crop: 'fill'
-        }
+        getImageUploadOptions(folder)
       )
     } else if (isZip) {
       uploadResult = await CloudinaryService.uploadZip(

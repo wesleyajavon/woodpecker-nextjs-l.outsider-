@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { DottedSurface } from '@/components/ui/dotted-surface';
-import { TextRewind } from '@/components/ui/text-rewind';
 import {
   Shield,
   Eye,
@@ -21,17 +19,18 @@ import {
   Share2,
   BookOpen,
   ChevronRight,
-  X
+  X,
 } from 'lucide-react';
 import { useTranslation, useLanguage } from '@/contexts/LanguageContext';
+import { PublicPageShell } from '@/components/home/PublicPageShell';
+import { PublicPageHeader } from '@/components/home/PublicPageHeader';
+import { catalogPanelClass } from '@/components/catalog/catalog-styles';
 import { cn } from '@/lib/utils';
 
-// Type pour les sections de confidentialité
 type PrivacySection = {
   id: string;
   title: string;
   icon: React.ReactNode;
-  color?: string;
   content: string;
 };
 
@@ -44,18 +43,19 @@ export default function PrivacyPage() {
   const [selectedContent, setSelectedContent] = useState<PrivacySection | null>(null);
 
   useEffect(() => {
-    setLastUpdated(new Date().toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    }));
+    setLastUpdated(
+      new Date().toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      }),
+    );
   }, [language]);
 
   const scrollToSection = (sectionId: string) => {
     setActiveSection(sectionId);
 
-    // Trouver la section dans les sections
-    const section = sections.find(s => s.id === sectionId);
+    const section = sections.find((s) => s.id === sectionId);
     if (section) {
       setSelectedContent(section);
     }
@@ -72,7 +72,7 @@ export default function PrivacyPage() {
         En utilisant notre site web, vous acceptez les pratiques décrites dans cette politique. Si vous n'acceptez pas ces pratiques, veuillez ne pas utiliser nos services.
 
         Cette politique est conforme au Règlement Général sur la Protection des Données (RGPD) et aux lois françaises sur la protection des données.
-      `
+      `,
     },
     {
       id: 'data-controller',
@@ -87,7 +87,7 @@ export default function PrivacyPage() {
         • Adresse : France
 
         Pour toute question concernant cette politique ou vos données personnelles, vous pouvez nous contacter à l'adresse email ci-dessus.
-      `
+      `,
     },
     {
       id: 'data-collection',
@@ -113,7 +113,7 @@ export default function PrivacyPage() {
         • Cookies de préférences pour personnaliser l'expérience
         • Cookies analytiques pour améliorer nos services
         • Cookies publicitaires (avec votre consentement)
-      `
+      `,
     },
     {
       id: 'legal-basis',
@@ -141,7 +141,7 @@ export default function PrivacyPage() {
         • Conservation des factures et données comptables
         • Respect des obligations fiscales
         • Coopération avec les autorités compétentes
-      `
+      `,
     },
     {
       id: 'data-usage',
@@ -173,7 +173,7 @@ export default function PrivacyPage() {
         • Respecter nos obligations légales
         • Protéger nos droits et ceux des utilisateurs
         • Maintenir la sécurité de la plateforme
-      `
+      `,
     },
     {
       id: 'data-sharing',
@@ -200,7 +200,7 @@ export default function PrivacyPage() {
         • Sous réserve des mêmes garanties de confidentialité
 
         Tous nos partenaires sont tenus par des accords de confidentialité stricts et ne peuvent utiliser vos données que pour les fins spécifiées.
-      `
+      `,
     },
     {
       id: 'data-retention',
@@ -230,7 +230,7 @@ export default function PrivacyPage() {
         • Anonymisation après ces périodes
 
         Vous pouvez demander la suppression anticipée de vos données à tout moment, sous réserve de nos obligations légales.
-      `
+      `,
     },
     {
       id: 'user-rights',
@@ -265,7 +265,7 @@ export default function PrivacyPage() {
         • Retirer votre consentement à tout moment
 
         Pour exercer ces droits, contactez-nous à contact@loutsider.com avec une pièce d'identité.
-      `
+      `,
     },
     {
       id: 'cookies',
@@ -299,7 +299,7 @@ export default function PrivacyPage() {
         • Partenaires publicitaires tiers
 
         Vous pouvez gérer vos préférences de cookies dans les paramètres de votre navigateur ou via notre bandeau de consentement.
-      `
+      `,
     },
     {
       id: 'security',
@@ -333,7 +333,7 @@ export default function PrivacyPage() {
         • Tests réguliers de récupération
 
         Malgré ces mesures, aucun système n'est 100% sécurisé. Nous nous engageons à vous informer rapidement en cas d'incident de sécurité.
-      `
+      `,
     },
     {
       id: 'international-transfers',
@@ -361,7 +361,7 @@ export default function PrivacyPage() {
         • Recours en cas de violation
 
         Nous évaluons régulièrement la nécessité et la sécurité de ces transferts pour minimiser les risques.
-      `
+      `,
     },
     {
       id: 'minors',
@@ -389,7 +389,7 @@ export default function PrivacyPage() {
         • Sensibilisation à la protection des données
 
         Si vous êtes parent et découvrez que votre enfant nous a fourni des données sans autorisation, contactez-nous immédiatement.
-      `
+      `,
     },
     {
       id: 'updates',
@@ -417,7 +417,7 @@ export default function PrivacyPage() {
         • Respect des droits acquis
 
         Nous vous encourageons à consulter régulièrement cette politique pour rester informé de nos pratiques de confidentialité.
-      `
+      `,
     },
     {
       id: 'contact',
@@ -444,216 +444,209 @@ export default function PrivacyPage() {
         • Adresse : 3 Place de Fontenoy, 75007 Paris
 
         Nous nous engageons à traiter toutes vos demandes avec diligence et transparence.
-      `
-    }
+      `,
+    },
   ];
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      <DottedSurface />
+    <PublicPageShell maxWidth="max-w-6xl">
+      <PublicPageHeader
+        label={t('nav.privacy')}
+        title={`${t('privacy.title')} ${t('privacy.titleHighlight')}`}
+        subtitle={t('privacy.subtitle')}
+      />
 
-      <div className="relative z-10">
-        {/* Hero Section */}
-        <section className="pt-24 pb-16">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05 }}
+        className={cn(catalogPanelClass, 'mb-8 flex items-center justify-center gap-3 px-5 py-4')}
+      >
+        <Clock className="h-4 w-4 shrink-0 text-muted-foreground" />
+        <p className="font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">
+          {t('privacy.lastUpdated')}: {lastUpdated} • {t('privacy.gdprCompliant')}
+        </p>
+      </motion.div>
+
+      <motion.div
+        id="table-of-contents"
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.08 }}
+        className={cn(catalogPanelClass, 'mb-10 p-6 sm:p-8')}
+      >
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="flex items-center gap-2 text-lg font-semibold tracking-tight text-foreground">
+            <BookOpen className="h-5 w-5 text-muted-foreground" />
+            {t('privacy.tableOfContents')}
+          </h2>
+          <button
+            type="button"
+            onClick={() => setShowTableOfContents(!showTableOfContents)}
+            className="rounded-lg border border-white/10 bg-white/[0.03] p-2 transition-colors hover:bg-white/[0.06]"
+            aria-expanded={showTableOfContents}
+          >
+            <ChevronRight
+              className={cn('h-4 w-4 transition-transform', showTableOfContents && 'rotate-90')}
+            />
+          </button>
+        </div>
+
+        <AnimatePresence>
+          {showTableOfContents && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center mb-12"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="overflow-hidden"
             >
-              <div className="mb-16 mt-6">
-                <TextRewind text={`${t('privacy.title')} ${t('privacy.titleHighlight')}`} />
-              </div>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-8">
-                {t('privacy.subtitle')}
-              </p>
-
-              {/* Last Updated Card */}
-              <div className="bg-card/20 backdrop-blur-xl rounded-2xl border border-border/30 p-6 shadow-xl max-w-md mx-auto">
-                <div className="flex items-center justify-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">
-                    <strong>{t('privacy.lastUpdated')}:</strong> {lastUpdated} • <strong>{t('privacy.gdprCompliant')}</strong>
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Table of Contents */}
-            <motion.div
-              id="table-of-contents"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="mb-16"
-            >
-              <div className="bg-card/20 backdrop-blur-xl rounded-2xl border border-border/30 p-6 shadow-xl">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
-                    <BookOpen className="w-5 h-5" />
-                    {t('privacy.tableOfContents')}
-                  </h2>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setShowTableOfContents(!showTableOfContents)}
-                    className="p-2 rounded-lg bg-card/10 hover:bg-card/20 transition-colors"
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {sections.map((section) => (
+                  <button
+                    key={section.id}
+                    type="button"
+                    onClick={() => scrollToSection(section.id)}
+                    className={cn(
+                      'w-full rounded-lg border p-4 text-left transition-colors duration-200',
+                      activeSection === section.id
+                        ? 'border-white/20 bg-white text-black'
+                        : 'border-white/10 text-muted-foreground hover:border-white/14 hover:bg-white/[0.04] hover:text-foreground',
+                    )}
                   >
-                    <ChevronRight className={cn("w-4 h-4 transition-transform", showTableOfContents && "rotate-90")} />
-                  </motion.button>
-                </div>
-
-                <AnimatePresence>
-                  {showTableOfContents && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="overflow-hidden"
-                    >
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {sections.map((section) => (
-                          <button
-                            key={section.id}
-                            onClick={() => scrollToSection(section.id)}
-                            className={cn(
-                              "w-full text-left p-4 rounded-lg transition-all duration-200 border",
-                              activeSection === section.id
-                                ? "bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-indigo-400 border-indigo-500/30"
-                                : "text-muted-foreground hover:text-foreground hover:bg-card/10 border-border/20"
-                            )}
-                          >
-                            <div className="flex items-center gap-3 mb-2">
-                              <div className="p-2 rounded-lg bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
-                                {section.icon}
-                              </div>
-                              <h3 className="font-medium text-sm">{section.title}</h3>
-                            </div>
-                            <p className="text-xs text-muted-foreground leading-relaxed">
-                              {section.content.split('\n')[0].trim()}
-                            </p>
-                          </button>
-                        ))}
+                    <div className="mb-2 flex items-center gap-3">
+                      <div
+                        className={cn(
+                          'rounded-lg border p-2',
+                          activeSection === section.id
+                            ? 'border-black/10 bg-black/5 text-black'
+                            : 'border-white/10 bg-white/[0.03] text-muted-foreground',
+                        )}
+                      >
+                        {section.icon}
                       </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                {/* Selected Content Display */}
-                <AnimatePresence>
-                  {selectedContent && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0, y: -20 }}
-                      animate={{ opacity: 1, height: 'auto', y: 0 }}
-                      exit={{ opacity: 0, height: 0, y: -20 }}
-                      transition={{ duration: 0.4, ease: "easeInOut" }}
-                      className="mt-8 overflow-hidden"
+                      <h3 className="text-sm font-medium">{section.title}</h3>
+                    </div>
+                    <p
+                      className={cn(
+                        'text-xs leading-relaxed',
+                        activeSection === section.id ? 'text-black/60' : 'text-muted-foreground',
+                      )}
                     >
-                      <div className="bg-gradient-to-r from-card/30 to-card/10 backdrop-blur-xl rounded-2xl border border-border/40 p-8 shadow-xl">
-                        <div className="flex items-start gap-6">
-                          <div className="p-3 rounded-xl flex-shrink-0 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
-                            {selectedContent.icon}
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between mb-4">
-                              <h3 className="text-2xl font-bold text-foreground">
-                                {selectedContent.title}
-                              </h3>
-                              <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => setSelectedContent(null)}
-                                className="p-2 rounded-lg bg-card/10 hover:bg-card/20 transition-colors text-muted-foreground hover:text-foreground"
-                                title="Fermer le contenu"
-                              >
-                                <X className="w-4 h-4" />
-                              </motion.button>
-                            </div>
-                            <div className="prose prose-invert max-w-none">
-                              {selectedContent.content.split('\n').map((paragraph: string, pIndex: number) => {
-                                if (paragraph.trim() === '') return null;
-
-                                if (paragraph.trim().startsWith('•')) {
-                                  return (
-                                    <div key={pIndex} className="flex items-start gap-3 mb-3">
-                                      <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0 bg-blue-400" />
-                                      <p className="text-muted-foreground leading-relaxed">
-                                        {paragraph.trim().substring(1).trim()}
-                                      </p>
-                                    </div>
-                                  );
-                                }
-
-                                if (paragraph.trim().endsWith(':') && paragraph.trim().length < 50) {
-                                  return (
-                                    <h4 key={pIndex} className="text-lg font-semibold text-foreground mt-6 mb-3">
-                                      {paragraph.trim()}
-                                    </h4>
-                                  );
-                                }
-
-                                return (
-                                  <p key={pIndex} className="text-muted-foreground leading-relaxed mb-4">
-                                    {paragraph.trim()}
-                                  </p>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                      {section.content.split('\n')[0].trim()}
+                    </p>
+                  </button>
+                ))}
               </div>
             </motion.div>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {selectedContent && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.4, ease: 'easeInOut' }}
+              className="mt-8 overflow-hidden"
+            >
+              <div className={cn(catalogPanelClass, 'p-6 sm:p-8')}>
+                <div className="flex items-start gap-6">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03]">
+                    {selectedContent.icon}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-4 flex items-center justify-between gap-4">
+                      <h3 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+                        {selectedContent.title}
+                      </h3>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedContent(null)}
+                        className="shrink-0 rounded-lg border border-white/10 bg-white/[0.03] p-2 text-muted-foreground transition-colors hover:bg-white/[0.06] hover:text-foreground"
+                        title="Fermer le contenu"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                    <div className="max-w-none">
+                      {selectedContent.content.split('\n').map((paragraph: string, pIndex: number) => {
+                        if (paragraph.trim() === '') return null;
+
+                        if (paragraph.trim().startsWith('•')) {
+                          return (
+                            <div key={pIndex} className="mb-3 flex items-start gap-3">
+                              <div className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-muted-foreground" />
+                              <p className="text-sm leading-relaxed text-muted-foreground">
+                                {paragraph.trim().substring(1).trim()}
+                              </p>
+                            </div>
+                          );
+                        }
+
+                        if (paragraph.trim().endsWith(':') && paragraph.trim().length < 50) {
+                          return (
+                            <h4
+                              key={pIndex}
+                              className="mb-3 mt-6 text-base font-semibold tracking-tight text-foreground"
+                            >
+                              {paragraph.trim()}
+                            </h4>
+                          );
+                        }
+
+                        return (
+                          <p key={pIndex} className="mb-4 text-sm leading-relaxed text-muted-foreground">
+                            {paragraph.trim()}
+                          </p>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.12 }}
+        className={cn(catalogPanelClass, 'mb-8 p-6 sm:p-8')}
+      >
+        <div className="text-center">
+          <div className="mb-6 flex justify-center">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03]">
+              <Mail className="h-5 w-5 text-muted-foreground" />
+            </div>
           </div>
-        </section>
-
-
-         {/* Contact CTA */}
-         <motion.div
-           initial={{ opacity: 0, y: 20 }}
-           animate={{ opacity: 1, y: 0 }}
-           transition={{ delay: 0.8 }}
-           className="mb-8 flex justify-center"
-         >
-           <div className="max-w-2xl w-full bg-card/10 backdrop-blur-xl rounded-2xl border border-border/30 p-8 shadow-xl">
-             <div className="text-center">
-               <div className="flex justify-center mb-6">
-                 <div className="p-3 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-xl border border-blue-500/30">
-                   <Mail className="w-8 h-8 text-blue-400" />
-                 </div>
-               </div>
-               <h3 className="text-2xl font-bold text-foreground mb-4">
-                 {t('privacy.questionsTitle')}
-               </h3>
-               <p className="text-muted-foreground leading-relaxed mb-8 max-w-lg mx-auto">
-                 {t('privacy.questionsDescription')}
-               </p>
-               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                 <a
-                   href="mailto:contact@loutsider.com"
-                   className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white px-8 py-3 rounded-xl transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
-                 >
-                   <Mail className="w-4 h-4" />
-                   {t('common.contactUs')}
-                 </a>
-                 <a
-                   href="/contact"
-                   className="inline-flex items-center justify-center gap-2 bg-card/20 hover:bg-card/30 text-foreground px-8 py-3 rounded-xl transition-colors font-medium border border-border/50 hover:border-border/70"
-                 >
-                   <Eye className="w-4 h-4" />
-                   {t('privacy.exerciseRights')}
-                 </a>
-               </div>
-             </div>
-           </div>
-         </motion.div>
-
-
-      </div>
-    </div>
+          <h3 className="mb-4 text-xl font-semibold tracking-tight text-foreground">
+            {t('privacy.questionsTitle')}
+          </h3>
+          <p className="mx-auto mb-8 max-w-lg text-sm leading-relaxed text-muted-foreground">
+            {t('privacy.questionsDescription')}
+          </p>
+          <div className="flex flex-col justify-center gap-3 sm:flex-row sm:gap-4">
+            <a
+              href="mailto:contact@loutsider.com"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white px-6 py-3 text-sm font-medium text-black transition-colors hover:bg-white/90"
+            >
+              <Mail className="h-4 w-4" />
+              {t('common.contactUs')}
+            </a>
+            <a
+              href="/contact"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-6 py-3 text-sm font-medium text-foreground transition-colors hover:border-white/14 hover:bg-white/[0.06]"
+            >
+              <Eye className="h-4 w-4" />
+              {t('privacy.exerciseRights')}
+            </a>
+          </div>
+        </div>
+      </motion.div>
+    </PublicPageShell>
   );
 }

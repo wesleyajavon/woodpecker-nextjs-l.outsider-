@@ -26,8 +26,8 @@ export default function BeatsLayout({
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-background pt-20 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500" />
+        <div className="flex min-h-screen items-center justify-center bg-background pt-20">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/10 border-t-white/60" />
         </div>
       }
     >

@@ -3,14 +3,16 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Music, Crown, Star } from 'lucide-react';
+import { ArrowLeft, Loader2, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import { DottedSurface } from '@/components/ui/dotted-surface';
+import { PublicPageShell } from '@/components/home/PublicPageShell';
+import { CatalogBeatCard } from '@/components/catalog/CatalogBeatCard';
+import AddToCartButton from '@/components/AddToCartButton';
+import { Button } from '@/components/ui/Button';
+import { catalogPanelClass } from '@/components/catalog/catalog-styles';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/useApp';
 import { useBeat } from '@/hooks/queries/useBeats';
-import BeatCard from '@/components/BeatCard';
-import AddToCartButton from '@/components/AddToCartButton';
 import { LicenseType } from '@/types/cart';
 
 export default function BeatDetailPage() {
@@ -20,74 +22,64 @@ export default function BeatDetailPage() {
 
   const [selectedLicense, setSelectedLicense] = useState<LicenseType>('WAV_LEASE');
   const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState<{ currentTime: number; duration: number }>({ currentTime: 0, duration: 0 });
+  const [progress, setProgress] = useState<{ currentTime: number; duration: number }>({
+    currentTime: 0,
+    duration: 0,
+  });
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // TanStack Query hook
-  const {
-    data: beatData,
-    isLoading: loading,
-    error,
-    refetch
-  } = useBeat(beatId);
-
+  const { data: beatData, isLoading: loading, error, refetch } = useBeat(beatId);
   const beat = beatData?.data;
 
-  // Gestion de la lecture/arrêt
-  const togglePlay = async () => {
-    if (!beat?.previewUrl) return;
+  const togglePlay = useCallback(
+    async (id: string, previewUrl?: string) => {
+      if (!beat?.previewUrl) return;
 
-    if (isPlaying) {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-      }
-      setIsPlaying(false);
-      setProgress({ currentTime: 0, duration: 0 });
-    } else {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-      }
-      
-      try {
-        const audio = new Audio(beat.previewUrl);
-        audioRef.current = audio;
-        
-        setProgress({ currentTime: 0, duration: 0 });
-        
-        audio.addEventListener('loadedmetadata', () => {
-          setProgress((p) => ({ ...p, duration: audio.duration }));
-        });
-        
-        audio.addEventListener('timeupdate', () => {
-          setProgress((p) => ({ ...p, currentTime: audio.currentTime }));
-        });
-        
-        audio.addEventListener('canplaythrough', () => {
-          setIsPlaying(true);
-        });
-        
-        audio.addEventListener('error', () => {
-          console.error('Error playing audio');
-          setIsPlaying(false);
-        });
-        
-        audio.addEventListener('ended', () => {
-          setIsPlaying(false);
-          setProgress({ currentTime: 0, duration: 0 });
-          audioRef.current = null;
-        });
-        
-        await audio.play();
-      } catch (error) {
-        console.error('Error playing audio:', error);
+      if (isPlaying) {
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current.currentTime = 0;
+        }
         setIsPlaying(false);
-      }
-    }
-  };
+        setProgress({ currentTime: 0, duration: 0 });
+      } else {
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current.currentTime = 0;
+        }
 
-  // Cleanup audio
+        const url = previewUrl ?? beat.previewUrl;
+        if (!url) return;
+
+        try {
+          const audio = new Audio(url);
+          audioRef.current = audio;
+          setProgress({ currentTime: 0, duration: 0 });
+
+          audio.addEventListener('loadedmetadata', () => {
+            setProgress((p) => ({ ...p, duration: audio.duration }));
+          });
+          audio.addEventListener('timeupdate', () => {
+            setProgress((p) => ({ ...p, currentTime: audio.currentTime }));
+          });
+          audio.addEventListener('canplaythrough', () => setIsPlaying(true));
+          audio.addEventListener('error', () => setIsPlaying(false));
+          audio.addEventListener('ended', () => {
+            setIsPlaying(false);
+            setProgress({ currentTime: 0, duration: 0 });
+            audioRef.current = null;
+          });
+
+          await audio.play();
+        } catch (playError) {
+          console.error('Error playing audio:', playError);
+          setIsPlaying(false);
+        }
+      }
+    },
+    [beat?.previewUrl, isPlaying],
+  );
+
   useEffect(() => {
     return () => {
       if (audioRef.current) {
@@ -107,280 +99,242 @@ export default function BeatDetailPage() {
   const getPrice = (licenseType: LicenseType): number => {
     if (!beat) return 0;
     switch (licenseType) {
-      case 'WAV_LEASE': return beat.wavLeasePrice;
-      case 'TRACKOUT_LEASE': return beat.trackoutLeasePrice;
-      case 'UNLIMITED_LEASE': return beat.unlimitedLeasePrice;
-      default: return beat.wavLeasePrice;
+      case 'WAV_LEASE':
+        return beat.wavLeasePrice;
+      case 'TRACKOUT_LEASE':
+        return beat.trackoutLeasePrice;
+      case 'UNLIMITED_LEASE':
+        return beat.unlimitedLeasePrice;
+      default:
+        return beat.wavLeasePrice;
     }
   };
 
-  const formatPrice = (price: number): string => {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'EUR'
-    }).format(price);
-  };
+  const formatPrice = (price: number): string =>
+    new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(price);
 
-  if (loading) {
-    return (
-      <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4 pb-12 pt-20 sm:px-6 lg:px-8">
-        <DottedSurface className="size-full z-0 opacity-70" />
-        
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col items-center gap-4 relative z-10"
-        >
-          <div className="relative">
-            <div className="h-16 w-16 rounded-full border-4 border-primary/20"></div>
-            <div className="absolute left-0 top-0 h-16 w-16 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-          </div>
-          <div className="text-center">
-            <h3 className="text-lg font-semibold text-foreground mb-1">Chargement du beat...</h3>
-            <p className="text-sm text-muted-foreground">Veuillez patienter</p>
-          </div>
-        </motion.div>
-      </div>
-    );
-  }
+  const loadingState = (
+    <div className="flex min-h-[50vh] flex-col items-center justify-center py-20">
+      <Loader2 className="mb-4 h-8 w-8 animate-spin text-muted-foreground" />
+      <p className="font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">
+        {t('beats.detail.loading')}
+      </p>
+      <p className="mt-2 text-sm text-muted-foreground">{t('beats.detail.loadingHint')}</p>
+    </div>
+  );
 
-  if (error || !beat) {
-    return (
-      <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4 pb-12 pt-20 sm:px-6 lg:px-8">
-        <DottedSurface className="size-full z-0 opacity-70" />
-        
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center max-w-md mx-auto p-6 relative z-10"
-        >
-          <Music className="h-16 w-16 text-red-400 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-foreground mb-2">Beat non trouvé</h1>
-          <p className="text-muted-foreground mb-6">
-            {error instanceof Error ? error.message : 'Ce beat n&apos;existe pas ou a été supprimé.'}
-          </p>
-          <div className="flex gap-3 justify-center">
-            <button
-              onClick={() => refetch()}
-              className="rounded-lg bg-primary px-4 py-2 text-primary-foreground transition-colors hover:bg-primary/90"
-            >
-              Réessayer
-            </button>
-            <Link
-              href="/beats"
-              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors"
-            >
-              Retour aux beats
-            </Link>
-          </div>
-        </motion.div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="relative min-h-screen overflow-hidden bg-background px-4 pb-12 pt-20 sm:px-6 lg:px-8">
-      <DottedSurface className="size-full z-0 opacity-70" />
-      <div aria-hidden="true" className="audio-scanlines pointer-events-none absolute inset-0 z-0 opacity-35" />
-
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 z-0 flex items-center justify-center">
-        <div
-          aria-hidden="true"
-          className={cn(
-            'pointer-events-none absolute -top-10 left-1/2 size-full -translate-x-1/2 rounded-full',
-            'bg-[radial-gradient(ellipse_at_center,var(--theme-gradient),transparent_50%)]',
-            'blur-[30px]',
-          )}
-        />
-      </div>
-
-      <div className="container mx-auto relative z-10">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <Link
-            href="/beats"
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Retour aux beats
-          </Link>
-          
-          <div className="flex items-center gap-3 mb-4">
-            <div className="signal-glow flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <Music className="w-4 h-4 text-primary-foreground" />
-            </div>
-            <h1 className="text-3xl font-bold text-foreground">{beat.title}</h1>
-          </div>
-        </motion.div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Beat Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              <BeatCard
-                beat={beat}
-                isPlaying={isPlaying}
-                onPlay={() => togglePlay()}
-                onPause={() => togglePlay()}
-                progress={isPlaying && progress.duration > 0 ? progress : undefined}
-                onSeek={handleSeek}
-                className="w-full"
-              />
-            </motion.div>
-
-            {/* Beat Details */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="signal-glow rounded-xl border border-primary/15 bg-card/50 p-6 backdrop-blur-lg"
-            >
-              <h3 className="text-xl font-semibold text-foreground mb-4">Détails du beat</h3>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-muted-foreground">Genre:</span>
-                  <span className="ml-2 text-foreground">{beat.genre}</span>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">BPM:</span>
-                  <span className="ml-2 text-foreground">{beat.bpm}</span>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Clé:</span>
-                  <span className="ml-2 text-foreground">{beat.key}</span>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Mode:</span>
-                  <span className="ml-2 text-foreground">
-                    {(beat.mode ?? 'majeur') === 'majeur' ? t('upload.modeMajeur') : t('upload.modeMineur')}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Durée:</span>
-                  <span className="ml-2 text-foreground">{beat.duration}</span>
-                </div>
-                {beat.stemsUrl && (
-                  <div className="col-span-2">
-                    <span className="text-muted-foreground">STEMS:</span>
-                    <span className="ml-2 text-primary">Disponibles</span>
-                  </div>
-                )}
-              </div>
-              
-              {beat.description && (
-                <div className="mt-4">
-                  <span className="text-muted-foreground">Description:</span>
-                  <p className="mt-2 text-foreground">{beat.description}</p>
-                </div>
-              )}
-
-              {beat.tags.length > 0 && (
-                <div className="mt-4">
-                  <span className="text-muted-foreground">Tags:</span>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {beat.tags.map((tag, index) => (
-                      <span
-                        key={index}
-                        className="px-2 py-1 bg-muted/50 text-muted-foreground text-xs rounded-full"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </motion.div>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* License Selection */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="signal-glow rounded-xl border border-primary/15 bg-card/50 p-6 backdrop-blur-lg"
-            >
-              <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-                <Crown className="w-5 h-5 text-primary" />
-                Choisir une licence
-              </h3>
-              
-              <div className="space-y-3">
-                {(['WAV_LEASE', 'TRACKOUT_LEASE', 'UNLIMITED_LEASE'] as LicenseType[]).map((license) => (
-                  <button
-                    key={license}
-                    onClick={() => setSelectedLicense(license)}
-                    className={`w-full p-3 rounded-lg border-2 transition-all ${
-                      selectedLicense === license
-                        ? 'border-primary bg-primary/10'
-                        : 'border-border hover:border-primary/50'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="text-left">
-                        <div className="font-medium text-foreground">
-                          {license === 'WAV_LEASE' ? 'WAV Lease' :
-                           license === 'TRACKOUT_LEASE' ? 'Trackout Lease' : 'Unlimited Lease'}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          {license === 'WAV_LEASE' ? 'WAV & MP3' :
-                           license === 'TRACKOUT_LEASE' ? 'WAV, STEMS & MP3' : 'WAV, STEMS & MP3'}
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-bold text-foreground">
-                          {formatPrice(getPrice(license))}
-                        </div>
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-
-              <div className="mt-6">
-                <AddToCartButton
-                  beat={beat}
-                  licenseType={selectedLicense}
-                  className="w-full"
-                />
-              </div>
-            </motion.div>
-
-            {/* Related Beats */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="signal-glow rounded-xl border border-primary/15 bg-card/50 p-6 backdrop-blur-lg"
-            >
-              <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-              <Star className="w-5 h-5 text-primary" />
-                Beats similaires
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Découvrez d&apos;autres beats du même genre
-              </p>
-              <Link
-                href="/beats"
-                className="mt-4 inline-block rounded-lg bg-primary px-4 py-2 text-sm text-primary-foreground transition-colors hover:bg-primary/90"
-              >
-                Voir tous les beats
-              </Link>
-            </motion.div>
-          </div>
+  const errorState = (
+    <div className="py-16 text-center">
+      <div className="mx-auto max-w-md rounded-xl border border-red-500/20 bg-red-500/5 p-6">
+        <p className="mb-2 text-lg font-medium text-red-300">{t('beats.detail.notFound')}</p>
+        <p className="mb-6 text-sm text-muted-foreground">
+          {error instanceof Error ? error.message : t('beats.detail.notFoundDescription')}
+        </p>
+        <div className="flex flex-wrap justify-center gap-3">
+          <Button onClick={() => refetch()} variant="outline" className="border-white/12">
+            {t('beats.retry')}
+          </Button>
+          <Button asChild className="bg-white text-black hover:bg-white/90">
+            <Link href="/beats">{t('beats.detail.backToBeats')}</Link>
+          </Button>
         </div>
       </div>
     </div>
+  );
+
+  if (loading) {
+    return <PublicPageShell maxWidth="max-w-[1400px]">{loadingState}</PublicPageShell>;
+  }
+
+  if (error || !beat) {
+    return <PublicPageShell maxWidth="max-w-[1400px]">{errorState}</PublicPageShell>;
+  }
+
+  return (
+    <PublicPageShell maxWidth="max-w-[1400px]">
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-8 border-b border-white/6 pb-8"
+      >
+        <Button
+          asChild
+          variant="outline"
+          size="sm"
+          className="mb-6 h-9 rounded-lg border-white/12 bg-transparent hover:bg-white/[0.04]"
+        >
+          <Link href="/beats">
+            <ArrowLeft className="h-4 w-4" />
+            {t('beats.detail.backToBeats')}
+          </Link>
+        </Button>
+
+        <p className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
+          {beat.genre}
+        </p>
+        <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+          {beat.title}
+        </h1>
+      </motion.div>
+
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+        <div className="space-y-6 lg:col-span-2">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+          >
+            <CatalogBeatCard
+              beat={beat}
+              isPlaying={isPlaying}
+              onPlay={togglePlay}
+              onPause={togglePlay}
+              progress={isPlaying && progress.duration > 0 ? progress : undefined}
+              onSeek={handleSeek}
+            />
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className={cn(catalogPanelClass, 'p-6')}
+          >
+            <h2 className="mb-4 text-lg font-semibold tracking-tight text-foreground">
+              {t('beats.detail.detailsTitle')}
+            </h2>
+            <dl className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <dt className="text-muted-foreground">{t('beats.detail.genre')}</dt>
+                <dd className="mt-1 text-foreground">{beat.genre}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">{t('beats.detail.bpm')}</dt>
+                <dd className="mt-1 text-foreground">{beat.bpm}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">{t('beats.detail.key')}</dt>
+                <dd className="mt-1 text-foreground">{beat.key}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">{t('beats.detail.mode')}</dt>
+                <dd className="mt-1 text-foreground">
+                  {(beat.mode ?? 'majeur') === 'majeur'
+                    ? t('upload.modeMajeur')
+                    : t('upload.modeMineur')}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">{t('beats.detail.duration')}</dt>
+                <dd className="mt-1 text-foreground">{beat.duration}</dd>
+              </div>
+              {beat.stemsUrl && (
+                <div>
+                  <dt className="text-muted-foreground">STEMS</dt>
+                  <dd className="mt-1 text-foreground">{t('beats.detail.stemsAvailable')}</dd>
+                </div>
+              )}
+            </dl>
+
+            {beat.description && (
+              <div className="mt-6 border-t border-white/6 pt-6">
+                <p className="text-sm text-muted-foreground">{t('beats.detail.description')}</p>
+                <p className="mt-2 text-sm leading-relaxed text-foreground">{beat.description}</p>
+              </div>
+            )}
+
+            {beat.tags.length > 0 && (
+              <div className="mt-6 flex flex-wrap gap-2">
+                {beat.tags.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="rounded-full border border-white/10 px-2.5 py-1 font-mono text-xs text-muted-foreground"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        </div>
+
+        <div className="space-y-6">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.12 }}
+            className={cn(catalogPanelClass, 'p-6 lg:sticky lg:top-24')}
+          >
+            <h2 className="mb-4 text-lg font-semibold tracking-tight text-foreground">
+              {t('beats.detail.chooseLicense')}
+            </h2>
+
+            <div className="space-y-3">
+              {(['WAV_LEASE', 'TRACKOUT_LEASE', 'UNLIMITED_LEASE'] as LicenseType[]).map(
+                (license) => (
+                  <button
+                    key={license}
+                    type="button"
+                    onClick={() => setSelectedLicense(license)}
+                    className={cn(
+                      'w-full rounded-lg border p-3 text-left transition-colors',
+                      selectedLicense === license
+                        ? 'border-white/20 bg-white/[0.06]'
+                        : 'border-white/10 hover:border-white/14 hover:bg-white/[0.03]',
+                    )}
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="font-medium text-foreground">
+                          {license === 'WAV_LEASE'
+                            ? t('licenses.wavLease')
+                            : license === 'TRACKOUT_LEASE'
+                              ? t('licenses.trackoutLease')
+                              : t('licenses.unlimitedLease')}
+                        </p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {license === 'WAV_LEASE'
+                            ? 'WAV & MP3'
+                            : 'WAV, STEMS & MP3'}
+                        </p>
+                      </div>
+                      <p className="font-semibold text-foreground">{formatPrice(getPrice(license))}</p>
+                    </div>
+                  </button>
+                ),
+              )}
+            </div>
+
+            <div className="mt-6">
+              <AddToCartButton beat={beat} licenseType={selectedLicense} className="w-full" />
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.16 }}
+            className={cn(catalogPanelClass, 'p-6')}
+          >
+            <h2 className="text-lg font-semibold tracking-tight text-foreground">
+              {t('beats.detail.similarBeats')}
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {t('beats.detail.similarDescription')}
+            </p>
+            <Button
+              asChild
+              variant="outline"
+              className="mt-4 w-full border-white/12 hover:bg-white/[0.04]"
+            >
+              <Link href="/beats">
+                {t('beats.detail.viewAllBeats')}
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </motion.div>
+        </div>
+      </div>
+    </PublicPageShell>
   );
 }

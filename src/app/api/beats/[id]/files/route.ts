@@ -3,7 +3,7 @@ import { BeatService } from '@/services/beatService';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { getUserIdFromEmail } from '@/lib/userUtils';
-import { CloudinaryService, CLOUDINARY_FOLDERS } from '@/lib/cloudinary';
+import { CloudinaryService, CLOUDINARY_FOLDERS, TRANSFORMATIONS } from '@/lib/cloudinary';
 import { s3Service } from '@/lib/s3-service';
 import { S3_CONFIG } from '@/lib/aws-s3';
 
@@ -153,10 +153,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
           artworkFile.buffer,
           CLOUDINARY_FOLDERS.BEATS.ARTWORKS,
           {
-            width: 800,
-            height: 800,
-            crop: 'fill',
-            quality: 'auto:best'
+            ...TRANSFORMATIONS.IMAGE.ARTWORK,
           }
         );
         updateData.artworkUrl = uploadResults.artwork.secure_url;

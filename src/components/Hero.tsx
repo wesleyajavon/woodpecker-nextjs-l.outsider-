@@ -2,83 +2,88 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { ArrowDown, ArrowRight } from 'lucide-react';
-import { TextRewind } from './ui/text-rewind';
-import { HoverBorderGradient } from './ui/hover-border-gradient';
+import { ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 import { useTranslation } from '@/contexts/LanguageContext';
+
+const statKeys = ['instant', 'licenses', 'quality'] as const;
 
 const Hero = () => {
   const { t } = useTranslation();
-  
-  return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Main content */}
-      <div className="relative z-10 text-center text-foreground px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
-        {/* Main heading */}
-        <div className="mb-14">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="mb-4 text-xs font-semibold uppercase tracking-[0.5em] text-signal sm:text-sm"
-          >
-            {t('hero.eyebrow')}
-          </motion.div>
-          <TextRewind
-            text="l.outsider"
-            shadowColors={{
-              first: '#22f2a6',
-              second: '#3ad7ff',
-              third: '#1b2b52',
-              fourth: '#0a1026',
-              glow: '#22f2a6',
-            }}
-          />
-        </div>
 
-        {/* Subtitle */}
-        <motion.p
-          initial={{ opacity: 0, y: 30 }}
+  return (
+    <div className="relative flex min-h-[calc(100vh-4rem)] items-center justify-center overflow-hidden pt-16 pb-24">
+      <div className="relative z-10 mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.2 }}
-          className="mx-auto mb-12 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl lg:text-2xl"
+          transition={{ duration: 0.5 }}
+          className="mb-6 inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1"
+        >
+          <span className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
+            {t('hero.eyebrow')}
+          </span>
+        </motion.div>
+
+        <motion.h1
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.05 }}
+          className="mx-auto mb-6 max-w-4xl text-5xl font-semibold tracking-[-0.04em] text-foreground sm:text-6xl md:text-7xl lg:text-8xl"
+        >
+          <span className="bg-linear-to-b from-white via-white to-white/45 bg-clip-text text-transparent">
+            {t('hero.title')}
+          </span>
+        </motion.h1>
+
+        <motion.p
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.12 }}
+          className="mx-auto mb-10 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg md:text-xl"
         >
           {t('hero.subtitle')}
         </motion.p>
 
-        {/* CTA Button */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.4 }}
-          className="flex justify-center"
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="flex flex-col items-center justify-center gap-3 sm:flex-row"
         >
-          <Link href="/beats">
-            <HoverBorderGradient
-              containerClassName="rounded-2xl"
-              className="group signal-glow inline-flex items-center gap-3 rounded-2xl border border-primary/25 px-8 py-4 text-lg font-semibold uppercase tracking-[0.2em] backdrop-blur-lg transition-all duration-300"
-              duration={1.5}
-              clockwise={true}
-            >
-              <span>{t('hero.cta')}</span>
-              <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-            </HoverBorderGradient>
-          </Link>
+          <Button asChild size="lg" className="h-11 min-w-[180px] rounded-full bg-white px-6 text-sm font-medium text-black hover:bg-white/90">
+            <Link href="/beats">
+              {t('hero.cta')}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
+          <Button
+            asChild
+            variant="outline"
+            size="lg"
+            className="h-11 min-w-[180px] rounded-full border-white/12 bg-transparent px-6 text-sm font-medium text-foreground hover:bg-white/[0.04]"
+          >
+            <Link href="/licenses">{t('hero.ctaSecondary')}</Link>
+          </Button>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.35 }}
+          className="mt-14 flex flex-col items-center gap-4 sm:mt-16"
+        >
+          <div className="h-px w-full max-w-xl bg-linear-to-r from-transparent via-white/10 to-transparent" />
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">
+            {statKeys.map((key, index) => (
+              <span key={key} className="inline-flex items-center gap-6">
+                {index > 0 && <span aria-hidden="true" className="hidden text-white/20 sm:inline">·</span>}
+                {t(`hero.stats.${key}`)}
+              </span>
+            ))}
+          </div>
         </motion.div>
       </div>
-
-      <motion.div
-        aria-hidden="true"
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.8 }}
-        className="pointer-events-none absolute bottom-8 left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center gap-3 text-muted-foreground sm:inline-flex"
-      >
-        <span className="h-10 w-px bg-gradient-to-b from-primary/0 via-primary/60 to-primary/0" />
-        <span className="signal-glow flex h-12 w-12 items-center justify-center rounded-full border border-primary/25 bg-background/40 backdrop-blur-md">
-          <ArrowDown className="h-5 w-5 animate-bounce" />
-        </span>
-      </motion.div>
     </div>
   );
 };

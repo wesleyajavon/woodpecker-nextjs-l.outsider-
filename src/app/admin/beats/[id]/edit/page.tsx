@@ -3,11 +3,13 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ArrowLeft, AlertCircle } from 'lucide-react';
+import { ArrowLeft, AlertCircle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { DottedSurface } from '@/components/ui/dotted-surface';
-import { TextRewind } from '@/components/ui/text-rewind';
 import BeatEditCard from '@/components/ui/BeatEditCard';
+import { AdminPageShell } from '@/components/admin/AdminPageShell';
+import { PublicPageHeader } from '@/components/home/PublicPageHeader';
+import { Button } from '@/components/ui/Button';
+import { catalogPanelClass } from '@/components/catalog/catalog-styles';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/contexts/LanguageContext';
 import { useBeat, useUpdateBeat } from '@/hooks/queries/useBeats';
@@ -178,112 +180,58 @@ export default function BeatEditPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-background pt-20 pb-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-                <DottedSurface className="size-full z-0" />
-
-                {/* Gradient overlay */}
-                <div className="absolute inset-0 z-0 flex items-center justify-center">
-                    <div
-                        aria-hidden="true"
-                        className={cn(
-                            'pointer-events-none absolute -top-10 left-1/2 size-full -translate-x-1/2 rounded-full',
-                            'bg-[radial-gradient(ellipse_at_center,var(--theme-gradient),transparent_50%)]',
-                            'blur-[30px]',
-                        )}
-                    />
+            <AdminPageShell maxWidth="max-w-4xl">
+                <div className="flex min-h-[50vh] flex-col items-center justify-center py-20">
+                    <Loader2 className="mb-4 h-8 w-8 animate-spin text-muted-foreground" />
+                    <p className="font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">
+                        {t('admin.loadingBeat')}
+                    </p>
                 </div>
-
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="text-center relative z-10"
-                >
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-                    <p className="text-foreground text-lg">Chargement du beat...</p>
-                </motion.div>
-            </div>
+            </AdminPageShell>
         );
     }
 
     if (error || !beat) {
         return (
-            <div className="min-h-screen bg-background pt-20 pb-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-                <DottedSurface className="size-full z-0" />
-
-                {/* Gradient overlay */}
-                <div className="absolute inset-0 z-0 flex items-center justify-center">
-                    <div
-                        aria-hidden="true"
-                        className={cn(
-                            'pointer-events-none absolute -top-10 left-1/2 size-full -translate-x-1/2 rounded-full',
-                            'bg-[radial-gradient(ellipse_at_center,var(--theme-gradient),transparent_50%)]',
-                            'blur-[30px]',
-                        )}
-                    />
+            <AdminPageShell maxWidth="max-w-4xl">
+                <div className={cn(catalogPanelClass, 'mx-auto max-w-md p-8 text-center')}>
+                    <AlertCircle className="mx-auto mb-4 h-10 w-10 text-red-300" />
+                    <h1 className="text-xl font-semibold text-foreground">{t('admin.beatNotFound')}</h1>
+                    <p className="mt-3 text-sm text-muted-foreground">
+                        {error instanceof Error ? error.message : t('admin.beatNotFoundDescription')}
+                    </p>
+                    <Button asChild variant="outline" className="mt-6 border-white/12">
+                        <Link href={`/admin/beats/${beatId}`}>
+                            <ArrowLeft className="h-4 w-4" />
+                            {t('admin.backToManagement')}
+                        </Link>
+                    </Button>
                 </div>
-
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-center max-w-md mx-auto p-6 relative z-10"
-                >
-                    <AlertCircle className="h-16 w-16 text-red-400 mx-auto mb-4" />
-                    <h1 className="text-2xl font-bold text-foreground mb-2">Beat non trouvé</h1>
-                    <p className="text-muted-foreground mb-6">{error instanceof Error ? error.message : error || 'Ce beat n\'existe pas ou a été supprimé'}</p>
-                    <Link
-                        href="/admin/upload"
-                        className="inline-flex items-center gap-2 bg-card/20 backdrop-blur-lg hover:bg-card/30 text-foreground px-6 py-3 rounded-lg transition-all duration-300 border border-border/20 hover:border-border/30"
-                    >
-                        <ArrowLeft className="w-5 h-5" />
-                        Retour à la gestion
-                    </Link>
-                </motion.div>
-            </div>
+            </AdminPageShell>
         );
     }
 
     return (
-        <div className="flex-1 pt-16 sm:pt-20 pb-8 sm:pb-12 px-3 sm:px-4 lg:px-8 relative">
-            <DottedSurface className="size-full z-0" />
+        <AdminPageShell maxWidth="max-w-4xl">
+            <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="mb-6 h-9 border-white/12 bg-transparent hover:bg-white/[0.04]"
+            >
+                <Link href={`/admin/beats/${beatId}`}>
+                    <ArrowLeft className="h-4 w-4" />
+                    {t('admin.beatManagement')}
+                </Link>
+            </Button>
 
-            {/* Gradient overlay */}
-            <div className="absolute inset-0 z-0 flex items-center justify-center">
-                <div
-                    aria-hidden="true"
-                    className={cn(
-                        'pointer-events-none absolute -top-10 left-1/2 size-full -translate-x-1/2 rounded-full',
-                        'bg-[radial-gradient(ellipse_at_center,var(--theme-gradient),transparent_50%)]',
-                        'blur-[30px]',
-                    )}
-                />
-            </div>
+            <PublicPageHeader
+                label={t('admin.beatActions')}
+                title={t('admin.editFiles')}
+                subtitle={t('admin.editFilesDescription')}
+            />
 
-            <div className="max-w-4xl mx-auto py-4 sm:py-8 relative z-10">
-                {/* Page Title */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-center mb-8 sm:mb-12 px-2"
-                >
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mb-16 mt-6"
-                    >
-                        <TextRewind text={t('admin.editFiles')} />
-                    </motion.div>
-                    <motion.p
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
-                    >
-                        {t('admin.editFilesDescription')}
-                    </motion.p>
-                </motion.div>
-
-
-                {/* Beat Edit Card */}
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
                 <BeatEditCard
                     beat={beat}
                     beatId={beatId}
@@ -299,7 +247,7 @@ export default function BeatEditPage() {
                     onRemoveStems={handleRemoveStems}
                     onUpload={handleUpload}
                 />
-            </div>
-        </div>
+            </motion.div>
+        </AdminPageShell>
     );
 }

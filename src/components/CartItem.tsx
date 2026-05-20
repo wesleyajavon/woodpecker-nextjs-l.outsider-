@@ -8,6 +8,8 @@ import { CartItem as CartItemType } from '@/types/cart'
 import { Beat } from '@/types/beat'
 import { useCartActions } from '@/hooks/useCart'
 import { Button } from './ui/Button'
+import { catalogCardClass } from '@/components/catalog/catalog-styles'
+import { cn } from '@/lib/utils'
 import { useTranslation } from '@/hooks/useApp'
 
 interface CartItemProps {
@@ -21,10 +23,14 @@ export default function CartItem({ item }: CartItemProps) {
 
   const getPrice = (beat: Beat, licenseType: string): number => {
     switch (licenseType) {
-      case 'WAV_LEASE': return beat.wavLeasePrice
-      case 'TRACKOUT_LEASE': return beat.trackoutLeasePrice
-      case 'UNLIMITED_LEASE': return beat.unlimitedLeasePrice
-      default: return beat.wavLeasePrice
+      case 'WAV_LEASE':
+        return beat.wavLeasePrice
+      case 'TRACKOUT_LEASE':
+        return beat.trackoutLeasePrice
+      case 'UNLIMITED_LEASE':
+        return beat.unlimitedLeasePrice
+      default:
+        return beat.wavLeasePrice
     }
   }
 
@@ -36,7 +42,6 @@ export default function CartItem({ item }: CartItemProps) {
   }
 
   const formatDuration = (duration: string) => {
-    // Convert "3:45" format to "3m 45s"
     const parts = duration.split(':')
     if (parts.length === 2) {
       const minutes = parseInt(parts[0])
@@ -49,18 +54,19 @@ export default function CartItem({ item }: CartItemProps) {
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20, scale: 0.95 }}
+      exit={{ opacity: 0, y: -12 }}
       transition={{ duration: 0.3 }}
-      className={`signal-glow rounded-xl border border-primary/15 bg-card/20 p-3 shadow-sm backdrop-blur-lg transition-all duration-300 sm:p-4 ${
-        isRemoving ? 'opacity-50 scale-95' : 'hover:shadow-md hover:shadow-primary/10'
-      }`}
+      className={cn(
+        catalogCardClass,
+        'p-3 sm:p-4',
+        isRemoving && 'opacity-50',
+      )}
     >
-      <div className="flex items-start space-x-3 sm:space-x-4">
-        {/* Beat Artwork */}
+      <div className="flex items-start gap-3 sm:gap-4">
         {item.beat.artworkUrl && (
-          <div className="relative flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16">
+          <div className="relative h-12 w-12 shrink-0 sm:h-16 sm:w-16">
             <Image
               src={item.beat.artworkUrl}
               alt={`${item.beat.title} artwork`}
@@ -70,62 +76,56 @@ export default function CartItem({ item }: CartItemProps) {
             />
           </div>
         )}
-        
-        {/* Beat Info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 sm:gap-0">
-            <div className="flex-1 min-w-0">
-              <h3 className="text-base sm:text-lg font-semibold text-foreground truncate">
+
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-start">
+            <div className="min-w-0 flex-1">
+              <h3 className="truncate text-base font-semibold text-foreground sm:text-lg">
                 {item.beat.title}
               </h3>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                {item.beat.genre} • {item.beat.bpm} BPM • {item.beat.key}
+              <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
+                {item.beat.genre} · {item.beat.bpm} BPM · {item.beat.key}
               </p>
-              
-              {/* License Type */}
+
               <div className="mt-2">
-                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                  item.licenseType === 'WAV_LEASE' ? 'bg-cyan-300/15 text-cyan-300 border border-cyan-300/20' :
-                  item.licenseType === 'TRACKOUT_LEASE' ? 'bg-primary/15 text-primary border border-primary/20' :
-                  'bg-white/10 text-white border border-white/20'
-                }`}>
-                  {item.licenseType === 'WAV_LEASE' ? t('licenses.wavLease') :
-                   item.licenseType === 'TRACKOUT_LEASE' ? t('licenses.trackoutLease') :
-                   t('licenses.unlimitedLease')}
+                <span className="inline-flex items-center rounded-full border border-white/12 bg-white/[0.04] px-2 py-1 font-mono text-xs uppercase tracking-wide text-muted-foreground">
+                  {item.licenseType === 'WAV_LEASE'
+                    ? t('licenses.wavLease')
+                    : item.licenseType === 'TRACKOUT_LEASE'
+                      ? t('licenses.trackoutLease')
+                      : t('licenses.unlimitedLease')}
                 </span>
               </div>
-              
-              {/* Beat Details */}
-              <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-2 text-xs sm:text-sm text-muted-foreground">
-                <div className="flex items-center space-x-1">
+
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground sm:gap-4 sm:text-sm">
+                <div className="flex items-center gap-1">
                   <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
                   <span>{formatDuration(item.beat.duration)}</span>
                 </div>
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center gap-1">
                   <Music className="h-3 w-3 sm:h-4 sm:w-4" />
-                  <span>{item.beat.rating.toFixed(1)} ⭐</span>
+                  <span>{item.beat.rating.toFixed(1)}</span>
                 </div>
                 {item.beat.isExclusive && (
-                  <div className="flex items-center space-x-1 text-primary">
+                  <div className="flex items-center gap-1">
                     <Tag className="h-3 w-3 sm:h-4 sm:w-4" />
-                    <span className="font-medium text-xs sm:text-sm">{t('beatCard.exclusive')}</span>
+                    <span className="text-xs sm:text-sm">{t('beatCard.exclusive')}</span>
                   </div>
                 )}
                 {item.beat.stemsUrl && (
-                  <div className="flex items-center space-x-1 text-cyan-300">
+                  <div className="flex items-center gap-1">
                     <Archive className="h-3 w-3 sm:h-4 sm:w-4" />
-                    <span className="font-medium text-xs sm:text-sm">{t('beatCard.stems')}</span>
+                    <span className="text-xs sm:text-sm">{t('beatCard.stems')}</span>
                   </div>
                 )}
               </div>
             </div>
-            
-            {/* Price */}
-            <div className="text-right sm:text-right">
-              <div className="text-lg sm:text-xl font-bold text-foreground">
+
+            <div className="text-left sm:text-right">
+              <div className="text-lg font-semibold tracking-tight text-foreground sm:text-xl">
                 €{getPrice(item.beat, item.licenseType).toFixed(2)}
               </div>
-              <div className="text-xs sm:text-sm text-muted-foreground">
+              <div className="text-xs text-muted-foreground sm:text-sm">
                 {t('cart.singleItem')}
               </div>
             </div>
@@ -133,17 +133,16 @@ export default function CartItem({ item }: CartItemProps) {
         </div>
       </div>
 
-      {/* Remove Button */}
-      <div className="flex justify-end mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-border/20">
+      <div className="mt-3 flex justify-end border-t border-white/6 pt-3 sm:mt-4 sm:pt-4">
         <Button
           variant="outline"
           size="sm"
           onClick={handleRemove}
           disabled={isRemoving}
-          className="text-red-400 hover:text-red-300 hover:bg-red-900/20 border-red-500/50 touch-manipulation"
+          className="border-white/12 text-muted-foreground hover:bg-white/[0.04] hover:text-foreground"
         >
-          <Trash2 className="h-4 w-4 mr-2" />
-          <span className="text-sm sm:text-base">{t('common.remove')}</span>
+          <Trash2 className="mr-2 h-4 w-4" />
+          {t('common.remove')}
         </Button>
       </div>
     </motion.div>

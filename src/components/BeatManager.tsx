@@ -13,6 +13,12 @@ import { useBeatGenres } from '@/hooks/queries/useBeats';
 import { useDebounce } from '@/hooks/useDebounce';
 import { BEAT_CONFIG } from '@/config/constants';
 import { cn } from '@/lib/utils';
+import {
+  catalogCardClass,
+  catalogInputClass,
+  catalogPanelClass,
+  catalogSelectClass,
+} from '@/components/catalog/catalog-styles';
 
 const VALID_SORT_VALUES = ['newest', 'oldest', 'price_asc', 'price_desc', 'popular'] as const;
 const VALID_LIMIT_VALUES = [4, 8, 12, 24, 50];
@@ -294,8 +300,8 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
-          <p className="text-white text-lg">{t('admin.loadingBeats')}</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-2 border-white/20 border-t-white mx-auto mb-4"></div>
+          <p className="text-foreground text-lg">{t('admin.loadingBeats')}</p>
         </div>
       </div>
     );
@@ -309,7 +315,7 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
           <p className="text-gray-300 mb-4">{error}</p>
           <button
             onClick={() => refetch()}
-            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors"
+            className="bg-white text-black hover:bg-white/90 px-4 py-2 rounded-lg transition-opacity"
           >
             {t('errors.tryAgain')}
           </button>
@@ -321,7 +327,7 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
   return (
     <div className="space-y-6">
       {/* Filtres et recherche - style /beats */}
-      <div className="bg-card/10 backdrop-blur-lg rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-border/20">
+      <div className={cn(catalogPanelClass, 'p-4 sm:p-6')}>
         <div className="flex flex-col gap-4 sm:gap-6">
           {/* Barre de recherche */}
           <div className="relative w-full">
@@ -331,7 +337,7 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
               placeholder={t('admin.searchBeats')}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 bg-card/20 border border-border/30 rounded-lg text-sm sm:text-base text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent touch-manipulation"
+              className={cn(catalogInputClass, 'pl-9 sm:pl-10 py-2.5 sm:py-3 text-sm sm:text-base touch-manipulation')}
             />
           </div>
 
@@ -342,10 +348,10 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
               <select
                 value={genre}
                 onChange={(e) => updateUrl({ genre: e.target.value, resetPage: true })}
-                className="w-full bg-card/20 border border-border/30 rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-foreground focus:outline-none focus:ring-2 focus:ring-purple-500 touch-manipulation"
+                className={cn(catalogSelectClass, 'py-2.5 sm:py-3 text-sm sm:text-base touch-manipulation')}
               >
                 {genres.map((g) => (
-                  <option key={g} value={g} className="bg-card text-foreground">
+                  <option key={g} value={g} className="bg-background text-foreground">
                     {g}
                   </option>
                 ))}
@@ -355,11 +361,11 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
             <select
               value={key}
               onChange={(e) => updateUrl({ key: e.target.value, resetPage: true })}
-              className="w-full sm:w-auto min-w-[100px] bg-card/20 border border-border/30 rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-foreground focus:outline-none focus:ring-2 focus:ring-purple-500 touch-manipulation"
+              className={cn(catalogSelectClass, 'w-full sm:w-auto min-w-[100px] py-2.5 sm:py-3 text-sm sm:text-base touch-manipulation')}
               aria-label={t('beats.keyFilter')}
             >
               {keys.map((k) => (
-                <option key={k} value={k} className="bg-card text-foreground">
+                <option key={k} value={k} className="bg-background text-foreground">
                   {k}
                 </option>
               ))}
@@ -368,32 +374,32 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
             <select
               value={sortBy}
               onChange={(e) => updateUrl({ sortBy: e.target.value, resetPage: true })}
-              className="w-full sm:w-auto min-w-[120px] bg-card/20 border border-border/30 rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-foreground focus:outline-none focus:ring-2 focus:ring-purple-500 touch-manipulation"
+              className={cn(catalogSelectClass, 'w-full sm:w-auto min-w-[120px] py-2.5 sm:py-3 text-sm sm:text-base touch-manipulation')}
             >
-              <option value="newest" className="bg-card text-foreground">{t('beats.sortNewest')}</option>
-              <option value="oldest" className="bg-card text-foreground">{t('beats.sortOldest')}</option>
-              <option value="price_asc" className="bg-card text-foreground">{t('beats.sortPriceAsc')}</option>
-              <option value="price_desc" className="bg-card text-foreground">{t('beats.sortPriceDesc')}</option>
-              <option value="popular" className="bg-card text-foreground">{t('beats.sortPopular')}</option>
+              <option value="newest" className="bg-background text-foreground">{t('beats.sortNewest')}</option>
+              <option value="oldest" className="bg-background text-foreground">{t('beats.sortOldest')}</option>
+              <option value="price_asc" className="bg-background text-foreground">{t('beats.sortPriceAsc')}</option>
+              <option value="price_desc" className="bg-background text-foreground">{t('beats.sortPriceDesc')}</option>
+              <option value="popular" className="bg-background text-foreground">{t('beats.sortPopular')}</option>
             </select>
 
             <select
               value={limit}
               onChange={(e) => updateUrl({ limit: Number(e.target.value), page: 1 })}
-              className="w-full sm:w-auto min-w-[80px] bg-card/20 border border-border/30 rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-foreground focus:outline-none focus:ring-2 focus:ring-purple-500 touch-manipulation"
+              className={cn(catalogSelectClass, 'w-full sm:w-auto min-w-[80px] py-2.5 sm:py-3 text-sm sm:text-base touch-manipulation')}
             >
               {VALID_LIMIT_VALUES.map((v) => (
-                <option key={v} value={v} className="bg-card text-foreground">{t('beats.itemsPerPage', { count: String(v) })}</option>
+                <option key={v} value={v} className="bg-background text-foreground">{t('beats.itemsPerPage', { count: String(v) })}</option>
               ))}
             </select>
 
             {/* View Mode Toggle */}
-            <div className="flex items-center gap-1 sm:gap-2 bg-card/20 rounded-lg p-1 w-full sm:w-auto justify-center">
+            <div className="flex items-center gap-1 sm:gap-2 rounded-lg border border-white/10 bg-white/[0.03] p-1 w-full sm:w-auto justify-center">
               <button
                 onClick={() => setViewMode('list')}
                 className={cn(
-                  'p-2 sm:p-2 rounded-md transition-colors touch-manipulation',
-                  viewMode === 'list' ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white' : 'text-muted-foreground hover:text-foreground'
+                  'p-2 sm:p-2 rounded-md transition-opacity touch-manipulation',
+                  viewMode === 'list' ? 'bg-white text-black' : 'text-muted-foreground hover:opacity-80'
                 )}
                 title={t('admin.listView')}
               >
@@ -402,8 +408,8 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
               <button
                 onClick={() => setViewMode('card')}
                 className={cn(
-                  'p-2 sm:p-2 rounded-md transition-colors touch-manipulation',
-                  viewMode === 'card' ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white' : 'text-muted-foreground hover:text-foreground'
+                  'p-2 sm:p-2 rounded-md transition-opacity touch-manipulation',
+                  viewMode === 'card' ? 'bg-white text-black' : 'text-muted-foreground hover:opacity-80'
                 )}
                 title={t('admin.cardView')}
               >
@@ -413,14 +419,14 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
 
             {hasActiveFilters && (
               <div className="flex items-center gap-2 w-full sm:w-auto">
-                <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs sm:text-sm font-medium bg-purple-500/20 text-purple-400 border border-purple-500/30">
+                <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs sm:text-sm font-medium bg-white/[0.06] text-muted-foreground border border-white/12">
                   {activeFiltersCount === 1
                     ? t('beats.activeFiltersCount', { count: '1' })
                     : t('beats.activeFiltersCount_plural', { count: String(activeFiltersCount) })}
                 </span>
                 <button
                   onClick={handleResetFilters}
-                  className="flex items-center gap-1.5 px-3 sm:px-4 py-2.5 bg-card/20 border border-border/30 rounded-lg text-xs sm:text-sm text-foreground hover:bg-card/30 hover:border-border/50 transition-colors touch-manipulation"
+                  className="flex items-center gap-1.5 px-3 sm:px-4 py-2.5 border border-white/12 rounded-lg text-xs sm:text-sm text-foreground bg-white/[0.02] hover:bg-white/[0.06] transition-opacity touch-manipulation"
                 >
                   <RotateCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   {t('beats.resetFilters')}
@@ -430,7 +436,7 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
           </div>
 
           {/* Filtres avancés - collapsible */}
-          <div className="border-t border-border/20 pt-4 mt-2">
+          <div className="border-t border-white/10 pt-4 mt-2">
             <button
               type="button"
               onClick={() => setAdvancedFiltersOpen(!advancedFiltersOpen)}
@@ -464,7 +470,7 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
                         const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10);
                         updateUrl({ bpmMin: !isNaN(v as number) ? v : undefined, resetPage: true });
                       }}
-                      className="w-16 sm:w-20 bg-card/20 border border-border/30 rounded-lg px-2 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-purple-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className={cn(catalogInputClass, 'w-16 sm:w-20 px-2 py-2 text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none')}
                     />
                     <span className="text-muted-foreground">–</span>
                     <input
@@ -478,7 +484,7 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
                         const v = e.target.value === '' ? undefined : parseInt(e.target.value, 10);
                         updateUrl({ bpmMax: !isNaN(v as number) ? v : undefined, resetPage: true });
                       }}
-                      className="w-16 sm:w-20 bg-card/20 border border-border/30 rounded-lg px-2 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-purple-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className={cn(catalogInputClass, 'w-16 sm:w-20 px-2 py-2 text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none')}
                     />
                   </div>
                 </div>
@@ -489,7 +495,7 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
                     type="checkbox"
                     checked={hasStems}
                     onChange={(e) => updateUrl({ hasStems: e.target.checked, resetPage: true })}
-                    className="rounded border-border/50 bg-card/20 text-purple-500 focus:ring-purple-500"
+                    className="rounded border-white/20 bg-white/[0.03] text-foreground focus:ring-white/20"
                   />
                   <span className="text-sm text-foreground">{t('beats.withStems')}</span>
                 </label>
@@ -500,7 +506,7 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
                     type="checkbox"
                     checked={featured === true}
                     onChange={(e) => updateUrl({ featured: e.target.checked ? true : undefined, resetPage: true })}
-                    className="rounded border-border/50 bg-card/20 text-purple-500 focus:ring-purple-500"
+                    className="rounded border-white/20 bg-white/[0.03] text-foreground focus:ring-white/20"
                   />
                   <span className="text-sm text-foreground">{t('admin.featured')}</span>
                 </label>
@@ -509,7 +515,7 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
                     type="checkbox"
                     checked={isExclusive === true}
                     onChange={(e) => updateUrl({ isExclusive: e.target.checked ? true : undefined, resetPage: true })}
-                    className="rounded border-border/50 bg-card/20 text-purple-500 focus:ring-purple-500"
+                    className="rounded border-white/20 bg-white/[0.03] text-foreground focus:ring-white/20"
                   />
                   <span className="text-sm text-foreground">{t('admin.exclusive')}</span>
                 </label>
@@ -518,7 +524,7 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
                     type="checkbox"
                     checked={includeInactive}
                     onChange={(e) => updateUrl({ includeInactive: e.target.checked, resetPage: true })}
-                    className="rounded border-border/50 bg-card/20 text-purple-500 focus:ring-purple-500"
+                    className="rounded border-white/20 bg-white/[0.03] text-foreground focus:ring-white/20"
                   />
                   <span className="text-sm text-foreground">{t('admin.includeInactive')}</span>
                 </label>
@@ -549,7 +555,7 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
                             const v = e.target.value === '' ? undefined : parseFloat(e.target.value);
                             updateUrl({ priceMin: v != null && !isNaN(v) ? v : undefined, resetPage: true });
                           }}
-                          className="w-full bg-card/20 border border-border/30 rounded-lg px-2 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-purple-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          className={cn(catalogInputClass, 'w-full px-2 py-2 text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none')}
                         />
                       </div>
                       <div className="flex flex-col gap-1.5 min-w-[100px]">
@@ -565,7 +571,7 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
                             const v = e.target.value === '' ? undefined : parseFloat(e.target.value);
                             updateUrl({ priceMax: v != null && !isNaN(v) ? v : undefined, resetPage: true });
                           }}
-                          className="w-full bg-card/20 border border-border/30 rounded-lg px-2 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-purple-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          className={cn(catalogInputClass, 'w-full px-2 py-2 text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none')}
                         />
                       </div>
                     </div>
@@ -593,9 +599,7 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
             key={beat.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`bg-white/10 backdrop-blur-lg rounded-xl hover:bg-white/20 transition-all duration-300 ${
-              viewMode === 'card' ? 'p-4 sm:p-6' : 'p-4 sm:p-6'
-            }`}
+            className={cn(catalogCardClass, 'p-4 sm:p-6')}
           >
             {viewMode === 'card' ? (
               // Card View Layout
@@ -623,7 +627,7 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
 
                   {/* Title and Badges */}
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-lg sm:text-xl font-bold text-white truncate mb-2">{beat.title}</h3>
+                    <h3 className="text-lg sm:text-xl font-bold text-foreground truncate mb-2">{beat.title}</h3>
                     <div className="flex flex-wrap gap-1 sm:gap-2">
                       {beat.isExclusive && (
                         <span className="bg-yellow-500 text-black text-xs px-2 py-1 rounded-full font-bold">
@@ -631,7 +635,7 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
                         </span>
                       )}
                       {beat.featured && (
-                        <span className="bg-purple-500 text-white text-xs px-2 py-1 rounded-full font-bold">
+                        <span className="bg-white/[0.08] text-foreground border border-white/12 text-xs px-2 py-1 rounded-full font-medium">
                           {t('admin.featured').toUpperCase()}
                         </span>
                       )}
@@ -657,9 +661,9 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
 
                 {/* Card Content */}
                 <div className="space-y-3">
-                  <p className="text-gray-300 text-sm sm:text-base line-clamp-2">{beat.description}</p>
+                  <p className="text-muted-foreground text-sm sm:text-base line-clamp-2">{beat.description}</p>
                   
-                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-400">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-muted-foreground">
                     <span>{beat.genre}</span>
                     <span>•</span>
                     <span>{beat.bpm} BPM</span>
@@ -675,17 +679,17 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
                   <div className="space-y-2">
                     {/* <div className="text-xs text-gray-400 font-medium">{t('admin.pricing')}</div> */}
                     <div className="grid grid-cols-3 gap-2">
-                      <div className="text-center p-2 bg-purple-500/10 rounded-lg border border-purple-500/20">
-                        <div className="text-xs text-purple-300 font-medium">WAV</div>
-                        <div className="text-xs sm:text-sm text-white font-semibold">{formatPrice(beat.wavLeasePrice)}</div>
+                      <div className="text-center p-2 bg-white/[0.03] rounded-lg border border-white/10">
+                        <div className="text-xs text-muted-foreground font-medium">WAV</div>
+                        <div className="text-xs sm:text-sm text-foreground font-semibold">{formatPrice(beat.wavLeasePrice)}</div>
                       </div>
-                      <div className="text-center p-2 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                        <div className="text-xs text-blue-300 font-medium">Trackout</div>
-                        <div className="text-xs sm:text-sm text-white font-semibold">{formatPrice(beat.trackoutLeasePrice)}</div>
+                      <div className="text-center p-2 bg-white/[0.03] rounded-lg border border-white/10">
+                        <div className="text-xs text-muted-foreground font-medium">Trackout</div>
+                        <div className="text-xs sm:text-sm text-foreground font-semibold">{formatPrice(beat.trackoutLeasePrice)}</div>
                       </div>
-                      <div className="text-center p-2 bg-green-500/10 rounded-lg border border-green-500/20">
-                        <div className="text-xs text-green-300 font-medium">Unlimited</div>
-                        <div className="text-xs sm:text-sm text-white font-semibold">{formatPrice(beat.unlimitedLeasePrice)}</div>
+                      <div className="text-center p-2 bg-white/[0.03] rounded-lg border border-white/10">
+                        <div className="text-xs text-muted-foreground font-medium">Unlimited</div>
+                        <div className="text-xs sm:text-sm text-foreground font-semibold">{formatPrice(beat.unlimitedLeasePrice)}</div>
                       </div>
                     </div>
                   </div>
@@ -695,13 +699,13 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
                       {beat.tags.slice(0, 3).map((tag, index) => (
                         <span
                           key={index}
-                          className="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded-full"
+                          className="px-2 py-1 bg-white/[0.06] text-muted-foreground border border-white/10 text-xs rounded-full"
                         >
                           {tag}
                         </span>
                       ))}
                       {beat.tags.length > 3 && (
-                        <span className="px-2 py-1 bg-gray-500/20 text-gray-300 text-xs rounded-full">
+                        <span className="px-2 py-1 bg-white/[0.04] text-muted-foreground border border-white/8 text-xs rounded-full">
                           +{beat.tags.length - 3}
                         </span>
                       )}
@@ -713,7 +717,7 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
                 <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/10">
                   <Link
                     href={`/admin/beats/${beat.id}`}
-                    className="p-2 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 hover:from-indigo-500/30 hover:to-purple-500/30 text-indigo-300 border border-indigo-500/30 rounded-lg transition-all duration-300 touch-manipulation"
+                    className="p-2 border border-white/12 rounded-lg text-foreground bg-white/[0.02] hover:bg-white/[0.06] transition-opacity touch-manipulation"
                     title="Voir les détails"
                   >
                     <Edit className="w-4 h-4" />
@@ -722,7 +726,7 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
                   <button
                     onClick={() => handleToggleStatus(beat.id, !beat.isActive)}
                     disabled={toggleStatusMutation.isPending}
-                    className={`p-2 rounded-lg transition-colors touch-manipulation ${beat.isActive
+                    className={`p-2 rounded-lg transition-opacity touch-manipulation ${beat.isActive
                         ? 'bg-red-500/20 hover:bg-red-500/30 text-red-300'
                         : 'bg-green-500/20 hover:bg-green-500/30 text-green-300'
                       } ${toggleStatusMutation.isPending ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -744,7 +748,7 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
               {/* Informations du beat */}
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
-                  <h3 className="text-lg sm:text-xl font-bold text-white truncate">{beat.title}</h3>
+                  <h3 className="text-lg sm:text-xl font-bold text-foreground truncate">{beat.title}</h3>
                   <div className="flex flex-wrap gap-1 sm:gap-2">
                     {beat.isExclusive && (
                       <span className="bg-yellow-500 text-black text-xs px-2 py-1 rounded-full font-bold">
@@ -752,7 +756,7 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
                       </span>
                     )}
                     {beat.featured && (
-                      <span className="bg-purple-500 text-white text-xs px-2 py-1 rounded-full font-bold">
+                      <span className="bg-white/[0.08] text-foreground border border-white/12 text-xs px-2 py-1 rounded-full font-medium">
                         {t('admin.featured').toUpperCase()}
                       </span>
                     )}
@@ -775,9 +779,9 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
                   </div>
                 </div>
 
-                <p className="text-gray-300 mb-3 line-clamp-2 text-sm sm:text-base">{beat.description}</p>
+                <p className="text-muted-foreground mb-3 line-clamp-2 text-sm sm:text-base">{beat.description}</p>
 
-                <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-400 mb-3">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground mb-3">
                   <span>{beat.genre}</span>
                   <span className="hidden sm:inline">•</span>
                   <span>{beat.bpm} BPM</span>
@@ -793,17 +797,17 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
                 <div className="flex items-center gap-3 mb-3">
                   {/* <div className="text-xs text-gray-400 font-medium">{t('admin.pricing')}:</div> */}
                   <div className="flex gap-2">
-                    <div className="flex items-center gap-1 px-2 py-1 bg-purple-500/10 rounded border border-purple-500/20">
-                      <span className="text-xs text-purple-300 font-medium">WAV</span>
-                      <span className="text-xs text-white font-semibold">{formatPrice(beat.wavLeasePrice)}</span>
+                    <div className="flex items-center gap-1 px-2 py-1 bg-white/[0.03] rounded border border-white/10">
+                      <span className="text-xs text-muted-foreground font-medium">WAV</span>
+                      <span className="text-xs text-foreground font-semibold">{formatPrice(beat.wavLeasePrice)}</span>
                     </div>
-                    <div className="flex items-center gap-1 px-2 py-1 bg-blue-500/10 rounded border border-blue-500/20">
-                      <span className="text-xs text-blue-300 font-medium">Trackout</span>
-                      <span className="text-xs text-white font-semibold">{formatPrice(beat.trackoutLeasePrice)}</span>
+                    <div className="flex items-center gap-1 px-2 py-1 bg-white/[0.03] rounded border border-white/10">
+                      <span className="text-xs text-muted-foreground font-medium">Trackout</span>
+                      <span className="text-xs text-foreground font-semibold">{formatPrice(beat.trackoutLeasePrice)}</span>
                     </div>
-                    <div className="flex items-center gap-1 px-2 py-1 bg-green-500/10 rounded border border-green-500/20">
-                      <span className="text-xs text-green-300 font-medium">Unlimited</span>
-                      <span className="text-xs text-white font-semibold">{formatPrice(beat.unlimitedLeasePrice)}</span>
+                    <div className="flex items-center gap-1 px-2 py-1 bg-white/[0.03] rounded border border-white/10">
+                      <span className="text-xs text-muted-foreground font-medium">Unlimited</span>
+                      <span className="text-xs text-foreground font-semibold">{formatPrice(beat.unlimitedLeasePrice)}</span>
                     </div>
                   </div>
                 </div>
@@ -813,7 +817,7 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
                     {beat.tags.map((tag, index) => (
                       <span
                         key={index}
-                        className="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded-full"
+                        className="px-2 py-1 bg-white/[0.06] text-muted-foreground border border-white/10 text-xs rounded-full"
                       >
                         {tag}
                       </span>
@@ -826,7 +830,7 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
               <div className="flex items-center justify-center sm:justify-end gap-2 sm:ml-6">
                 <Link
                   href={`/admin/beats/${beat.id}`}
-                    className="p-2.5 sm:p-2 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 hover:from-indigo-500/30 hover:to-purple-500/30 text-indigo-300 border border-indigo-500/30 rounded-lg transition-all duration-300 touch-manipulation"
+                    className="p-2.5 sm:p-2 border border-white/12 rounded-lg text-foreground bg-white/[0.02] hover:bg-white/[0.06] transition-opacity touch-manipulation"
                   title="Voir les détails"
                 >
                   <Edit className="w-4 h-4 sm:w-4 sm:h-4" />
@@ -835,7 +839,7 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
                 <button
                   onClick={() => handleToggleStatus(beat.id, !beat.isActive)}
                   disabled={toggleStatusMutation.isPending}
-                  className={`p-2.5 sm:p-2 rounded-lg transition-colors touch-manipulation ${beat.isActive
+                  className={`p-2.5 sm:p-2 rounded-lg transition-opacity touch-manipulation ${beat.isActive
                       ? 'bg-red-500/20 hover:bg-red-500/30 text-red-300'
                       : 'bg-green-500/20 hover:bg-green-500/30 text-green-300'
                     } ${toggleStatusMutation.isPending ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -858,7 +862,7 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
 
       {/* Pagination Controls */}
       {beats.length > 0 && totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between bg-card/10 backdrop-blur-lg rounded-xl p-3 sm:p-4 border border-border/20 gap-3 sm:gap-0">
+        <div className={cn(catalogPanelClass, 'flex flex-col sm:flex-row items-center justify-between p-3 sm:p-4 gap-3 sm:gap-0')}>
           <div className="flex items-center gap-4">
             <span className="text-muted-foreground text-xs sm:text-sm text-center sm:text-left">
               {t('beats.showingResults', { start: startIndex.toString(), end: endIndex.toString(), total: totalBeats.toString() })}
@@ -869,7 +873,7 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
             <button
               onClick={goToPreviousPage}
               disabled={page === 1}
-              className="flex items-center gap-1 px-2 sm:px-3 py-2 bg-card/20 border border-border/30 rounded-lg text-foreground hover:bg-card/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 text-xs sm:text-sm touch-manipulation"
+              className="flex items-center gap-1 px-2 sm:px-3 py-2 border border-white/12 rounded-lg text-foreground bg-white/[0.02] hover:bg-white/[0.06] disabled:opacity-50 disabled:cursor-not-allowed transition-opacity text-xs sm:text-sm touch-manipulation"
             >
               <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">{t('pagination.previous')}</span>
@@ -893,10 +897,10 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
                     key={pageNum}
                     onClick={() => goToPage(pageNum)}
                     className={cn(
-                      'px-2 sm:px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 touch-manipulation',
+                      'px-2 sm:px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-opacity touch-manipulation',
                       page === pageNum
-                        ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg'
-                        : 'bg-card/10 text-muted-foreground hover:bg-card/20 hover:text-foreground'
+                        ? 'bg-white text-black'
+                        : 'bg-white/[0.02] text-muted-foreground border border-white/10 hover:bg-white/[0.06] hover:text-foreground'
                     )}
                   >
                     {pageNum}
@@ -908,7 +912,7 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
             <button
               onClick={goToNextPage}
               disabled={page === totalPages}
-              className="flex items-center gap-1 px-2 sm:px-3 py-2 bg-card/20 border border-border/30 rounded-lg text-foreground hover:bg-card/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 text-xs sm:text-sm touch-manipulation"
+              className="flex items-center gap-1 px-2 sm:px-3 py-2 border border-white/12 rounded-lg text-foreground bg-white/[0.02] hover:bg-white/[0.06] disabled:opacity-50 disabled:cursor-not-allowed transition-opacity text-xs sm:text-sm touch-manipulation"
             >
               <span className="hidden sm:inline">{t('pagination.next')}</span>
               <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -920,13 +924,13 @@ export default function BeatManager({ onDelete: _onDelete, onToggleStatus }: Bea
       {/* Message si aucun beat trouvé */}
       {!loading && beats.length === 0 && (
         <div className="text-center py-8 sm:py-16 px-4">
-          <div className="text-gray-400 text-base sm:text-lg mb-4">
+          <div className="text-muted-foreground text-base sm:text-lg mb-4">
             {hasActiveFilters ? t('admin.noBeatsWithCriteria') : t('beats.noBeatsAvailable')}
           </div>
           {hasActiveFilters && (
             <button
               onClick={handleResetFilters}
-              className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg transition-all duration-300 text-sm sm:text-base touch-manipulation shadow-lg hover:shadow-xl"
+              className="bg-white text-black hover:bg-white/90 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg transition-opacity text-sm sm:text-base touch-manipulation"
             >
               {t('beats.resetFilters')}
             </button>

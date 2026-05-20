@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { createHash } from 'crypto'
+import { getSignedImageUploadParams } from '@/lib/cloudinary'
 
 // GET - Génération d'URL d'upload directe Cloudinary
 export async function GET(request: NextRequest) {
@@ -105,11 +106,7 @@ export async function GET(request: NextRequest) {
         params.duration = '30'
       }
     } else if (isImage) {
-      params.format = 'webp'
-      params.quality = 'auto:best'
-      params.width = '1200'
-      params.height = '1200'
-      params.crop = 'fill'
+      Object.assign(params, getSignedImageUploadParams(folder))
     }
 
     // Génération de la signature

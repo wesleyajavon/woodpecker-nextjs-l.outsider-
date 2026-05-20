@@ -7,6 +7,8 @@ import { useCart, useCartActions } from '@/hooks/useCart'
 import { Button } from './ui/Button'
 import { Beat } from '@/types/beat'
 import { LicenseType } from '@/types/cart'
+import { catalogPanelClass } from '@/components/catalog/catalog-styles'
+import { cn } from '@/lib/utils'
 import { useTranslation } from '@/hooks/useApp'
 
 interface CartSummaryProps {
@@ -19,7 +21,6 @@ export default function CartSummary({ onCheckout }: CartSummaryProps) {
   const [isClearing, setIsClearing] = useState(false)
   const { t } = useTranslation()
 
-  // Helper function to get price based on license type
   const getPriceByLicense = (beat: Beat, licenseType: LicenseType): number => {
     switch (licenseType) {
       case 'WAV_LEASE':
@@ -33,7 +34,6 @@ export default function CartSummary({ onCheckout }: CartSummaryProps) {
     }
   }
 
-  // Helper function to get license display name
   const getLicenseDisplayName = (licenseType: LicenseType): string => {
     switch (licenseType) {
       case 'WAV_LEASE':
@@ -58,18 +58,18 @@ export default function CartSummary({ onCheckout }: CartSummaryProps) {
   if (cart.items.length === 0) {
     return (
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="signal-glow rounded-xl border border-primary/15 bg-card/20 p-8 text-center backdrop-blur-lg"
+        className={cn(catalogPanelClass, 'p-8 text-center')}
       >
-        <ShoppingCart className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-        <h3 className="text-xl font-semibold text-foreground mb-2">{t('cart.empty')}</h3>
-        <p className="text-muted-foreground mb-6">
-          {t('cart.emptyDescriptionShort')}
-        </p>
+        <ShoppingCart className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+        <h3 className="text-lg font-semibold text-foreground">{t('cart.empty')}</h3>
+        <p className="mt-2 text-sm text-muted-foreground">{t('cart.emptyDescriptionShort')}</p>
         <Button
-          onClick={() => window.location.href = '/beats'}
-          className="signal-glow bg-primary text-primary-foreground hover:bg-primary/90"
+          onClick={() => {
+            window.location.href = '/beats'
+          }}
+          className="mt-6 h-11 rounded-lg bg-white text-sm font-medium text-black hover:bg-white/90"
         >
           {t('cart.browseBeat')}
         </Button>
@@ -79,88 +79,86 @@ export default function CartSummary({ onCheckout }: CartSummaryProps) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="signal-glow rounded-xl border border-primary/15 bg-card/20 p-4 shadow-sm backdrop-blur-lg sm:p-6"
+      className={cn(catalogPanelClass, 'p-4 sm:p-6')}
     >
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
-        <h3 className="text-lg sm:text-xl font-semibold text-foreground">{t('cart.orderSummary')}</h3>
+      <div className="mb-4 flex flex-col justify-between gap-3 sm:mb-6 sm:flex-row sm:items-center">
+        <h3 className="text-lg font-semibold tracking-tight text-foreground">
+          {t('cart.orderSummary')}
+        </h3>
         <Button
           variant="outline"
           size="sm"
           onClick={handleClearCart}
           disabled={isClearing}
-          className="text-red-400 hover:text-red-300 hover:bg-red-900/20 border-red-500/50 w-full sm:w-auto touch-manipulation"
+          className="w-full border-white/12 text-muted-foreground hover:bg-white/[0.04] sm:w-auto"
         >
-          <Trash2 className="h-4 w-4 mr-1 sm:mr-2" />
-          <span className="text-sm sm:text-base">{t('cart.clearCart')}</span>
+          <Trash2 className="mr-2 h-4 w-4" />
+          {t('cart.clearCart')}
         </Button>
       </div>
 
-      {/* Cart Items Summary */}
-      <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
+      <div className="mb-4 space-y-3 sm:mb-6 sm:space-y-4">
         {cart.items.map((item) => (
-          <div key={`${item.beat.id}-${item.licenseType}`} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0">
-            <div className="flex-1 min-w-0">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                <span className="font-medium text-foreground text-sm sm:text-base truncate">{item.beat.title}</span>
-                <span className="w-fit rounded-full border border-primary/20 bg-primary/15 px-2 py-1 text-xs text-primary">
+          <div
+            key={`${item.beat.id}-${item.licenseType}`}
+            className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center"
+          >
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <span className="truncate text-sm font-medium text-foreground sm:text-base">
+                  {item.beat.title}
+                </span>
+                <span className="w-fit rounded-full border border-white/12 bg-white/[0.04] px-2 py-0.5 font-mono text-xs text-muted-foreground">
                   {getLicenseDisplayName(item.licenseType)}
                 </span>
               </div>
-              <span className="text-muted-foreground text-xs sm:text-sm">× {item.quantity}</span>
+              <span className="text-xs text-muted-foreground sm:text-sm">
+                × {item.quantity}
+              </span>
             </div>
-            <span className="font-medium text-foreground text-sm sm:text-base">
+            <span className="text-sm font-medium text-foreground sm:text-base">
               €{(getPriceByLicense(item.beat, item.licenseType) * item.quantity).toFixed(2)}
             </span>
           </div>
         ))}
       </div>
 
-      {/* Divider */}
-      <div className="border-t border-border/20 mb-4 sm:mb-6"></div>
+      <div className="mb-4 border-t border-white/6 sm:mb-6" />
 
-      {/* Totals */}
-      <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
+      <div className="mb-4 space-y-2 sm:mb-6 sm:space-y-3">
         <div className="flex items-center justify-between text-sm sm:text-base">
-          <span className="text-muted-foreground">{t('cart.items')} ({cart.totalItems})</span>
-          <span className="text-foreground font-medium">€{cart.totalPrice.toFixed(2)}</span>
+          <span className="text-muted-foreground">
+            {t('cart.items')} ({cart.totalItems})
+          </span>
+          <span className="font-medium text-foreground">€{cart.totalPrice.toFixed(2)}</span>
         </div>
-        
+
         <div className="flex items-center justify-between text-sm sm:text-base">
           <span className="text-muted-foreground">{t('cart.processingFee')}</span>
-          <span className="text-foreground font-medium">€0.00</span>
+          <span className="font-medium text-foreground">€0.00</span>
         </div>
-        
-        {/* <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">VAT (21%)</span>
-          <span className="text-foreground">€{(cart.totalPrice * 0.21).toFixed(2)}</span>
-        </div> */}
-        
-        <div className="border-t border-border/20 pt-2 sm:pt-3">
-          <div className="flex items-center justify-between text-base sm:text-lg font-semibold">
+
+        <div className="border-t border-white/6 pt-2 sm:pt-3">
+          <div className="flex items-center justify-between text-base font-semibold sm:text-lg">
             <span className="text-foreground">{t('common.total')}</span>
-            <span className="text-foreground">
-              {/* €{(cart.totalPrice * 1.21).toFixed(2)} */}
-              €{cart.totalPrice.toFixed(2)}
-            </span>
+            <span className="text-foreground">€{cart.totalPrice.toFixed(2)}</span>
           </div>
         </div>
       </div>
 
-      {/* Checkout Button */}
       <Button
         onClick={onCheckout}
-        className="signal-glow w-full touch-manipulation rounded-xl bg-primary px-4 py-3 font-semibold text-primary-foreground transition-all duration-300 hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/25 sm:px-6 sm:py-4"
+        className="h-11 w-full rounded-lg bg-white text-sm font-medium text-black hover:bg-white/90"
       >
-        <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-        <span className="text-sm sm:text-base">{t('cart.proceedToCheckout')}</span>
-        <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 ml-2" />
+        <CreditCard className="mr-2 h-4 w-4" />
+        {t('cart.proceedToCheckout')}
+        <ArrowRight className="ml-2 h-4 w-4" />
       </Button>
 
-      {/* Security Notice */}
-      <p className="text-xs sm:text-sm text-muted-foreground text-center mt-3 sm:mt-4">
-        🔒 {t('cart.secureCheckout')}
+      <p className="mt-3 text-center text-xs text-muted-foreground sm:mt-4 sm:text-sm">
+        {t('cart.secureCheckout')}
       </p>
     </motion.div>
   )

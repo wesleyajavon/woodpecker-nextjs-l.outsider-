@@ -10,6 +10,12 @@ import { Beat } from '@/types/beat';
 import { S3Upload } from '@/components/S3Upload';
 import { CloudinaryUpload } from '@/components/CloudinaryUpload';
 import { useBeatGenres } from '@/hooks/queries/useBeats';
+import {
+  catalogInputClass,
+  catalogPanelClass,
+  catalogSelectClass,
+} from '@/components/catalog/catalog-styles';
+import { cn } from '@/lib/utils';
 
 interface BeatUploadProps {
   onUploadSuccess?: (beat: Beat) => void;
@@ -245,8 +251,8 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
   };
 
   return (
-    <div className="max-w-full mx-auto p-4 sm:p-6 bg-white/10 backdrop-blur-lg rounded-2xl">
-      <h2 className="text-2xl font-bold text-white mb-4 text-center">
+    <div className={cn(catalogPanelClass, 'max-w-full mx-auto p-4 sm:p-6')}>
+      <h2 className="text-2xl font-bold text-foreground mb-4 text-center">
         {t('admin.uploadNewBeat')}
       </h2>
 
@@ -269,7 +275,7 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {/* Section des fichiers */}
         <div className="space-y-4">
-          <h3 className="text-xl font-semibold text-white mb-3">{t('upload.files')}</h3>
+          <h3 className="text-xl font-semibold text-foreground mb-3">{t('upload.files')}</h3>
 
           {/* Preview Audio (Requis) */}
           <div className="space-y-2">
@@ -292,7 +298,7 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
                 </div>
                 <div className="p-3 bg-white/5 rounded-lg">
                   <p className="text-foreground text-xs">
-                    ✅ {t('upload.previewDetails')}
+                    {t('upload.previewDetails')}
                   </p>
                   <p className="text-muted-foreground text-xs mt-1">
                     {t('upload.publicId')}: {cloudinaryUploads.preview.publicId}
@@ -335,7 +341,7 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
                 </div>
                 <div className="p-3 bg-white/5 rounded-lg">
                   <p className="text-foreground text-xs">
-                    ✅ {t('upload.masterDetails')}
+                    {t('upload.masterDetails')}
                   </p>
                   <p className="text-muted-foreground text-xs mt-1">
                     {t('upload.s3Key')}: {s3Uploads.master.key}
@@ -375,7 +381,7 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
                 </div>
                 <div className="p-3 bg-white/5 rounded-lg">
                   <p className="text-foreground text-xs">
-                    ✅ {t('upload.artworkDetails')}
+                    {t('upload.artworkDetails')}
                   </p>
                   <p className="text-muted-foreground text-xs mt-1">
                     {t('upload.publicId')}: {cloudinaryUploads.artwork.publicId}
@@ -418,7 +424,7 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
                 </div>
                 <div className="p-3 bg-white/5 rounded-lg">
                   <p className="text-foreground text-xs">
-                    ✅ {t('upload.stemsDetails')}
+                    {t('upload.stemsDetails')}
                   </p>
                   <p className="text-muted-foreground text-xs mt-1">
                     {t('upload.s3Key')}: {s3Uploads.stems.key}
@@ -441,7 +447,7 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
 
         {/* Section des informations */}
         <div className="space-y-4">
-          <h3 className="text-xl font-semibold text-white mb-3">{t('upload.information')}</h3>
+          <h3 className="text-xl font-semibold text-foreground mb-3">{t('upload.information')}</h3>
 
           {/* Titre */}
           <div className="space-y-2">
@@ -452,7 +458,7 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
               type="text"
               value={formData.title}
               onChange={(e) => handleInputChange('title', e.target.value)}
-              className="w-full p-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className={catalogInputClass}
               placeholder={t('upload.beatName')}
               maxLength={BEAT_CONFIG.maxTitleLength}
             />
@@ -466,7 +472,7 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
             <textarea
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
-              className="w-full p-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className={catalogInputClass}
               placeholder={t('upload.beatDescription')}
               rows={3}
               maxLength={BEAT_CONFIG.maxDescriptionLength}
@@ -484,7 +490,7 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
                 list="beat-upload-genres"
                 value={formData.genre}
                 onChange={(e) => handleInputChange('genre', e.target.value)}
-                className="w-full p-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={catalogInputClass}
                 placeholder={t('upload.genrePlaceholder')}
               />
               <datalist id="beat-upload-genres">
@@ -503,7 +509,7 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
                 type="number"
                 value={formData.bpm}
                 onChange={(e) => handleInputChange('bpm', parseInt(e.target.value))}
-                className="w-full p-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className={catalogInputClass}
                 min="60"
                 max="200"
               />
@@ -519,7 +525,7 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
               <select
                 value={formData.key}
                 onChange={(e) => handleInputChange('key', e.target.value)}
-                className="w-full p-3 bg-white/20 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={catalogSelectClass}
               >
                 {BEAT_CONFIG.keys.map((key) => (
                   <option key={key} value={key} className="bg-gray-800 text-white">
@@ -536,7 +542,7 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
               <select
                 value={formData.mode}
                 onChange={(e) => handleInputChange('mode', e.target.value as 'majeur' | 'mineur')}
-                className="w-full p-3 bg-white/20 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={catalogSelectClass}
               >
                 {BEAT_CONFIG.modes.map((mode) => (
                   <option key={mode} value={mode} className="bg-gray-800 text-white">
@@ -554,7 +560,7 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
                 type="text"
                 value={formData.duration}
                 onChange={(e) => handleInputChange('duration', e.target.value)}
-                className="w-full p-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className={catalogInputClass}
                 placeholder={t('upload.durationPlaceholder')}
               />
             </div>
@@ -562,7 +568,7 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
 
           {/* Prix par licence */}
           <div className="space-y-3">
-            <h4 className="text-base font-semibold text-white">{t('upload.pricePerLicense')}</h4>
+            <h4 className="text-base font-semibold text-foreground">{t('upload.pricePerLicense')}</h4>
             
             <div className="grid grid-cols-1 gap-3">
               {/* WAV Lease */}
@@ -574,7 +580,7 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
                   type="number"
                   value={formData.wavLeasePrice}
                   onChange={(e) => handleInputChange('wavLeasePrice', parseFloat(e.target.value))}
-                  className="w-full p-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className={catalogInputClass}
                   min="0"
                   step="0.01"
                 />
@@ -589,7 +595,7 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
                   type="number"
                   value={formData.trackoutLeasePrice}
                   onChange={(e) => handleInputChange('trackoutLeasePrice', parseFloat(e.target.value))}
-                  className="w-full p-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className={catalogInputClass}
                   min="0"
                   step="0.01"
                 />
@@ -604,7 +610,7 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
                   type="number"
                   value={formData.unlimitedLeasePrice}
                   onChange={(e) => handleInputChange('unlimitedLeasePrice', parseFloat(e.target.value))}
-                  className="w-full p-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className={catalogInputClass}
                   min="0"
                   step="0.01"
                 />
@@ -623,14 +629,14 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
                 value={currentTag}
                 onChange={(e) => setCurrentTag(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && addTag()}
-                className="flex-1 p-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={cn(catalogInputClass, 'flex-1')}
                 placeholder={t('upload.addTag')}
                 maxLength={20}
               />
               <button
                 onClick={addTag}
                 disabled={!currentTag.trim() || formData.tags.length >= BEAT_CONFIG.maxTags}
-                className="px-4 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
+                className="px-4 py-3 bg-white text-black hover:bg-white/90 disabled:bg-white/20 disabled:text-muted-foreground disabled:cursor-not-allowed rounded-lg transition-opacity"
               >
 {t('common.add')}
               </button>
@@ -640,12 +646,12 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
                 {formData.tags.map((tag, index) => (
                   <span
                     key={index}
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-indigo-300 border border-indigo-500/30 rounded-full text-sm"
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-white/[0.06] text-muted-foreground border border-white/12 rounded-full text-sm"
                   >
                     {tag}
                     <button
                       onClick={() => removeTag(tag)}
-                      className="text-indigo-400 hover:text-indigo-300"
+                      className="text-muted-foreground hover:text-foreground transition-opacity"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -664,7 +670,7 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
               type="datetime-local"
               value={formData.scheduledReleaseAt}
               onChange={(e) => handleInputChange('scheduledReleaseAt', e.target.value)}
-              className="w-full p-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 [color-scheme:dark]"
+              className={cn(catalogInputClass, '[color-scheme:dark]')}
               min={(() => {
                 const n = new Date();
                 const p = (x: number) => x.toString().padStart(2, '0');
@@ -683,7 +689,7 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
                 type="checkbox"
                 checked={formData.isExclusive}
                 onChange={(e) => handleInputChange('isExclusive', e.target.checked)}
-                className="w-4 h-4 text-indigo-600 bg-white/20 border-white/30 rounded focus:ring-indigo-500"
+                className="w-4 h-4 rounded border-white/20 bg-white/[0.03] text-foreground focus:ring-white/20"
               />
               {t('upload.exclusiveBeat')}
             </label>
@@ -693,7 +699,7 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
                 type="checkbox"
                 checked={formData.featured}
                 onChange={(e) => handleInputChange('featured', e.target.checked)}
-                className="w-4 h-4 text-indigo-600 bg-white/20 border-white/30 rounded focus:ring-indigo-500"
+                className="w-4 h-4 rounded border-white/20 bg-white/[0.03] text-foreground focus:ring-white/20"
               />
               {t('upload.featured')}
             </label>
@@ -706,17 +712,17 @@ export default function BeatUpload({ onUploadSuccess, onUploadError }: BeatUploa
         {/* Debug info pour comprendre l'état du bouton */}
         <div className="mb-4 p-3 bg-white/5 rounded-lg text-xs text-gray-300">
           <p>{t('upload.uploadStatus')}</p>
-          <p>• {t('upload.previewCloudinary')}: {cloudinaryUploads.preview ? `✅ ${t('upload.uploaded')}` : `❌ ${t('upload.missing')}`}</p>
-          <p>• {t('upload.masterS3')}: {s3Uploads.master ? `✅ ${t('upload.uploaded')}` : `❌ ${t('upload.missing')}`}</p>
-          <p>• {t('upload.artworkCloudinary')}: {cloudinaryUploads.artwork ? `✅ ${t('upload.uploaded')}` : `⏸️ ${t('upload.optional')}`}</p>
-          <p>• {t('upload.stemsS3')}: {s3Uploads.stems ? `✅ ${t('upload.uploaded')}` : `⏸️ ${t('upload.optional')}`}</p>
-          <p>• {t('upload.buttonEnabled')}: {(!isUploading && cloudinaryUploads.preview && s3Uploads.master) ? `✅ ${t('upload.yes')}` : `❌ ${t('upload.no')}`}</p>
+          <p>• {t('upload.previewCloudinary')}: {cloudinaryUploads.preview ? t('upload.uploaded') : t('upload.missing')}</p>
+          <p>• {t('upload.masterS3')}: {s3Uploads.master ? t('upload.uploaded') : t('upload.missing')}</p>
+          <p>• {t('upload.artworkCloudinary')}: {cloudinaryUploads.artwork ? t('upload.uploaded') : t('upload.optional')}</p>
+          <p>• {t('upload.stemsS3')}: {s3Uploads.stems ? t('upload.uploaded') : t('upload.optional')}</p>
+          <p>• {t('upload.buttonEnabled')}: {(!isUploading && cloudinaryUploads.preview && s3Uploads.master) ? t('upload.yes') : t('upload.no')}</p>
         </div>
         
         <button
           onClick={handleUpload}
           disabled={isUploading || !cloudinaryUploads.preview || !s3Uploads.master}
-          className="px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+          className="px-8 py-4 bg-white text-black hover:bg-white/90 disabled:bg-white/20 disabled:text-muted-foreground disabled:cursor-not-allowed font-semibold rounded-lg transition-opacity"
         >
           {isUploading ? (
             <div className="flex items-center gap-2">

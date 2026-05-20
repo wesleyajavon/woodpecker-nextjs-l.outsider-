@@ -92,9 +92,38 @@ export const fr = {
   // Hero Section
   hero: {
     title: 'l.outsider',
-    eyebrow: 'Beats originaux & licences professionnelles',
-    subtitle: 'Des prods taillées pour faire sonner ton prochain morceau.',
-    cta: 'Découvrir les beats',
+    eyebrow: 'Boutique de beats professionnelle',
+    subtitle: 'Des instrumentales premium avec licences et téléchargements instantanés. Conçu pour les artistes exigeants.',
+    cta: 'Parcourir le catalogue',
+    ctaSecondary: 'Voir les licences',
+    stats: {
+      instant: 'Téléchargement instantané',
+      licenses: 'Licences claires',
+      quality: 'Qualité studio',
+    },
+  },
+
+  // Homepage
+  home: {
+    features: {
+      label: 'Plateforme',
+      title: 'Pensé pour les artistes sérieux',
+      description: 'De la preview aux fichiers masters, tout est optimisé pour ton workflow de sortie.',
+      items: {
+        delivery: {
+          title: 'Livraison instantanée',
+          description: 'Télécharge tes fichiers immédiatement après l\'achat. Sans attente, sans friction.',
+        },
+        licenses: {
+          title: 'Licences transparentes',
+          description: 'Options WAV, trackout et unlimited avec des conditions claires pour chaque sortie.',
+        },
+        quality: {
+          title: 'Qualité studio',
+          description: 'Des instrumentales mixées et masterisées professionnellement, prêtes pour tes voix.',
+        },
+      },
+    },
   },
 
   // Cart
@@ -159,6 +188,25 @@ export const fr = {
     priceMin: 'Prix min (€)',
     priceMax: 'Prix max (€)',
     withStems: 'Avec stems',
+    detail: {
+      backToBeats: 'Retour au catalogue',
+      loading: 'Chargement du beat',
+      loadingHint: 'Veuillez patienter',
+      notFound: 'Beat introuvable',
+      notFoundDescription: 'Ce beat n\'existe pas ou a été supprimé.',
+      detailsTitle: 'Détails du beat',
+      chooseLicense: 'Choisir une licence',
+      similarBeats: 'Plus dans le catalogue',
+      similarDescription: 'Découvrez d\'autres instrumentales dans le même style.',
+      viewAllBeats: 'Voir tout le catalogue',
+      stemsAvailable: 'Stems disponibles',
+      genre: 'Genre',
+      bpm: 'BPM',
+      key: 'Tonalité',
+      mode: 'Mode',
+      duration: 'Durée',
+      description: 'Description',
+    },
     stats: {
       beats: 'Beats',
       genres: 'Genres',
@@ -222,17 +270,38 @@ export const fr = {
   },
   // Featured Products
   featured: {
-    title: 'Les beats',
-    words: ['en feu 🔥', 'masterclass 🫶', 'en pétard 💣', 'pépites 💎', 'bouillants 💥', 'crackito 🔝'],
-    description: 'Que des bangers dans cette sélection d\'instrus qui retournent tout en ce moment.',
-    viewAllBeats: 'Voir tous mes beats',
+    title: 'Beats en vedette',
+    words: ['tendance', 'sélectionnés', 'curatés', 'premium', 'essentiels', 'mis en avant'],
+    description: 'Une sélection d\'instrumentales choisies dans le catalogue, mise à jour régulièrement.',
+    pageSubtitle:
+      'Les instrumentales les plus demandées du catalogue, sélectionnées pour leur qualité et leur polyvalence.',
+    viewAllBeats: 'Voir tout le catalogue',
     loading: 'Chargement des beats...',
     noBeats: 'Aucun beat en vedette pour le moment',
-    badge: 'Sélection Vedette',
+    emptyDescription:
+      'Revenez bientôt ou parcourez le catalogue complet pour trouver votre prochaine instru.',
+    badge: 'En vedette',
+    beatCount: '{count} beats',
+    errorFallback: 'Impossible de charger les beats en vedette.',
+    stats: {
+      beats: 'En vedette',
+      genres: 'Genres',
+      stems: 'Avec stems',
+    },
+    cta: {
+      title: 'Besoin d\'autre chose ?',
+      description:
+        'Parcourez l\'ensemble du catalogue ou contactez-nous pour une instru sur mesure.',
+      contact: 'Nous contacter',
+    },
   },
 
   // Auth
   auth: {
+    welcome: 'Bienvenue',
+    welcomeSubtitle: 'Connectez-vous à votre compte l.outsider',
+    orDivider: 'Ou',
+    sending: 'Envoi en cours...',
     signIn: 'Se connecter',
     signUp: 'S\'inscrire',
     signOut: 'Se déconnecter',
@@ -309,8 +378,11 @@ export const fr = {
 
   // FAQ
   faq: {
-    title: 'Questions',
+    title: 'Questions fréquentes',
     titleHighlight: 'Fréquentes',
+    loading: 'Chargement des questions...',
+    errorTitle: 'Impossible de charger la FAQ',
+    featured: 'À la une',
     subtitle: 'Trouvez rapidement les réponses à vos questions sur nos beats, licences et services.',
     searchPlaceholder: 'Rechercher une question...',
     resultsCount: '{count} questions trouvées',
@@ -346,9 +418,9 @@ export const fr = {
   // Contact
   contact: {
     title: 'Contact',
-    subtitle: 'Une question ? Un projet ? N\'hésitez pas à nous contacter.',
-    cardtitle: 'Dites-nous !',
-    cardsubtitle: 'Si vous avez des questions concernant nos services ou besoin d\'aide, veuillez remplir le formulaire ici. Nous nous efforçons de répondre dans les 24 heures.',
+    subtitle: 'Questions sur les licences, la production sur mesure ou un partenariat — réponse sous 24 h en général.',
+    cardtitle: 'Contactez-nous',
+    cardsubtitle: 'Support, ventes ou collaboration : remplissez le formulaire et nous vous répondrons rapidement.',
     form: {
       name: 'Nom complet',
       namePlaceholder: 'Votre nom',
@@ -365,8 +437,8 @@ export const fr = {
       messagePlaceholder: 'Décrivez votre demande...',
       send: 'Envoyer le message',
       sending: 'Envoi en cours...',
-      success: '✅ Message envoyé avec succès ! Nous vous répondrons dans les plus brefs délais.',
-      error: '❌ Erreur lors de l\'envoi. Veuillez réessayer.',
+      success: 'Message envoyé avec succès. Nous vous répondrons dans les plus brefs délais.',
+      error: 'Erreur lors de l\'envoi. Veuillez réessayer.',
     },
     info: {
       email: 'Email',
@@ -783,7 +855,7 @@ export const fr = {
 
   // Terms Page
   terms: {
-    title: 'Conditions d\'',
+    title: 'Conditions d\'utilisation',
     titleHighlight: 'Utilisation',
     tableOfContents: 'Table des Matières',
     subtitle: 'Veuillez lire attentivement ces conditions d\'utilisation avant d\'utiliser nos services. En utilisant l.outsider, vous acceptez d\'\u00eatre lié par ces conditions.',

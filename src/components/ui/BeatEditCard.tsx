@@ -18,6 +18,8 @@ import Image from 'next/image';
 import { Beat } from '@/types/beat';
 import { useTranslation } from '@/contexts/LanguageContext';
 import { S3Upload } from '@/components/S3Upload';
+import { catalogPanelClass } from '@/components/catalog/catalog-styles';
+import { cn } from '@/lib/utils';
 
 interface BeatEditCardProps {
   beat: Beat;
@@ -45,6 +47,10 @@ interface BeatEditCardProps {
   onUpload: () => void;
 }
 
+const fileSectionClass = 'rounded-xl border border-white/10 bg-white/[0.03] p-4';
+const dropzoneClass =
+  'block w-full p-4 border-2 border-dashed border-white/12 rounded-xl hover:border-white/20 transition-opacity text-center cursor-pointer touch-manipulation bg-white/[0.02] hover:bg-white/[0.04]';
+
 export default function BeatEditCard({
   beat,
   beatId,
@@ -70,14 +76,8 @@ export default function BeatEditCard({
       animate={{ opacity: 1, y: 0 }}
       className="relative group"
     >
-      {/* Main Card */}
-      <div className="relative bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl rounded-3xl overflow-hidden border border-border/20 shadow-2xl hover:shadow-3xl transition-all duration-500">
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-        
-        {/* Content Section */}
+      <div className={cn(catalogPanelClass, 'relative overflow-hidden rounded-2xl')}>
         <div className="p-6 sm:p-8 relative z-20">
-          {/* Header */}
           <div className="mb-8">
             <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
               {t('admin.editFiles')}
@@ -87,7 +87,6 @@ export default function BeatEditCard({
             </p>
           </div>
 
-          {/* Error Display */}
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
@@ -101,17 +100,14 @@ export default function BeatEditCard({
             </motion.div>
           )}
 
-          {/* Upload Sections Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            
-            {/* Preview Audio */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                <Music className="w-5 h-5 text-purple-400" />
+                <Music className="w-5 h-5 text-muted-foreground" />
                 {t('upload.previewAudio')}
               </h3>
               
-              <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-2xl p-4 border border-purple-500/20">
+              <div className={fileSectionClass}>
                 {beat.previewUrl ? (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between p-3 bg-green-500/10 rounded-xl border border-green-500/20">
@@ -138,26 +134,24 @@ export default function BeatEditCard({
                     className="hidden"
                     id="preview-upload"
                   />
-                  <label
-                    htmlFor="preview-upload"
-                    className="block w-full p-4 border-2 border-dashed border-purple-400/50 rounded-xl hover:border-purple-400 transition-colors text-center cursor-pointer touch-manipulation bg-purple-500/5 hover:bg-purple-500/10"
-                  >
+                  <label htmlFor="preview-upload" className={dropzoneClass}>
                     {uploadedFiles.preview ? (
-                      <div className="flex items-center gap-2 text-purple-300">
+                      <div className="flex items-center gap-2 text-foreground">
                         <Music className="w-4 h-4" />
                         <span className="text-sm truncate flex-1">{uploadedFiles.preview.name}</span>
                         <button
+                          type="button"
                           onClick={(e) => {
                             e.preventDefault();
                             onRemoveFile('preview');
                           }}
-                          className="ml-auto text-red-400 hover:text-red-300 transition-colors"
+                          className="ml-auto text-red-400 hover:text-red-300 transition-opacity"
                         >
                           <X className="w-4 h-4" />
                         </button>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-2 text-gray-400">
+                      <div className="flex items-center gap-2 text-muted-foreground">
                         <Upload className="w-4 h-4" />
                         <span className="text-sm">{t('admin.replacePreviewFile')}</span>
                       </div>
@@ -167,14 +161,13 @@ export default function BeatEditCard({
               </div>
             </div>
 
-            {/* Master Audio - S3 */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                <FileAudio className="w-5 h-5 text-green-400" />
+                <FileAudio className="w-5 h-5 text-muted-foreground" />
                 {t('upload.masterAudio')} - S3
               </h3>
               
-              <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-2xl p-4 border border-green-500/20">
+              <div className={fileSectionClass}>
                 {beat.s3MasterUrl ? (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between p-3 bg-green-500/10 rounded-xl border border-green-500/20">
@@ -183,9 +176,9 @@ export default function BeatEditCard({
                         <p className="text-green-300 text-sm">{t('admin.masterFileOnS3')}</p>
                       </div>
                     </div>
-                    <div className="p-3 bg-white/5 rounded-xl">
+                    <div className="p-3 rounded-xl border border-white/10 bg-white/[0.02]">
                       <p className="text-foreground text-sm">
-                        ✅ {t('admin.masterUploadedToS3')} (limite: 500MB)
+                        {t('admin.masterUploadedToS3')} (limite: 500MB)
                       </p>
                       <p className="text-muted-foreground text-xs mt-1 font-mono">
                         {beat.s3MasterKey}
@@ -208,24 +201,24 @@ export default function BeatEditCard({
               </div>
             </div>
 
-            {/* Artwork */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                <ImageIcon className="w-5 h-5 text-blue-400" />
+                <ImageIcon className="w-5 h-5 text-muted-foreground" />
                 {t('upload.artwork')}
               </h3>
               
-              <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-2xl p-4 border border-blue-500/20">
+              <div className={fileSectionClass}>
                 {beat.artworkUrl ? (
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between p-3 bg-blue-500/10 rounded-xl border border-blue-500/20">
+                    <div className="flex items-center justify-between p-3 rounded-xl border border-white/10 bg-white/[0.04]">
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-blue-400" />
-                        <p className="text-blue-300 text-sm">{t('admin.currentImageAvailable')}</p>
+                        <CheckCircle className="w-4 h-4 text-muted-foreground" />
+                        <p className="text-foreground text-sm">{t('admin.currentImageAvailable')}</p>
                       </div>
                       <button
+                        type="button"
                         onClick={onRemoveArtwork}
-                        className="text-red-400 hover:text-red-300 transition-colors"
+                        className="text-red-400 hover:text-red-300 transition-opacity"
                         title={t('common.remove')}
                       >
                         <Trash2 className="w-4 h-4" />
@@ -253,26 +246,24 @@ export default function BeatEditCard({
                     className="hidden"
                     id="artwork-upload"
                   />
-                  <label
-                    htmlFor="artwork-upload"
-                    className="block w-full p-4 border-2 border-dashed border-blue-400/50 rounded-xl hover:border-blue-400 transition-colors text-center cursor-pointer touch-manipulation bg-blue-500/5 hover:bg-blue-500/10"
-                  >
+                  <label htmlFor="artwork-upload" className={dropzoneClass}>
                     {uploadedFiles.artwork ? (
-                      <div className="flex items-center gap-2 text-blue-300">
+                      <div className="flex items-center gap-2 text-foreground">
                         <ImageIcon className="w-4 h-4" />
                         <span className="text-sm truncate flex-1">{uploadedFiles.artwork.name}</span>
                         <button
+                          type="button"
                           onClick={(e) => {
                             e.preventDefault();
                             onRemoveFile('artwork');
                           }}
-                          className="ml-auto text-red-400 hover:text-red-300 transition-colors"
+                          className="ml-auto text-red-400 hover:text-red-300 transition-opacity"
                         >
                           <X className="w-4 h-4" />
                         </button>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-2 text-gray-400">
+                      <div className="flex items-center gap-2 text-muted-foreground">
                         <Upload className="w-4 h-4" />
                         <span className="text-sm">{t('admin.replaceCoverImage')}</span>
                       </div>
@@ -283,30 +274,30 @@ export default function BeatEditCard({
             </div>
           </div>
 
-          {/* Stems Section */}
           <div className="mb-8">
             <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-              <Archive className="w-5 h-5 text-orange-400" />
+              <Archive className="w-5 h-5 text-muted-foreground" />
               {t('upload.stems')} - S3
             </h3>
             
-            <div className="bg-gradient-to-br from-orange-500/10 to-red-500/10 rounded-2xl p-6 border border-orange-500/20">
+            <div className={cn(fileSectionClass, 'p-6')}>
               {beat.s3StemsUrl ? (
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 bg-orange-500/10 rounded-xl border border-orange-500/20">
+                  <div className="flex items-center justify-between p-3 rounded-xl border border-white/10 bg-white/[0.04]">
                     <div className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-orange-400" />
-                      <p className="text-orange-300 text-sm">{t('admin.stemsFileAvailable')}</p>
+                      <CheckCircle className="w-4 h-4 text-muted-foreground" />
+                      <p className="text-foreground text-sm">{t('admin.stemsFileAvailable')}</p>
                     </div>
                     <button
+                      type="button"
                       onClick={onRemoveStems}
-                      className="text-red-400 hover:text-red-300 transition-colors"
+                      className="text-red-400 hover:text-red-300 transition-opacity"
                       title={t('common.remove')}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
-                  <div className="p-3 bg-white/5 rounded-xl">
+                  <div className="p-3 rounded-xl border border-white/10 bg-white/[0.02]">
                     <p className="text-foreground text-sm">{t('upload.stemsZipOptional')}</p>
                     <p className="text-muted-foreground text-xs mt-1 font-mono">
                       {beat.s3StemsKey}
@@ -335,26 +326,24 @@ export default function BeatEditCard({
                   className="hidden"
                   id="stems-upload"
                 />
-                <label
-                  htmlFor="stems-upload"
-                  className="block w-full p-4 border-2 border-dashed border-orange-400/50 rounded-xl hover:border-orange-400 transition-colors text-center cursor-pointer touch-manipulation bg-orange-500/5 hover:bg-orange-500/10"
-                >
+                <label htmlFor="stems-upload" className={dropzoneClass}>
                   {uploadedFiles.stems ? (
-                    <div className="flex items-center gap-2 text-orange-300">
+                    <div className="flex items-center gap-2 text-foreground">
                       <Archive className="w-4 h-4" />
                       <span className="text-sm truncate flex-1">{uploadedFiles.stems.name}</span>
                       <button
+                        type="button"
                         onClick={(e) => {
                           e.preventDefault();
                           onRemoveFile('stems');
                         }}
-                        className="ml-auto text-red-400 hover:text-red-300 transition-colors"
+                        className="ml-auto text-red-400 hover:text-red-300 transition-opacity"
                       >
                         <X className="w-4 h-4" />
                       </button>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2 text-gray-400">
+                    <div className="flex items-center gap-2 text-muted-foreground">
                       <Upload className="w-4 h-4" />
                       <span className="text-sm">{t('admin.replaceStemsFile')}</span>
                     </div>
@@ -364,28 +353,27 @@ export default function BeatEditCard({
             </div>
           </div>
 
-          {/* Upload Progress */}
           {hasFilesToUpload && (
             <div className="mb-8">
               <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-                <RefreshCw className="w-5 h-5 text-indigo-400" />
+                <RefreshCw className="w-5 h-5 text-muted-foreground" />
                 {t('admin.uploadProgress')}
               </h3>
               
-              <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-2xl p-6 border border-indigo-500/20">
+              <div className={cn(fileSectionClass, 'p-6')}>
                 <div className="space-y-4">
                   {uploadedFiles.preview && (
                     <div>
                       <div className="flex justify-between text-sm text-muted-foreground mb-2">
                         <span className="flex items-center gap-2">
-                          <Music className="w-4 h-4 text-purple-400" />
+                          <Music className="w-4 h-4" />
                           Preview
                         </span>
                         <span>{uploadProgress.preview}%</span>
                       </div>
-                      <div className="w-full bg-muted rounded-full h-3">
+                      <div className="w-full bg-white/[0.06] rounded-full h-2">
                         <div
-                          className="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full transition-all duration-300"
+                          className="bg-white h-2 rounded-full transition-opacity"
                           style={{ width: `${uploadProgress.preview}%` }}
                         />
                       </div>
@@ -396,14 +384,14 @@ export default function BeatEditCard({
                     <div>
                       <div className="flex justify-between text-sm text-muted-foreground mb-2">
                         <span className="flex items-center gap-2">
-                          <FileAudio className="w-4 h-4 text-green-400" />
+                          <FileAudio className="w-4 h-4" />
                           Master
                         </span>
                         <span>{uploadProgress.master}%</span>
                       </div>
-                      <div className="w-full bg-muted rounded-full h-3">
+                      <div className="w-full bg-white/[0.06] rounded-full h-2">
                         <div
-                          className="bg-gradient-to-r from-green-500 to-emerald-500 h-3 rounded-full transition-all duration-300"
+                          className="bg-white h-2 rounded-full transition-opacity"
                           style={{ width: `${uploadProgress.master}%` }}
                         />
                       </div>
@@ -414,14 +402,14 @@ export default function BeatEditCard({
                     <div>
                       <div className="flex justify-between text-sm text-muted-foreground mb-2">
                         <span className="flex items-center gap-2">
-                          <ImageIcon className="w-4 h-4 text-blue-400" />
+                          <ImageIcon className="w-4 h-4" />
                           Artwork
                         </span>
                         <span>{uploadProgress.artwork}%</span>
                       </div>
-                      <div className="w-full bg-muted rounded-full h-3">
+                      <div className="w-full bg-white/[0.06] rounded-full h-2">
                         <div
-                          className="bg-gradient-to-r from-blue-500 to-cyan-500 h-3 rounded-full transition-all duration-300"
+                          className="bg-white h-2 rounded-full transition-opacity"
                           style={{ width: `${uploadProgress.artwork}%` }}
                         />
                       </div>
@@ -432,14 +420,14 @@ export default function BeatEditCard({
                     <div>
                       <div className="flex justify-between text-sm text-muted-foreground mb-2">
                         <span className="flex items-center gap-2">
-                          <Archive className="w-4 h-4 text-orange-400" />
+                          <Archive className="w-4 h-4" />
                           Stems
                         </span>
                         <span>{uploadProgress.stems}%</span>
                       </div>
-                      <div className="w-full bg-muted rounded-full h-3">
+                      <div className="w-full bg-white/[0.06] rounded-full h-2">
                         <div
-                          className="bg-gradient-to-r from-orange-500 to-red-500 h-3 rounded-full transition-all duration-300"
+                          className="bg-white h-2 rounded-full transition-opacity"
                           style={{ width: `${uploadProgress.stems}%` }}
                         />
                       </div>
@@ -450,18 +438,16 @@ export default function BeatEditCard({
             </div>
           )}
 
-          {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+            <button
+              type="button"
               onClick={onUpload}
               disabled={isUploading || !hasFilesToUpload}
-              className="flex-1 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 disabled:from-muted disabled:to-muted disabled:cursor-not-allowed text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/25 disabled:opacity-50 disabled:transform-none"
+              className="flex-1 bg-white text-black hover:bg-white/90 disabled:bg-white/20 disabled:text-muted-foreground disabled:cursor-not-allowed font-semibold py-4 px-6 rounded-lg transition-opacity disabled:opacity-50"
             >
               {isUploading ? (
                 <div className="flex items-center justify-center gap-3">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-black/20 border-t-black"></div>
                   <span>{t('admin.uploading')}</span>
                 </div>
               ) : (
@@ -470,7 +456,7 @@ export default function BeatEditCard({
                   <span>{t('admin.saveFiles')}</span>
                 </div>
               )}
-            </motion.button>
+            </button>
           </div>
         </div>
       </div>

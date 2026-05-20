@@ -3,11 +3,13 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ArrowLeft, AlertCircle } from 'lucide-react';
+import { ArrowLeft, AlertCircle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { DottedSurface } from '@/components/ui/dotted-surface';
-import { TextRewind } from '@/components/ui/text-rewind';
 import BeatInfoCard from '@/components/ui/BeatInfoCard';
+import { AdminPageShell } from '@/components/admin/AdminPageShell';
+import { PublicPageHeader } from '@/components/home/PublicPageHeader';
+import { Button } from '@/components/ui/Button';
+import { catalogPanelClass } from '@/components/catalog/catalog-styles';
 import { cn } from '@/lib/utils';
 import { Beat } from '@/types/beat';
 import { useTranslation } from '@/contexts/LanguageContext';
@@ -19,13 +21,9 @@ export default function BeatManagementPage() {
   const router = useRouter();
   const beatId = params?.id as string;
 
-  // TanStack Query hook (includeInactive pour voir les beats planifiés)
-  const {
-    data: beatData,
-    isLoading: loading,
-    error,
-    refetch
-  } = useBeat(beatId, { includeInactive: true });
+  const { data: beatData, isLoading: loading, error, refetch } = useBeat(beatId, {
+    includeInactive: true,
+  });
 
   const beat = beatData?.data || null;
 
@@ -35,26 +33,25 @@ export default function BeatManagementPage() {
   const [isTogglingFeatured, setIsTogglingFeatured] = useState(false);
   const [editData, setEditData] = useState<Partial<Beat>>({});
 
-  // Gestion des modifications
-  const handleEditChange = (field: keyof Beat, value: string | number | boolean | string[] | Date | null) => {
-    // Exclure les prix des modifications inline
-    if (field === 'wavLeasePrice' || field === 'trackoutLeasePrice' || field === 'unlimitedLeasePrice') {
+  const handleEditChange = (
+    field: keyof Beat,
+    value: string | number | boolean | string[] | Date | null,
+  ) => {
+    if (
+      field === 'wavLeasePrice' ||
+      field === 'trackoutLeasePrice' ||
+      field === 'unlimitedLeasePrice'
+    ) {
       return;
     }
-
-    setEditData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setEditData((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Sauvegarde des modifications
   const handleSave = async () => {
     if (!beat) return;
 
     try {
       setIsSaving(true);
-      // Convertir scheduledReleaseAt (datetime-local) en ISO UTC avant envoi
       const dataToSend: Record<string, unknown> = { ...editData };
       const scheduledRaw = dataToSend.scheduledReleaseAt as Date | string | null | undefined;
       if (typeof scheduledRaw === 'string' && scheduledRaw.trim()) {
@@ -68,18 +65,14 @@ export default function BeatManagementPage() {
 
       const response = await fetch(`/api/beats/${beatId}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(dataToSend)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dataToSend),
       });
 
-      if (!response.ok) {
-        throw new Error('Erreur lors de la sauvegarde');
-      }
+      if (!response.ok) throw new Error('Erreur lors de la sauvegarde');
 
       await response.json();
-      await refetch(); // Refresh data from TanStack Query
+      await refetch();
       setIsEditing(false);
     } catch (err) {
       console.error('Erreur lors de la sauvegarde:', err);
@@ -88,13 +81,11 @@ export default function BeatManagementPage() {
     }
   };
 
-  // Annulation des modifications
   const handleCancel = () => {
     setEditData(beat || {});
     setIsEditing(false);
   };
 
-  // Bascule featured (clic sur le badge)
   const handleToggleFeatured = async (featured: boolean) => {
     if (!beat) return;
 
@@ -102,15 +93,11 @@ export default function BeatManagementPage() {
       setIsTogglingFeatured(true);
       const response = await fetch(`/api/beats/${beatId}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ featured }),
       });
 
-      if (!response.ok) {
-        throw new Error('Erreur lors de la mise à jour');
-      }
+      if (!response.ok) throw new Error('Erreur lors de la mise à jour');
 
       await refetch();
     } catch (err) {
@@ -120,23 +107,14 @@ export default function BeatManagementPage() {
     }
   };
 
-  // Suppression du beat
   const handleDelete = async () => {
-    if (!beat || !confirm('Êtes-vous sûr de vouloir supprimer ce beat ?')) {
-      return;
-    }
+    if (!beat || !confirm('Êtes-vous sûr de vouloir supprimer ce beat ?')) return;
 
     try {
       setIsDeleting(true);
-      const response = await fetch(`/api/beats/${beatId}`, {
-        method: 'DELETE'
-      });
-
-      if (!response.ok) {
-        throw new Error('Erreur lors de la suppression');
-      }
-
-      router.push('/admin/upload');
+      const response = await fetch(`/api/beats/${beatId}`, { method: 'DELETE' });
+      if (!response.ok) throw new Error('Erreur lors de la suppression');
+      router.push('/admin/manage');
     } catch (err) {
       console.error('Erreur lors de la suppression:', err);
     } finally {
@@ -146,127 +124,58 @@ export default function BeatManagementPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background pt-20 pb-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-        <DottedSurface className="size-full z-0" />
-
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 z-0 flex items-center justify-center">
-          <div
-            aria-hidden="true"
-            className={cn(
-              'pointer-events-none absolute -top-10 left-1/2 size-full -translate-x-1/2 rounded-full',
-              'bg-[radial-gradient(ellipse_at_center,var(--theme-gradient),transparent_50%)]',
-              'blur-[30px]',
-            )}
-          />
+      <AdminPageShell maxWidth="max-w-4xl">
+        <div className="flex min-h-[50vh] flex-col items-center justify-center py-20">
+          <Loader2 className="mb-4 h-8 w-8 animate-spin text-muted-foreground" />
+          <p className="font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">
+            {t('admin.loadingBeat')}
+          </p>
         </div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center relative z-10"
-        >
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-foreground text-lg">{t('admin.loadingBeat')}</p>
-        </motion.div>
-      </div>
+      </AdminPageShell>
     );
   }
 
   if (error || !beat) {
     return (
-      <div className="min-h-screen bg-background pt-20 pb-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-        <DottedSurface className="size-full z-0" />
-
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 z-0 flex items-center justify-center">
-          <div
-            aria-hidden="true"
-            className={cn(
-              'pointer-events-none absolute -top-10 left-1/2 size-full -translate-x-1/2 rounded-full',
-              'bg-[radial-gradient(ellipse_at_center,var(--theme-gradient),transparent_50%)]',
-              'blur-[30px]',
-            )}
-          />
+      <AdminPageShell maxWidth="max-w-4xl">
+        <div className={cn(catalogPanelClass, 'mx-auto max-w-md p-8 text-center')}>
+          <AlertCircle className="mx-auto mb-4 h-10 w-10 text-red-300" />
+          <h1 className="text-xl font-semibold text-foreground">{t('admin.beatNotFound')}</h1>
+          <p className="mt-3 text-sm text-muted-foreground">
+            {error instanceof Error ? error.message : t('admin.beatNotFoundDescription')}
+          </p>
+          <Button asChild variant="outline" className="mt-6 border-white/12">
+            <Link href="/admin/manage">
+              <ArrowLeft className="h-4 w-4" />
+              {t('admin.backToManagement')}
+            </Link>
+          </Button>
         </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center max-w-md mx-auto p-6 relative z-10"
-        >
-          <AlertCircle className="h-16 w-16 text-red-400 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-foreground mb-2">{t('admin.beatNotFound')}</h1>
-          <p className="text-muted-foreground mb-6">{error instanceof Error ? error.message : error || t('admin.beatNotFoundDescription')}</p>
-          <Link
-            href="/admin/upload"
-            className="inline-flex items-center gap-2 bg-card/20 backdrop-blur-lg hover:bg-card/30 text-foreground px-6 py-3 rounded-lg transition-all duration-300 border border-border/20 hover:border-border/30"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            {t('admin.backToManagement')}
-          </Link>
-        </motion.div>
-      </div>
-
+      </AdminPageShell>
     );
   }
 
   return (
-    <div className="flex-1 pt-16 sm:pt-20 pb-8 sm:pb-12 px-3 sm:px-4 lg:px-8 relative">
-      <DottedSurface className="size-full z-0" />
+    <AdminPageShell maxWidth="max-w-4xl">
+      <Button
+        asChild
+        variant="outline"
+        size="sm"
+        className="mb-6 h-9 border-white/12 bg-transparent hover:bg-white/[0.04]"
+      >
+        <Link href="/admin/manage">
+          <ArrowLeft className="h-4 w-4" />
+          {t('admin.backToManagement')}
+        </Link>
+      </Button>
 
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 z-0 flex items-center justify-center">
-        <div
-          aria-hidden="true"
-          className={cn(
-            'pointer-events-none absolute -top-10 left-1/2 size-full -translate-x-1/2 rounded-full',
-            'bg-[radial-gradient(ellipse_at_center,var(--theme-gradient),transparent_50%)]',
-            'blur-[30px]',
-          )}
-        />
-      </div>
+      <PublicPageHeader
+        label={t('admin.beatActions')}
+        title={t('admin.beatManagement')}
+        subtitle={t('admin.beatManagementDescription')}
+      />
 
-      <div className="max-w-4xl mx-auto py-4 sm:py-8 relative z-10">
-        {/* Back to management */}
-        <motion.div
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="mb-6"
-        >
-          <Link
-            href="/admin/manage"
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group"
-          >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-            <span className="text-sm font-medium">{t('admin.backToManagement')}</span>
-          </Link>
-        </motion.div>
-
-        {/* Page Title */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8 sm:mb-12 px-2"
-        >
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-16 mt-6"
-          >
-            <TextRewind text={t('admin.beatManagement')} />
-          </motion.div>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
-          >
-            {t('admin.beatManagementDescription')}
-          </motion.p>
-        </motion.div>
-
-        {/* Beat Info Card */}
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
         <BeatInfoCard
           beat={beat}
           isEditing={isEditing}
@@ -282,8 +191,7 @@ export default function BeatManagementPage() {
           isDeleting={isDeleting}
           isTogglingFeatured={isTogglingFeatured}
         />
-      </div>
-    </div>
-
+      </motion.div>
+    </AdminPageShell>
   );
 }

@@ -2,12 +2,14 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { ShoppingCart, ArrowLeft, Music } from 'lucide-react'
+import { ShoppingCart, ArrowLeft, Music, ArrowRight, Loader2 } from 'lucide-react'
 import { useCart, useCartActions } from '@/hooks/useCart'
 import CartItem from '@/components/CartItem'
 import CartSummary from '@/components/CartSummary'
 import { Button } from '@/components/ui/Button'
-import { DottedSurface } from '@/components/ui/dotted-surface'
+import { PublicPageShell } from '@/components/home/PublicPageShell'
+import { PublicPageHeader } from '@/components/home/PublicPageHeader'
+import { catalogPanelClass } from '@/components/catalog/catalog-styles'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { LicenseType } from '@/types/cart'
@@ -20,7 +22,6 @@ export default function CartPage() {
   const [isCheckingOut, setIsCheckingOut] = useState(false)
   const { t } = useTranslation()
 
-  // Helper function to get the correct priceId based on license type
   const getPriceIdByLicense = (beat: Beat, licenseType: LicenseType): string | null => {
     switch (licenseType) {
       case 'WAV_LEASE':
@@ -34,25 +35,22 @@ export default function CartPage() {
     }
   }
 
-  // Handle checkout
   const handleCheckout = async () => {
     if (cart.items.length === 0) return
 
     try {
       setIsCheckingOut(true)
-      
-      // Prepare items for multi-item checkout
-      const items = cart.items.map(item => ({
+
+      const items = cart.items.map((item) => ({
         priceId: getPriceIdByLicense(item.beat, item.licenseType) || item.beat.id,
         quantity: item.quantity,
         beatTitle: item.beat.title,
         licenseType: item.licenseType,
-        beatId: item.beat.id, // Ajouter l'ID du beat
+        beatId: item.beat.id,
       }))
 
-      // Filter out items without valid price IDs
-      const validItems = items.filter(item => item.priceId)
-      
+      const validItems = items.filter((item) => item.priceId)
+
       if (validItems.length === 0) {
         throw new Error('No valid items found for checkout')
       }
@@ -75,152 +73,123 @@ export default function CartPage() {
       }
 
       const { url } = await response.json()
-      
-      // Clear cart after successful checkout initiation
       clearCart()
-      
-      // Redirect to Stripe Checkout
       window.location.href = url
-      
     } catch (error) {
       console.error('Checkout error:', error)
-      alert(`Failed to start checkout: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      alert(
+        `Failed to start checkout: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      )
     } finally {
       setIsCheckingOut(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      <DottedSurface className="size-full z-0 opacity-70" />
-      <div aria-hidden="true" className="audio-scanlines pointer-events-none absolute inset-0 z-0 opacity-35" />
-      
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 z-0 flex items-center justify-center">
-        <div
-          aria-hidden="true"
-          className={cn(
-            'pointer-events-none absolute -top-10 left-1/2 size-full -translate-x-1/2 rounded-full',
-            'bg-[radial-gradient(ellipse_at_center,var(--theme-gradient),transparent_50%)]',
-            'blur-[30px]',
-          )}
-        />
+    <PublicPageShell maxWidth="max-w-[1400px]">
+      <PublicPageHeader
+        label={t('nav.cart')}
+        title={t('cart.title')}
+        meta={
+          cart.totalItems > 0 ? (
+            <span>
+              {cart.totalItems}{' '}
+              {cart.totalItems === 1 ? t('cart.item') : t('cart.items_plural')}
+            </span>
+          ) : undefined
+        }
+      />
+
+      <div className="mb-8">
+        <Button
+          asChild
+          variant="outline"
+          size="sm"
+          className="h-9 rounded-lg border-white/12 bg-transparent hover:bg-white/[0.04]"
+        >
+          <Link href="/beats">
+            <ArrowLeft className="h-4 w-4" />
+            {t('cart.backToBeats')}
+          </Link>
+        </Button>
       </div>
 
-      {/* Mobile Header */}
-      <div className="relative z-10 border-b border-primary/15 bg-card/20 backdrop-blur-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14 sm:h-16">
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <Link href="/beats">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="flex touch-manipulation items-center space-x-1 border border-primary/20 bg-card/20 text-foreground backdrop-blur-lg hover:bg-card/30 sm:space-x-2"
-                  style={{ minHeight: '40px' }}
-                >
-                  <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4" />
-                  <span className="text-xs sm:text-sm">{t('cart.backToBeats')}</span>
-                </Button>
-              </Link>
-              
-              <div className="flex items-center space-x-2 sm:space-x-3">
-                <ShoppingCart className="h-5 w-5 text-primary sm:h-6 sm:w-6" />
-                <h1 className="text-lg sm:text-2xl font-bold text-foreground">{t('cart.title')}</h1>
-                {cart.totalItems > 0 && (
-                  <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-medium text-primary-foreground sm:text-sm">
-                    {cart.totalItems} {cart.totalItems === 1 ? t('cart.item') : t('cart.items_plural')}
-                  </span>
-                )}
-              </div>
-            </div>
+      {cart.items.length === 0 ? (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-xl border border-dashed border-white/10 bg-white/[0.01] py-20 text-center"
+        >
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-white/[0.02]">
+            <ShoppingCart className="h-8 w-8 text-muted-foreground" />
           </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-3 sm:py-4 lg:py-8 relative z-10">
-        {cart.items.length === 0 ? (
-          // Empty Cart State
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center py-6 sm:py-8 lg:py-16"
+          <h2 className="text-xl font-semibold tracking-tight text-foreground">
+            {t('cart.empty')}
+          </h2>
+          <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
+            {t('cart.emptyDescription')}
+          </p>
+          <Button
+            asChild
+            className="mt-8 h-11 rounded-lg bg-white px-6 text-sm font-medium text-black hover:bg-white/90"
           >
-            <div className="max-w-md mx-auto px-3 sm:px-4">
-              <div className="signal-glow mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-primary/15 bg-card/20 shadow-lg backdrop-blur-lg sm:mb-6 sm:h-20 sm:w-20 lg:h-24 lg:w-24">
-                <ShoppingCart className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-muted-foreground" />
-              </div>
-              
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-3 sm:mb-4">{t('cart.empty')}</h2>
-              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground mb-4 sm:mb-6 lg:mb-8">
-                {t('cart.emptyDescription')}
-              </p>
-              
-              <div className="space-y-3 sm:space-y-4">
-                <Link href="/beats" className="block">
-                  <Button className="signal-glow w-full touch-manipulation rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground hover:bg-primary/90 sm:w-auto sm:px-8">
-                    <Music className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                    {t('cart.browseBeat')}
-                  </Button>
-                </Link>
-                
-                <div className="text-xs sm:text-sm text-muted-foreground mt-2">
-                  {t('cart.allBeatsDescription')}
-                </div>
+            <Link href="/beats">
+              <Music className="h-4 w-4" />
+              {t('cart.browseBeat')}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
+        </motion.div>
+      ) : (
+        <div className="flex flex-col gap-8 lg:grid lg:grid-cols-3">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="order-2 space-y-4 lg:order-1 lg:col-span-2"
+          >
+            <div className={cn(catalogPanelClass, 'p-4 sm:p-6')}>
+              <h2 className="mb-4 font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">
+                {t('cart.cartItems', { count: String(cart.totalItems) })}
+              </h2>
+              <div className="space-y-4">
+                {cart.items.map((item) => (
+                  <CartItem key={`${item.beat.id}-${item.licenseType}`} item={item} />
+                ))}
               </div>
             </div>
           </motion.div>
-        ) : (
-          // Cart with Items
-          <div className="flex flex-col lg:grid lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-8">
-            {/* Cart Items */}
-            <div className="lg:col-span-2 order-2 lg:order-1">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-3 sm:space-y-4 lg:space-y-6"
-              >
-                <div className="signal-glow rounded-xl border border-primary/15 bg-card/20 p-3 backdrop-blur-lg sm:p-4 lg:p-6">
-                  <div className="flex items-center justify-between mb-3 sm:mb-4 lg:mb-6">
-                    <h2 className="text-base sm:text-lg lg:text-xl font-semibold text-foreground">
-                      {t('cart.cartItems', { count: cart.totalItems })}
-                    </h2>
-                  </div>
-                  
-                  <div className="space-y-3 sm:space-y-4">
-                    {cart.items.map((item) => (
-                      <CartItem key={item.beat.id} item={item} />
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-            </div>
 
-            {/* Cart Summary - Mobile First */}
-            <div className="lg:col-span-1 order-1 lg:order-2">
-              <div className="lg:sticky lg:top-8">
-                <CartSummary onCheckout={handleCheckout} />
-              </div>
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="order-1 lg:order-2 lg:col-span-1"
+          >
+            <div className="lg:sticky lg:top-24">
+              <CartSummary onCheckout={handleCheckout} />
             </div>
-          </div>
-        )}
-      </div>
+          </motion.div>
+        </div>
+      )}
 
-      {/* Loading Overlay */}
       {isCheckingOut && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-3 sm:p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
         >
-          <div className="signal-glow w-full max-w-xs rounded-xl border border-primary/15 bg-card/20 p-4 text-center backdrop-blur-lg sm:max-w-sm sm:p-6 lg:p-8">
-            <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-b-2 border-primary sm:mb-4 sm:h-8 sm:w-8 lg:h-12 lg:w-12"></div>
-            <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-foreground mb-2">{t('cart.processingCheckout')}</h3>
-            <p className="text-xs sm:text-sm lg:text-base text-muted-foreground">{t('cart.processingDescription')}</p>
+          <div className={cn(catalogPanelClass, 'w-full max-w-sm p-6 text-center')}>
+            <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin text-muted-foreground" />
+            <h3 className="text-base font-semibold text-foreground">
+              {t('cart.processingCheckout')}
+            </h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {t('cart.processingDescription')}
+            </p>
           </div>
         </motion.div>
       )}
-    </div>
+    </PublicPageShell>
   )
 }

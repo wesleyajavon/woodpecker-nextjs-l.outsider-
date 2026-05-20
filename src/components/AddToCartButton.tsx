@@ -78,12 +78,12 @@ export default function AddToCartButton({
       disabled={isLoading || isAdded}
       variant={variant}
       className={`${getSizeClasses()} ${className} ${
-        isAdded 
-          ? 'bg-primary hover:bg-primary/90 text-primary-foreground' 
-          : variant === 'primary' 
-            ? 'signal-glow bg-primary text-primary-foreground hover:bg-primary/90' 
+        isAdded
+          ? 'border-white/12 bg-white/[0.06] text-foreground hover:bg-white/[0.08]'
+          : variant === 'primary'
+            ? 'bg-white text-black hover:bg-white/90'
             : ''
-      } transition-all duration-300`}
+      } transition-colors`}
     >
       {isLoading ? (
         <motion.div

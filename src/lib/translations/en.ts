@@ -92,9 +92,38 @@ export const en = {
   // Hero Section
   hero: {
     title: 'l.outsider',
-    eyebrow: 'Original beats & professional licenses',
-    subtitle: 'Hard-hitting beats built for your next track.',
-    cta: 'Discover beats',
+    eyebrow: 'Professional beat store',
+    subtitle: 'Premium instrumentals with instant licensing and downloads. Built for artists who take their sound seriously.',
+    cta: 'Browse catalog',
+    ctaSecondary: 'View licenses',
+    stats: {
+      instant: 'Instant download',
+      licenses: 'Clear licensing',
+      quality: 'Studio-grade quality',
+    },
+  },
+
+  // Homepage
+  home: {
+    features: {
+      label: 'Platform',
+      title: 'Built for serious artists',
+      description: 'From preview to master files, everything is streamlined for your release workflow.',
+      items: {
+        delivery: {
+          title: 'Instant delivery',
+          description: 'Download your files immediately after purchase. No waiting, no friction.',
+        },
+        licenses: {
+          title: 'Transparent licenses',
+          description: 'WAV, trackout, and unlimited options with clear terms for every release.',
+        },
+        quality: {
+          title: 'Studio-grade quality',
+          description: 'Professionally mixed and mastered instrumentals ready for your vocals.',
+        },
+      },
+    },
   },
 
   // Cart
@@ -159,6 +188,25 @@ export const en = {
     priceMin: 'Price min (€)',
     priceMax: 'Price max (€)',
     withStems: 'With stems',
+    detail: {
+      backToBeats: 'Back to catalog',
+      loading: 'Loading beat',
+      loadingHint: 'Please wait',
+      notFound: 'Beat not found',
+      notFoundDescription: 'This beat does not exist or has been removed.',
+      detailsTitle: 'Beat details',
+      chooseLicense: 'Choose a license',
+      similarBeats: 'More from the catalog',
+      similarDescription: 'Explore other instrumentals in the same style.',
+      viewAllBeats: 'View full catalog',
+      stemsAvailable: 'Stems available',
+      genre: 'Genre',
+      bpm: 'BPM',
+      key: 'Key',
+      mode: 'Mode',
+      duration: 'Duration',
+      description: 'Description',
+    },
     stats: {
       beats: 'Beats',
       genres: 'Genres',
@@ -223,17 +271,38 @@ export const en = {
 
   // Featured Products
   featured: {
-    title: 'These beats are ',
-    words: ['trending🔝', 'viral 🫶', 'bangers 💣', 'gems 💎', 'gas 💨', 'fire 🔥'],
-    description: 'Only bangers in this selection of instrumentals that are turning everything upside down right now.',
-    viewAllBeats: 'View all my beats',
+    title: 'Featured beats',
+    words: ['trending', 'curated', 'selected', 'premium', 'essential', 'highlighted'],
+    description: 'Hand-picked instrumentals from the catalog, updated regularly.',
+    pageSubtitle:
+      'The most requested instrumentals in the catalog, selected for quality and versatility.',
+    viewAllBeats: 'View full catalog',
     loading: 'Loading beats...',
     noBeats: 'No featured beats at the moment',
-    badge: 'Featured Selection',
+    emptyDescription:
+      'Check back soon or browse the full catalog to find your next instrumental.',
+    badge: 'Featured',
+    beatCount: '{count} beats',
+    errorFallback: 'Unable to load featured beats.',
+    stats: {
+      beats: 'Featured',
+      genres: 'Genres',
+      stems: 'With stems',
+    },
+    cta: {
+      title: 'Looking for something else?',
+      description:
+        'Browse the full catalog or get in touch for a custom instrumental.',
+      contact: 'Contact us',
+    },
   },
 
   // Auth
   auth: {
+    welcome: 'Welcome',
+    welcomeSubtitle: 'Sign in to your l.outsider account',
+    orDivider: 'Or',
+    sending: 'Sending...',
     signIn: 'Sign In',
     signUp: 'Sign Up',
     signOut: 'Sign Out',
@@ -296,9 +365,9 @@ export const en = {
   // Contact
   contact: {
     title: 'Contact',
-    subtitle: 'Have a question? A project? Don\'t hesitate to contact us.',
-    cardtitle: 'Tell us !',
-    cardsubtitle: 'If you have any questions regarding our Services or need help, please fill out the form here. We do our best to respond within 1 business day.',
+    subtitle: 'Questions about licenses, custom production, or partnerships — we typically respond within 24 hours.',
+    cardtitle: 'Get in touch',
+    cardsubtitle: 'Reach out for support, sales inquiries, or collaboration. Fill in the form and we\'ll get back to you shortly.',
     form: {
       name: 'Full name',
       namePlaceholder: 'Your name',
@@ -315,8 +384,8 @@ export const en = {
       messagePlaceholder: 'Describe your request...',
       send: 'Send message',
       sending: 'Sending...',
-      success: '✅ Message sent successfully! We will respond as soon as possible.',
-      error: '❌ Sending error. Please try again.',
+      success: 'Message sent successfully. We will respond as soon as possible.',
+      error: 'Sending failed. Please try again.',
     },
     info: {
       email: 'Email',
@@ -329,8 +398,11 @@ export const en = {
 
   // FAQ
   faq: {
-    title: 'Frequently Asked ',
+    title: 'Frequently Asked Questions',
     titleHighlight: 'Questions',
+    loading: 'Loading questions...',
+    errorTitle: 'Failed to load FAQs',
+    featured: 'Featured',
     subtitle: 'Quickly find answers to your questions about our beats, licenses and services.',
     searchPlaceholder: 'Search for a question...',
     categories: {
@@ -788,7 +860,7 @@ export const en = {
 
   // Terms Page
   terms: {
-    title: 'Terms of',
+    title: 'Terms of Use',
     titleHighlight: 'Use',
     subtitle: 'Please read these terms of use carefully before using our services. By using l.outsider, you agree to be bound by these terms.',
     lastUpdated: 'Last updated',

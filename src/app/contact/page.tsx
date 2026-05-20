@@ -2,12 +2,21 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react';
+import { Mail, Phone, MapPin, Clock, ArrowRight, Loader2 } from 'lucide-react';
 import { ContactCard } from '@/components/ui/contact-card';
-import { DottedSurface } from '@/components/ui/dotted-surface';
-import { TextRewind } from '@/components/ui/text-rewind';
+import { HomeBackground } from '@/components/home/HomeBackground';
+import { Button } from '@/components/ui/Button';
+import {
+  catalogInputClass,
+  catalogSelectClass,
+} from '@/components/catalog/catalog-styles';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/contexts/LanguageContext';
+
+const textareaClass = cn(
+  catalogInputClass,
+  'min-h-[140px] resize-none py-3',
+);
 
 const ContactPage = () => {
   const { t } = useTranslation();
@@ -15,7 +24,7 @@ const ContactPage = () => {
     name: '',
     email: '',
     subject: '',
-    message: ''
+    message: '',
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -54,10 +63,12 @@ const ContactPage = () => {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+  ) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -65,174 +76,171 @@ const ContactPage = () => {
     {
       icon: Mail,
       label: t('contact.info.email'),
-      value: 'contact.loutsider@gmail.com'
+      value: 'contact.loutsider@gmail.com',
     },
     {
       icon: Phone,
       label: t('common.phone'),
-      value: '+32 471 51 20 44'
+      value: '+32 471 51 20 44',
     },
     {
       icon: MapPin,
       label: t('contact.info.location'),
-      value: 'Belgique'
+      value: 'Belgique',
     },
     {
       icon: Clock,
       label: t('contact.info.response'),
-      value: t('contact.info.responseTime')
-    }
+      value: t('contact.info.responseTime'),
+    },
   ];
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-background pb-8 pt-16 sm:pb-12 sm:pt-20">
-      <DottedSurface className="size-full z-0 opacity-70" />
-      <div aria-hidden="true" className="audio-scanlines pointer-events-none absolute inset-0 z-0 opacity-35" />
-      
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 z-0 flex items-center justify-center">
-        <div
-          aria-hidden="true"
-          className={cn(
-            'pointer-events-none absolute -top-10 left-1/2 size-full -translate-x-1/2 rounded-full',
-            'bg-[radial-gradient(ellipse_at_center,var(--theme-gradient),transparent_50%)]',
-            'blur-[30px]',
-          )}
-        />
-      </div>
+    <main className="relative min-h-screen overflow-hidden bg-background pb-16 pt-20">
+      <HomeBackground />
 
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-6 sm:py-8 lg:py-12 relative z-10">
-        {/* Header Section */}
-        <div className="text-center mb-8 sm:mb-12 px-2">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-16 mt-6"
-          >
-            <TextRewind text={t('contact.title')} />
-          </motion.div>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
-          >
-            {t('contact.subtitle')}
-          </motion.p>
-        </div>
-
-        <ContactCard
-          contactInfo={contactInfo}
-          className="shadow-2xl"
+      <div className="container relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <motion.header
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-10 border-b border-white/6 pb-8 sm:mb-12"
         >
-          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
-                  {t('contact.form.name')} *
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  className="w-full touch-manipulation rounded-lg border border-primary/20 bg-card/30 px-3 py-2.5 text-sm text-foreground placeholder-muted-foreground transition-colors focus:border-transparent focus:ring-2 focus:ring-primary sm:px-4 sm:py-3 sm:text-base"
-                  placeholder={t('contact.form.namePlaceholder')}
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
-                  {t('contact.form.email')} *
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  className="w-full touch-manipulation rounded-lg border border-primary/20 bg-card/30 px-3 py-2.5 text-sm text-foreground placeholder-muted-foreground transition-colors focus:border-transparent focus:ring-2 focus:ring-primary sm:px-4 sm:py-3 sm:text-base"
-                  placeholder="votre@email.com"
-                />
-              </div>
-            </div>
+          <p className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
+            {t('nav.contact')}
+          </p>
+          <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+            {t('contact.title')}
+          </h1>
+          <p className="mt-3 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+            {t('contact.subtitle')}
+          </p>
+        </motion.header>
 
-            <div>
-              <label htmlFor="subject" className="block text-sm font-medium text-foreground mb-2">
-                {t('contact.form.subject')} *
-              </label>
-              <select
-                id="subject"
-                name="subject"
-                value={formData.subject}
-                onChange={handleChange}
-                required
-                className="w-full touch-manipulation rounded-lg border border-primary/20 bg-card/30 px-3 py-2.5 text-sm text-foreground transition-colors focus:border-transparent focus:ring-2 focus:ring-primary sm:px-4 sm:py-3 sm:text-base"
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+        >
+          <ContactCard contactInfo={contactInfo}>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <label htmlFor="name" className="text-sm font-medium text-foreground">
+                    {t('contact.form.name')} *
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                    className={catalogInputClass}
+                    placeholder={t('contact.form.namePlaceholder')}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="email" className="text-sm font-medium text-foreground">
+                    {t('contact.form.email')} *
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    className={catalogInputClass}
+                    placeholder="votre@email.com"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="subject" className="text-sm font-medium text-foreground">
+                  {t('contact.form.subject')} *
+                </label>
+                <select
+                  id="subject"
+                  name="subject"
+                  value={formData.subject}
+                  onChange={handleChange}
+                  required
+                  className={catalogSelectClass}
+                >
+                  <option value="" className="bg-[#0a0a0a]">
+                    {t('contact.form.selectSubject')}
+                  </option>
+                  <option value="support" className="bg-[#0a0a0a]">
+                    {t('contact.form.subjects.support')}
+                  </option>
+                  <option value="sales" className="bg-[#0a0a0a]">
+                    {t('contact.form.subjects.sales')}
+                  </option>
+                  <option value="partnership" className="bg-[#0a0a0a]">
+                    {t('contact.form.subjects.partnership')}
+                  </option>
+                  <option value="other" className="bg-[#0a0a0a]">
+                    {t('contact.form.subjects.other')}
+                  </option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="message" className="text-sm font-medium text-foreground">
+                  {t('contact.form.message')} *
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
+                  required
+                  rows={6}
+                  className={textareaClass}
+                  placeholder={t('contact.form.messagePlaceholder')}
+                />
+              </div>
+
+              {submitStatus === 'success' && (
+                <div
+                  role="status"
+                  className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3 text-sm text-emerald-200"
+                >
+                  {t('contact.form.success')}
+                </div>
+              )}
+
+              {submitStatus === 'error' && (
+                <div
+                  role="alert"
+                  className="rounded-lg border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm text-red-300"
+                >
+                  {errorMessage}
+                </div>
+              )}
+
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="h-11 w-full rounded-lg bg-white text-sm font-medium text-black hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:min-w-[200px]"
               >
-                <option value="">{t('contact.form.selectSubject')}</option>
-                <option value="support">{t('contact.form.subjects.support')}</option>
-                <option value="sales">{t('contact.form.subjects.sales')}</option>
-                <option value="partnership">{t('contact.form.subjects.partnership')}</option>
-                <option value="other">{t('contact.form.subjects.other')}</option>
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="message" className="block text-sm font-medium text-foreground mb-2">
-                {t('contact.form.message')} *
-              </label>
-              <textarea
-                id="message"
-                name="message"
-                value={formData.message}
-                onChange={handleChange}
-                required
-                rows={5}
-                className="w-full touch-manipulation resize-none rounded-lg border border-primary/20 bg-card/30 px-3 py-2.5 text-sm text-foreground placeholder-muted-foreground transition-colors focus:border-transparent focus:ring-2 focus:ring-primary sm:px-4 sm:py-3 sm:text-base"
-                placeholder={t('contact.form.messagePlaceholder')}
-              />
-            </div>
-
-            {/* Messages de statut */}
-            {submitStatus === 'success' && (
-              <div className="bg-green-500/10 border border-green-500/20 text-green-400 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm">
-                {t('contact.form.success')}
-              </div>
-            )}
-
-            {submitStatus === 'error' && (
-              <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm">
-                ❌ {errorMessage}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className={cn(
-                "w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 text-sm sm:text-base touch-manipulation",
-                isSubmitting
-                  ? "bg-muted text-muted-foreground cursor-not-allowed"
-                  : "signal-glow bg-primary text-primary-foreground transform hover:scale-105 hover:bg-primary/90"
-              )}
-            >
-              {isSubmitting ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-current"></div>
-                  <span className="text-xs sm:text-sm">{t('contact.form.sending')}</span>
-                </>
-              ) : (
-                <>
-                  <Send className="h-4 w-4 sm:h-5 sm:w-5" />
-                  <span className="text-xs sm:text-sm">{t('contact.form.send')}</span>
-                </>
-              )}
-            </button>
-          </form>
-        </ContactCard>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {t('contact.form.sending')}
+                  </>
+                ) : (
+                  <>
+                    {t('contact.form.send')}
+                    <ArrowRight className="h-4 w-4" />
+                  </>
+                )}
+              </Button>
+            </form>
+          </ContactCard>
+        </motion.div>
       </div>
     </main>
   );

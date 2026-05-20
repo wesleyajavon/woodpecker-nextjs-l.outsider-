@@ -2,79 +2,80 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Music, Sparkles } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { useFeaturedBeats } from '@/hooks/useFeaturedBeats';
-import BeatCard from '@/components/BeatCard';
-import BeatCardSkeleton from '@/components/BeatCardSkeleton';
-import { HoverBorderGradient } from './ui/hover-border-gradient';
-import { LayoutTextFlip } from './ui/layout-text-flip';
-import { useTranslation, useLanguage } from '@/contexts/LanguageContext';
-import { translations } from '@/lib/translations';
+import { CatalogBeatCard } from '@/components/catalog/CatalogBeatCard';
+import { CatalogBeatCardSkeleton } from '@/components/catalog/CatalogBeatCardSkeleton';
+import { Button } from '@/components/ui/Button';
+import { useTranslation } from '@/contexts/LanguageContext';
 
 export default function FeaturedProducts() {
   const [playingBeat, setPlayingBeat] = useState<string | null>(null);
-  const [progress, setProgress] = useState<{ currentTime: number; duration: number }>({ currentTime: 0, duration: 0 });
+  const [progress, setProgress] = useState<{ currentTime: number; duration: number }>({
+    currentTime: 0,
+    duration: 0,
+  });
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { t } = useTranslation();
-  const { language } = useLanguage();
 
-  // Utilisation du hook personnalisé
-  const { featuredBeats, loading, error: _error } = useFeaturedBeats(4);
+  const { featuredBeats, loading } = useFeaturedBeats(4);
 
-  // Gestion de la lecture/arrêt (même logique que /beats)
-  const togglePlay = useCallback(async (beatId: string, previewUrl?: string) => {
-    if (playingBeat === beatId) {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-      }
-      setPlayingBeat(null);
-      setProgress({ currentTime: 0, duration: 0 });
-    } else {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-      }
+  const togglePlay = useCallback(
+    async (beatId: string, previewUrl?: string) => {
+      if (playingBeat === beatId) {
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current.currentTime = 0;
+        }
+        setPlayingBeat(null);
+        setProgress({ currentTime: 0, duration: 0 });
+      } else {
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current.currentTime = 0;
+        }
 
-      if (previewUrl) {
-        try {
-          const audio = new Audio(previewUrl);
-          audioRef.current = audio;
+        if (previewUrl) {
+          try {
+            const audio = new Audio(previewUrl);
+            audioRef.current = audio;
 
-          setProgress({ currentTime: 0, duration: 0 });
-
-          audio.addEventListener('loadedmetadata', () => {
-            setProgress((p) => ({ ...p, duration: audio.duration }));
-          });
-
-          audio.addEventListener('timeupdate', () => {
-            setProgress((p) => ({ ...p, currentTime: audio.currentTime }));
-          });
-
-          audio.addEventListener('canplaythrough', () => {
-            setPlayingBeat(beatId);
-          });
-
-          audio.addEventListener('error', () => {
-            console.error('Error playing audio');
-            setPlayingBeat(null);
-          });
-
-          audio.addEventListener('ended', () => {
-            setPlayingBeat(null);
             setProgress({ currentTime: 0, duration: 0 });
-            audioRef.current = null;
-          });
 
-          await audio.play();
-        } catch (err) {
-          console.error('Error playing audio:', err);
-          setPlayingBeat(null);
+            audio.addEventListener('loadedmetadata', () => {
+              setProgress((p) => ({ ...p, duration: audio.duration }));
+            });
+
+            audio.addEventListener('timeupdate', () => {
+              setProgress((p) => ({ ...p, currentTime: audio.currentTime }));
+            });
+
+            audio.addEventListener('canplaythrough', () => {
+              setPlayingBeat(beatId);
+            });
+
+            audio.addEventListener('error', () => {
+              console.error('Error playing audio');
+              setPlayingBeat(null);
+            });
+
+            audio.addEventListener('ended', () => {
+              setPlayingBeat(null);
+              setProgress({ currentTime: 0, duration: 0 });
+              audioRef.current = null;
+            });
+
+            await audio.play();
+          } catch (err) {
+            console.error('Error playing audio:', err);
+            setPlayingBeat(null);
+          }
         }
       }
-    }
-  }, [playingBeat]);
+    },
+    [playingBeat],
+  );
 
   const handleSeek = useCallback((time: number) => {
     if (audioRef.current) {
@@ -99,7 +100,6 @@ export default function FeaturedProducts() {
     }
   }, [playingBeat]);
 
-  // Space key: toggle play/pause when a beat is playing or focus is within a BeatCard
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code !== 'Space' || e.repeat) return;
@@ -125,22 +125,50 @@ export default function FeaturedProducts() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [playingBeat, featuredBeats, togglePlay]);
 
+  const catalogLink = (
+    <Button
+      asChild
+      variant="outline"
+      size="lg"
+      className="h-10 rounded-full border-white/12 bg-transparent px-5 text-sm font-medium hover:bg-white/[0.04]"
+    >
+      <Link href="/beats">
+        {t('featured.viewAllBeats')}
+        <ArrowRight className="h-4 w-4" />
+      </Link>
+    </Button>
+  );
+
+  const sectionHeader = (
+    <div className="mb-10 flex flex-col gap-6 md:mb-12 lg:mb-14 lg:flex-row lg:items-end lg:justify-between">
+      <div className="max-w-xl">
+        <p className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
+          {t('featured.badge')}
+        </p>
+        <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl md:text-4xl">
+          {t('featured.title')}
+        </h2>
+        <p className="mt-4 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
+          {t('featured.description')}
+        </p>
+      </div>
+      <div className="hidden shrink-0 lg:block">{catalogLink}</div>
+    </div>
+  );
+
   if (featuredBeats.length === 0 && !loading) {
     return (
-      <section className="pt-8 pb-12 md:pt-12 md:pb-20">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-8 md:mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-3 md:mb-4">
-              {t('featured.title')}
-            </h2>
-            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
-              {t('featured.description')}
-            </p>
-          </div>
-          <div className="text-center py-8 md:py-16">
-            <div className="text-muted-foreground text-sm md:text-lg mb-4 px-4">
+      <section className="relative border-t border-white/6 pb-20 pt-16 md:pb-28 md:pt-20">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white/8 to-transparent"
+        />
+        <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
+          {sectionHeader}
+          <div className="rounded-xl border border-dashed border-white/10 bg-white/[0.01] py-20 text-center">
+            <p className="font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">
               {t('featured.noBeats')}
-            </div>
+            </p>
           </div>
         </div>
       </section>
@@ -148,97 +176,58 @@ export default function FeaturedProducts() {
   }
 
   return (
-    <section className="pt-8 pb-12 md:pt-12 md:pb-20">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-8 md:mb-16"
-        >
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="signal-glow mb-6 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-4 py-2 backdrop-blur-sm"
-          >
-            <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium uppercase tracking-[0.22em] text-primary">{t('featured.badge')}</span>
-          </motion.div>
+    <section className="relative border-t border-white/6 pb-20 pt-16 md:pb-28 md:pt-20">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white/8 to-transparent"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgb(255_255_255/0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgb(255_255_255/0.02)_1px,transparent_1px)] bg-size-[48px_48px] mask-[radial-gradient(ellipse_70%_50%_at_50%_50%,black_20%,transparent_100%)]"
+      />
 
-          <motion.div className="relative mx-2 my-2 md:mx-4 md:my-4 flex flex-col items-center justify-center gap-2 md:gap-4 text-center sm:mx-0 sm:mb-0 sm:flex-row">
-            <LayoutTextFlip
-              text={`${t('featured.title')} `}
-              words={translations[language].featured.words}
-              duration={2500}
-            />
-          </motion.div>
-          <p className="mt-3 md:mt-4 text-center text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
-            {t('featured.description')}
-          </p>
+      <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 0.5 }}
+        >
+          {sectionHeader}
         </motion.div>
 
-        {/* Grid des beats - Mobile optimized */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8 mb-8 md:mb-12">
-          {loading ? (
-            Array.from({ length: 4 }).map((_, i) => (
-              <BeatCardSkeleton key={i} />
-            ))
-          ) : (
-            featuredBeats.map((beat, index) => (
-            <motion.div
-              key={beat.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ 
-                duration: 0.6, 
-                delay: index * 0.1,
-                ease: "easeOut"
-              }}
-              whileHover={{ 
-                y: -5,
-                scale: 1.01
-              }}
-              className="w-full"
-            >
-              <BeatCard
-                beat={beat}
-                isPlaying={playingBeat === beat.id}
-                onPlay={togglePlay}
-                onPause={togglePlay}
-                progress={playingBeat === beat.id ? progress : undefined}
-                onSeek={playingBeat === beat.id ? handleSeek : undefined}
-                className="group relative h-full w-full overflow-hidden rounded-xl bg-card/20 backdrop-blur-lg transition-all duration-500 hover:bg-card/30 md:rounded-2xl"
-              />
-            </motion.div>
-            ))
-          )}
+        <div className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-4 xl:gap-6 md:mb-12">
+          {loading
+            ? Array.from({ length: 4 }).map((_, i) => <CatalogBeatCardSkeleton key={i} />)
+            : featuredBeats.map((beat, index) => (
+                <motion.div
+                  key={beat.id}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-40px' }}
+                  transition={{ duration: 0.45, delay: index * 0.06 }}
+                  className="h-full"
+                >
+                  <CatalogBeatCard
+                    beat={beat}
+                    isPlaying={playingBeat === beat.id}
+                    onPlay={togglePlay}
+                    onPause={togglePlay}
+                    progress={playingBeat === beat.id ? progress : undefined}
+                    onSeek={playingBeat === beat.id ? handleSeek : undefined}
+                  />
+                </motion.div>
+              ))}
         </div>
 
-        {/* CTA - Mobile optimized */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="text-center flex justify-center px-4"
+          transition={{ duration: 0.45, delay: 0.1 }}
+          className="flex justify-center lg:hidden"
         >
-          <Link href="/beats" className="w-full sm:w-auto">
-            <HoverBorderGradient
-              containerClassName="rounded-xl md:rounded-2xl w-full sm:w-auto"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 md:px-8 md:py-4 rounded-xl md:rounded-2xl text-sm sm:text-base md:text-lg font-semibold transition-all duration-300 w-full sm:w-auto"
-              duration={1.5}
-              clockwise={true}
-            >
-              {t('featured.viewAllBeats')}
-              <Music className="w-4 h-4 md:w-5 md:h-5" />
-            </HoverBorderGradient>
-          </Link>
+          {catalogLink}
         </motion.div>
       </div>
     </section>

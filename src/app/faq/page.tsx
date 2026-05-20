@@ -12,10 +12,17 @@ import {
   Users,
   Loader2,
   AlertCircle,
-  Search
+  Search,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
-import { DottedSurface } from '@/components/ui/dotted-surface';
-import { TextRewind } from '@/components/ui/text-rewind';
+import { PublicPageShell } from '@/components/home/PublicPageShell';
+import { PublicPageHeader } from '@/components/home/PublicPageHeader';
+import { Button } from '@/components/ui/Button';
+import {
+  catalogInputClass,
+  catalogPanelClass,
+} from '@/components/catalog/catalog-styles';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/contexts/LanguageContext';
 
@@ -43,12 +50,11 @@ export default function FAQPage() {
     { id: 'payment', name: t('faq.categories.payment'), icon: CreditCard },
     { id: 'download', name: t('faq.categories.download'), icon: Download },
     { id: 'usage', name: t('faq.categories.usage'), icon: Music },
-    { id: 'account', name: t('faq.categories.account'), icon: Users }
+    { id: 'account', name: t('faq.categories.account'), icon: Users },
   ];
 
   const ITEMS_PER_PAGE = 3;
 
-  // Fetch FAQ data from API
   useEffect(() => {
     const fetchFAQs = async () => {
       try {
@@ -71,21 +77,20 @@ export default function FAQPage() {
     fetchFAQs();
   }, []);
 
-  const filteredFAQs = faqData.filter(faq => {
+  const filteredFAQs = faqData.filter((faq) => {
     const matchesCategory = selectedCategory === 'all' || faq.category === selectedCategory;
-    const matchesSearch = searchQuery === '' ||
+    const matchesSearch =
+      searchQuery === '' ||
       faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
       faq.answer.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
-  // Pagination calculations
   const totalPages = Math.ceil(filteredFAQs.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const paginatedFAQs = filteredFAQs.slice(startIndex, endIndex);
 
-  // Reset to page 1 when filters change
   const handleCategoryChange = (categoryId: string) => {
     setSelectedCategory(categoryId);
     setCurrentPage(1);
@@ -97,300 +102,236 @@ export default function FAQPage() {
   };
 
   function toggleExpanded(id: string) {
-    setExpandedItems(prev =>
-      prev.includes(id)
-        ? prev.filter(item => item !== id)
-        : [...prev, id]
+    setExpandedItems((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
   }
 
-  // Show loading state
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-muted-foreground" />
-          <p className="text-muted-foreground">Loading FAQs...</p>
+      <PublicPageShell maxWidth="max-w-4xl">
+        <div className="flex min-h-[40vh] flex-col items-center justify-center py-20">
+          <Loader2 className="mb-4 h-8 w-8 animate-spin text-muted-foreground" />
+          <p className="font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">
+            {t('faq.loading')}
+          </p>
         </div>
-      </div>
+      </PublicPageShell>
     );
   }
 
-  // Show error state
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="w-16 h-16 text-destructive mx-auto mb-4" />
-          <h2 className="text-xl font-semibold mb-2">Failed to load FAQs</h2>
-          <p className="text-muted-foreground mb-4">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
-          >
-            Retry
-          </button>
+      <PublicPageShell maxWidth="max-w-4xl">
+        <PublicPageHeader label={t('nav.faq')} title={t('faq.title')} />
+        <div className="py-16 text-center">
+          <div className="mx-auto max-w-md rounded-xl border border-red-500/20 bg-red-500/5 p-6">
+            <AlertCircle className="mx-auto mb-4 h-10 w-10 text-red-300" />
+            <p className="mb-2 text-lg font-medium text-red-300">{t('faq.errorTitle')}</p>
+            <p className="mb-6 text-sm text-muted-foreground">{error}</p>
+            <Button onClick={() => window.location.reload()} variant="outline" className="border-white/12">
+              {t('beats.retry')}
+            </Button>
+          </div>
         </div>
-      </div>
+      </PublicPageShell>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      <DottedSurface />
-      
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 z-0 flex items-center justify-center">
-        <div
-          aria-hidden="true"
-          className={cn(
-            'pointer-events-none absolute -top-10 left-1/2 size-full .translate-x-1/2 rounded-full',
-            'bg-[radial-gradient(ellipse_at_center,var(--theme-gradient),transparent_50%)]',
-            'blur-[30px]',
-          )}
-        />
-      </div>
+    <PublicPageShell maxWidth="max-w-4xl">
+      <PublicPageHeader
+        label={t('nav.faq')}
+        title={t('faq.title')}
+        subtitle={t('faq.subtitle')}
+        meta={
+          <span>
+            {faqData.length} {t('faq.totalQuestions')}
+          </span>
+        }
+      />
 
-      <div className="relative z-10 pt-24 pb-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <div className="mb-16 mt-6">
-              <TextRewind text={`${t('faq.title')} ${t('faq.titleHighlight')}`} />
-            </div>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              {t('faq.subtitle')}
-            </p>
-          </motion.div>
-
-          {/* Search & Stats Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="mb-8"
-          >
-            <div className="bg-card/20 backdrop-blur-xl rounded-2xl border border-border/30 p-6 shadow-xl">
-              {/* Search Bar */}
-              <div className="relative max-w-2xl mx-auto mb-6">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder={t('faq.searchPlaceholder')}
-                  value={searchQuery}
-                  onChange={(e) => handleSearchChange(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 bg-background/50 backdrop-blur-lg border border-border/40 rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all duration-300 shadow-lg"
-                />
-              </div>
-
-              {/* Stats */}
-              <div className="flex flex-wrap justify-center gap-6 text-center">
-                {/* <div className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 rounded-xl p-4 border border-indigo-500/20">
-                  <div className="text-2xl font-bold text-indigo-400">{filteredFAQs.length}</div>
-                  <div className="text-sm text-muted-foreground">{t('faq.resultsCount', { count: filteredFAQs.length })}</div>
-                </div> */}
-                <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl p-4 border border-purple-500/20">
-                  <div className="text-2xl font-bold text-purple-400">{faqData.length}</div>
-                  <div className="text-sm text-muted-foreground">{t('faq.totalQuestions')}</div>
-                </div>
-                <div className="bg-gradient-to-r from-pink-500/10 to-orange-500/10 rounded-xl p-4 border border-pink-500/20">
-                  <div className="text-2xl font-bold text-pink-400">{faqCategories.length - 1}</div>
-                  <div className="text-sm text-muted-foreground">{t('faq.categories.word')}</div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Category Filter Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mb-12"
-          >
-            <div className="bg-card/20 backdrop-blur-xl rounded-2xl border border-border/30 p-6 shadow-xl">
-              <h3 className="text-lg font-semibold text-foreground mb-4 text-center">{t('faq.filterByCategory')}</h3>
-              <div className="flex flex-wrap justify-center gap-3">
-                {faqCategories.map((category) => (
-                  <motion.button
-                    key={category.id}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => handleCategoryChange(category.id)}
-                    className={cn(
-                      "flex items-center gap-2 px-6 py-3 rounded-xl border transition-all duration-300 font-medium",
-                      selectedCategory === category.id
-                        ? "bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-indigo-400 border-indigo-500/30 shadow-lg"
-                        : "bg-card/10 text-foreground border-border/40 hover:bg-card/20 hover:border-border/60"
-                    )}
-                  >
-                    <category.icon className="w-4 h-4" />
-                    {category.name}
-                  </motion.button>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-
-          {/* FAQ Items */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="space-y-6 mb-16"
-          >
-            {filteredFAQs.length === 0 ? (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="bg-card/20 backdrop-blur-xl rounded-2xl border border-border/30 p-12 text-center shadow-xl"
-              >
-                <HelpCircle className="w-20 h-20 text-muted-foreground mx-auto mb-6" />
-                <h3 className="text-2xl font-semibold text-foreground mb-3">{t('faq.noResults')}</h3>
-                <p className="text-muted-foreground text-lg">
-                  {t('faq.noResultsDescription')}
-                </p>
-              </motion.div>
-            ) : (
-              paginatedFAQs.map((faq, index) => (
-                <motion.div
-                  key={faq.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 + index * 0.05 }}
-                  className="bg-card/20 backdrop-blur-xl rounded-2xl border border-border/30 overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300"
-                >
-                  <motion.button
-                    whileHover={{ scale: 1.01 }}
-                    onClick={() => toggleExpanded(faq.id)}
-                    className="w-full p-6 text-left flex items-center justify-between hover:bg-card/10 transition-all duration-300"
-                  >
-                    <div className="flex-1 pr-4">
-                      <h3 className="font-semibold text-foreground text-lg mb-2">{faq.question}</h3>
-                      <div className="flex items-center gap-2">
-                        <div className="px-3 py-1 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 rounded-full border border-indigo-500/20">
-                          <span className="text-xs font-medium text-indigo-400 capitalize">{faq.category}</span>
-                        </div>
-                        {faq.featured && (
-                          <div className="px-3 py-1 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-full border border-yellow-500/20">
-                            <span className="text-xs font-medium text-yellow-400">Featured</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <motion.div
-                      animate={{ rotate: expandedItems.includes(faq.id) ? 180 : 0 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <ChevronDown className="w-6 h-6 text-muted-foreground flex-shrink-0" />
-                    </motion.div>
-                  </motion.button>
-
-                  <AnimatePresence>
-                    {expandedItems.includes(faq.id) && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.4, ease: "easeInOut" }}
-                        className="overflow-hidden border-t border-border/20"
-                      >
-                        <div className="p-6 bg-gradient-to-r from-card/5 to-card/10">
-                          <p className="text-muted-foreground leading-relaxed text-base">{faq.answer}</p>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              ))
-            )}
-          </motion.div>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="bg-card/20 backdrop-blur-xl rounded-2xl border border-border/30 p-6 shadow-xl"
-            >
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="text-sm text-muted-foreground">
-                  {t('faq.showingResults', { 
-                    start: startIndex + 1, 
-                    end: Math.min(endIndex, filteredFAQs.length), 
-                    total: filteredFAQs.length 
-                  })}
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  {/* Previous Button */}
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                    disabled={currentPage === 1}
-                    className={cn(
-                      "px-4 py-2 rounded-xl border transition-all duration-300 font-medium",
-                      currentPage === 1
-                        ? "bg-card/10 text-muted-foreground border-border/40 cursor-not-allowed"
-                        : "bg-card/10 text-foreground border-border/40 hover:bg-card/20 hover:border-border/60"
-                    )}
-                  >
-                    {t('common.previous')}
-                  </motion.button>
-
-                  {/* Page Numbers */}
-                  <div className="flex gap-1">
-                    {Array.from({ length: Math.min(5, totalPages) }).map((_, index) => {
-                      const pageNum = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + index;
-                      if (pageNum > totalPages) return null;
-                      
-                      return (
-                        <motion.button
-                          key={pageNum}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => setCurrentPage(pageNum)}
-                          className={cn(
-                            "w-10 h-10 rounded-xl border transition-all duration-300 font-medium",
-                            currentPage === pageNum
-                              ? "bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-indigo-400 border-indigo-500/30 shadow-lg"
-                              : "bg-card/10 text-foreground border-border/40 hover:bg-card/20 hover:border-border/60"
-                          )}
-                        >
-                          {pageNum}
-                        </motion.button>
-                      );
-                    })}
-                  </div>
-
-                  {/* Next Button */}
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                    disabled={currentPage === totalPages}
-                    className={cn(
-                      "px-4 py-2 rounded-xl border transition-all duration-300 font-medium",
-                      currentPage === totalPages
-                        ? "bg-card/10 text-muted-foreground border-border/40 cursor-not-allowed"
-                        : "bg-card/10 text-foreground border-border/40 hover:bg-card/20 hover:border-border/60"
-                    )}
-                  >
-                    {t('common.next')}
-                  </motion.button>
-                </div>
-              </div>
-            </motion.div>
-          )}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05 }}
+        className={cn(catalogPanelClass, 'mb-8 p-5 sm:p-6')}
+      >
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder={t('faq.searchPlaceholder')}
+            value={searchQuery}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            className={cn(catalogInputClass, 'pl-10')}
+          />
         </div>
-      </div>
-    </div>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.08 }}
+        className="mb-8"
+      >
+        <p className="mb-4 font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">
+          {t('faq.filterByCategory')}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {faqCategories.map((category) => (
+            <button
+              key={category.id}
+              type="button"
+              onClick={() => handleCategoryChange(category.id)}
+              className={cn(
+                'inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-colors',
+                selectedCategory === category.id
+                  ? 'border-white/20 bg-white text-black'
+                  : 'border-white/10 text-muted-foreground hover:border-white/14 hover:bg-white/[0.04] hover:text-foreground',
+              )}
+            >
+              <category.icon className="h-4 w-4" />
+              {category.name}
+            </button>
+          ))}
+        </div>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="mb-10 space-y-4"
+      >
+        {filteredFAQs.length === 0 ? (
+          <div className={cn(catalogPanelClass, 'py-16 text-center')}>
+            <HelpCircle className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+            <h3 className="text-lg font-semibold text-foreground">{t('faq.noResults')}</h3>
+            <p className="mt-2 text-sm text-muted-foreground">{t('faq.noResultsDescription')}</p>
+          </div>
+        ) : (
+          paginatedFAQs.map((faq, index) => (
+            <motion.div
+              key={faq.id}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 + index * 0.04 }}
+              className={cn(catalogPanelClass, 'overflow-hidden')}
+            >
+              <button
+                type="button"
+                onClick={() => toggleExpanded(faq.id)}
+                className="flex w-full items-center justify-between gap-4 p-5 text-left transition-colors hover:bg-white/[0.02] sm:p-6"
+              >
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-base font-semibold text-foreground sm:text-lg">{faq.question}</h3>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <span className="rounded-full border border-white/10 px-2.5 py-0.5 font-mono text-xs uppercase tracking-wide text-muted-foreground">
+                      {faq.category}
+                    </span>
+                    {faq.featured && (
+                      <span className="rounded-full border border-white/10 px-2.5 py-0.5 font-mono text-xs uppercase tracking-wide text-muted-foreground">
+                        {t('faq.featured')}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <ChevronDown
+                  className={cn(
+                    'h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-300',
+                    expandedItems.includes(faq.id) && 'rotate-180',
+                  )}
+                />
+              </button>
+
+              <AnimatePresence>
+                {expandedItems.includes(faq.id) && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="overflow-hidden border-t border-white/6"
+                  >
+                    <p className="p-5 text-sm leading-relaxed text-muted-foreground sm:p-6 sm:text-base">
+                      {faq.answer}
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          ))
+        )}
+      </motion.div>
+
+      {totalPages > 1 && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className={cn(
+            catalogPanelClass,
+            'flex flex-col items-center justify-between gap-4 p-4 sm:flex-row sm:p-5',
+          )}
+        >
+          <p className="font-mono text-xs text-muted-foreground">
+            {t('faq.showingResults', {
+              start: String(startIndex + 1),
+              end: String(Math.min(endIndex, filteredFAQs.length)),
+              total: String(filteredFAQs.length),
+            })}
+          </p>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="inline-flex h-10 items-center gap-1 rounded-lg border border-white/10 px-4 text-sm transition-colors hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              {t('common.previous')}
+            </button>
+
+            <div className="flex gap-1">
+              {Array.from({ length: Math.min(5, totalPages) }).map((_, index) => {
+                const pageNum =
+                  totalPages <= 5
+                    ? index + 1
+                    : Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + index;
+                if (pageNum > totalPages) return null;
+
+                return (
+                  <button
+                    key={pageNum}
+                    type="button"
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={cn(
+                      'flex h-10 min-w-10 items-center justify-center rounded-lg px-3 text-sm font-medium transition-colors',
+                      currentPage === pageNum
+                        ? 'bg-white text-black'
+                        : 'border border-white/10 text-muted-foreground hover:bg-white/[0.04] hover:text-foreground',
+                    )}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              className="inline-flex h-10 items-center gap-1 rounded-lg border border-white/10 px-4 text-sm transition-colors hover:bg-white/[0.04] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {t('common.next')}
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        </motion.div>
+      )}
+    </PublicPageShell>
   );
 }

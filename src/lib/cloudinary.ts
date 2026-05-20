@@ -63,6 +63,14 @@ export const TRANSFORMATIONS = {
     },
   },
   IMAGE: {
+    /** Catalog / BeatCard ratio (512:289). */
+    ARTWORK: {
+      width: 1024,
+      height: 578,
+      crop: 'fill',
+      format: 'webp',
+      quality: 'auto:best',
+    },
     THUMBNAIL: {
       width: 300,
       height: 300,
@@ -83,6 +91,43 @@ export const TRANSFORMATIONS = {
     }
   }
 } as const;
+
+export function isArtworkUploadFolder(folder: string): boolean {
+  return folder.includes('artworks');
+}
+
+/** Params for signed direct uploads (all string values). */
+export function getSignedImageUploadParams(folder: string): Record<string, string> {
+  const t = isArtworkUploadFolder(folder)
+    ? TRANSFORMATIONS.IMAGE.ARTWORK
+    : TRANSFORMATIONS.IMAGE.LARGE;
+  return {
+    format: t.format ?? 'webp',
+    quality: t.quality ?? 'auto:best',
+    width: String(t.width),
+    height: String(t.height),
+    crop: t.crop ?? 'fill',
+  };
+}
+
+export function getImageUploadOptions(folder: string): {
+  format: string;
+  quality: string;
+  width: number;
+  height: number;
+  crop: string;
+} {
+  const t = isArtworkUploadFolder(folder)
+    ? TRANSFORMATIONS.IMAGE.ARTWORK
+    : TRANSFORMATIONS.IMAGE.LARGE;
+  return {
+    format: t.format ?? 'webp',
+    quality: t.quality ?? 'auto:best',
+    width: t.width,
+    height: t.height,
+    crop: t.crop ?? 'fill',
+  };
+}
 
 // Fonctions utilitaires pour Cloudinary
 export class CloudinaryService {

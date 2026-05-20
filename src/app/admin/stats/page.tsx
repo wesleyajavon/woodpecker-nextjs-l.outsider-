@@ -1,80 +1,32 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { BarChart3 } from 'lucide-react';
 import AdminStats from '@/components/AdminStats';
 import AdminStatsGraphics from '@/components/AdminStatsGraphics';
-import { DottedSurface } from '@/components/ui/dotted-surface';
-import { TextRewind } from '@/components/ui/text-rewind';
-import { cn } from '@/lib/utils';
+import { AdminPageShell } from '@/components/admin/AdminPageShell';
+import { PublicPageHeader } from '@/components/home/PublicPageHeader';
 import { useTranslation } from '@/contexts/LanguageContext';
 
 export default function AdminStatsPage() {
   const { t } = useTranslation();
 
   return (
-    <div className="flex-1 pt-16 sm:pt-20 pb-8 sm:pb-12 px-3 sm:px-4 lg:px-8 relative">
-            <DottedSurface className="size-full z-0" />
+    <AdminPageShell>
+      <PublicPageHeader
+        label={t('admin.title')}
+        title={t('admin.stats')}
+        subtitle={t('admin.statsDescription')}
+      />
 
-            {/* Gradient overlay */}
-            <div className="absolute inset-0 z-0 flex items-center justify-center">
-              <div
-                aria-hidden="true"
-                className={cn(
-                  'pointer-events-none absolute -top-10 left-1/2 size-full -translate-x-1/2 rounded-full',
-                  'bg-[radial-gradient(ellipse_at_center,var(--theme-gradient),transparent_50%)]',
-                  'blur-[30px]',
-                )}
-              />
-            </div>
-
-            <div className="max-w-6xl mx-auto py-4 sm:py-8 relative z-10">
-              {/* Page Title */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-center mb-8 sm:mb-12 px-2"
-              >
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mb-16 mt-6"
-                >
-                  <TextRewind text={t('admin.stats')} />
-                </motion.div>
-                <motion.p
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
-                >
-                  {t('admin.statsDescription')}
-                </motion.p>
-              </motion.div>
-
-              {/* Stats Content */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="space-y-8"
-              >
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center">
-                    <BarChart3 className="w-4 h-4 text-white" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-foreground">
-                    {t('admin.stats')}
-                  </h2>
-                </div>
-
-                {/* Stats Cards */}
-                <AdminStats />
-
-                {/* Stats Graphics */}
-                <AdminStatsGraphics />
-              </motion.div>
-            </div>
-          </div>
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05 }}
+        className="space-y-8"
+      >
+        <AdminStats />
+        <AdminStatsGraphics />
+      </motion.div>
+    </AdminPageShell>
   );
 }

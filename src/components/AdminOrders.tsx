@@ -17,6 +17,12 @@ import {
 import { MultiItemOrder } from '@/types/order';
 import { useTranslation, useLanguage } from '@/hooks/useApp';
 import { useAdminMultiItemOrders } from '@/hooks/queries/useOrders';
+import {
+  catalogInputClass,
+  catalogPanelClass,
+  catalogSelectClass,
+} from '@/components/catalog/catalog-styles';
+import { cn } from '@/lib/utils';
 
 interface AdminOrdersProps {
   className?: string;
@@ -145,23 +151,23 @@ export default function AdminOrders({ className = '' }: AdminOrdersProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-400"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-2 border-white/20 border-t-white"></div>
       </div>
     );
   }
 
   return (
     <div className={`space-y-6 ${className}`}>
-      <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 sm:p-6 border border-white/20">
+      <div className={cn(catalogPanelClass, 'p-4 sm:p-6')}>
         <div className="flex flex-col gap-3 sm:gap-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 sm:w-5 sm:h-5" />
             <input
               type="text"
               placeholder={t('admin.searchOrders')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm sm:text-base touch-manipulation"
+              className={cn(catalogInputClass, 'pl-9 sm:pl-10 py-2.5 sm:py-2 text-sm sm:text-base touch-manipulation')}
             />
           </div>
 
@@ -169,7 +175,7 @@ export default function AdminOrders({ className = '' }: AdminOrdersProps) {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'date' | 'amount' | 'status')}
-              className="px-3 sm:px-4 py-2.5 sm:py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm sm:text-base touch-manipulation"
+              className={cn(catalogSelectClass, 'py-2.5 sm:py-2 text-sm sm:text-base touch-manipulation')}
             >
               <option value="date">{t('admin.sortByDate')}</option>
               <option value="amount">{t('admin.sortByAmount')}</option>
@@ -179,7 +185,7 @@ export default function AdminOrders({ className = '' }: AdminOrdersProps) {
             <button
               type="button"
               onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-              className="flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-white/10 border border-white/20 rounded-lg text-white hover:bg-white/20 transition-colors text-sm sm:text-base touch-manipulation"
+              className="flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-2 border border-white/12 rounded-lg text-foreground bg-white/[0.02] hover:bg-white/[0.06] transition-opacity text-sm sm:text-base touch-manipulation"
             >
               {sortOrder === 'asc' ? (
                 <ChevronUp className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -197,7 +203,7 @@ export default function AdminOrders({ className = '' }: AdminOrdersProps) {
                 setItemsPerPage(Number(e.target.value));
                 setCurrentPage(1);
               }}
-              className="px-3 sm:px-4 py-2.5 sm:py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm sm:text-base touch-manipulation"
+              className={cn(catalogSelectClass, 'py-2.5 sm:py-2 text-sm sm:text-base touch-manipulation')}
             >
               <option value={5}>{t('admin.itemsPerPage', { count: 5 })}</option>
               <option value={10}>{t('admin.itemsPerPage', { count: 10 })}</option>
@@ -211,8 +217,8 @@ export default function AdminOrders({ className = '' }: AdminOrdersProps) {
       <div className="space-y-3 sm:space-y-4">
         {filteredOrders.length === 0 ? (
           <div className="text-center py-8 sm:py-12">
-            <Package className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-300 text-base sm:text-lg">{t('admin.noOrdersFound')}</p>
+            <Package className="w-12 h-12 sm:w-16 sm:h-16 text-muted-foreground mx-auto mb-4" />
+            <p className="text-muted-foreground text-base sm:text-lg">{t('admin.noOrdersFound')}</p>
           </div>
         ) : (
           paginatedOrders.map((order, index) => (
@@ -221,20 +227,20 @@ export default function AdminOrders({ className = '' }: AdminOrdersProps) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 overflow-hidden"
+              className={cn(catalogPanelClass, 'overflow-hidden')}
             >
               <div
-                className="p-4 sm:p-6 cursor-pointer hover:bg-white/5 transition-colors"
+                className="p-4 sm:p-6 cursor-pointer hover:bg-white/[0.04] transition-opacity"
                 onClick={() => toggleOrderExpansion(order.id)}
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                   <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
                     <div className="flex-shrink-0">
-                      <Package className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400" />
+                      <Package className="w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h3 className="text-base sm:text-lg font-semibold text-white truncate">{headerTitle(order)}</h3>
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-300 mt-1">
+                      <h3 className="text-base sm:text-lg font-semibold text-foreground truncate">{headerTitle(order)}</h3>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground mt-1">
                         <span className="flex items-center gap-1">
                           <User className="w-3 h-3 sm:w-4 sm:h-4" />
                           <span className="truncate">{order.customerEmail}</span>
@@ -253,18 +259,18 @@ export default function AdminOrders({ className = '' }: AdminOrdersProps) {
 
                   <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4">
                     <div className="text-right">
-                      <div className="text-lg sm:text-xl font-bold text-white">{formatAmount(order.totalAmount)}</div>
+                      <div className="text-lg sm:text-xl font-bold text-foreground">{formatAmount(order.totalAmount)}</div>
                       <div
                         className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(order.status)}`}
                       >
                         {order.status}
                       </div>
                     </div>
-                    <button type="button" className="p-2 hover:bg-white/10 rounded-lg transition-colors touch-manipulation">
+                    <button type="button" className="p-2 hover:bg-white/[0.06] rounded-lg transition-opacity touch-manipulation">
                       {expandedOrder === order.id ? (
-                        <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+                        <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
                       ) : (
-                        <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+                        <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
                       )}
                     </button>
                   </div>
@@ -276,30 +282,30 @@ export default function AdminOrders({ className = '' }: AdminOrdersProps) {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="border-t border-white/20 p-4 sm:p-6 bg-white/5"
+                  className="border-t border-white/10 p-4 sm:p-6 bg-white/[0.02]"
                 >
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                     <div>
-                      <h4 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">{t('admin.orderInformation')}</h4>
+                      <h4 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">{t('admin.orderInformation')}</h4>
                       <div className="space-y-2 sm:space-y-3">
                         <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
-                          <span className="text-gray-300 text-sm sm:text-base">{t('success.orderId')}:</span>
-                          <span className="text-white font-mono text-xs sm:text-sm break-all">{order.id}</span>
+                          <span className="text-muted-foreground text-sm sm:text-base">{t('success.orderId')}:</span>
+                          <span className="text-foreground font-mono text-xs sm:text-sm break-all">{order.id}</span>
                         </div>
                         <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
-                          <span className="text-gray-300 text-sm sm:text-base">{t('admin.customerEmail')}:</span>
-                          <span className="text-white text-sm sm:text-base break-all">{order.customerEmail}</span>
+                          <span className="text-muted-foreground text-sm sm:text-base">{t('admin.customerEmail')}:</span>
+                          <span className="text-foreground text-sm sm:text-base break-all">{order.customerEmail}</span>
                         </div>
                         <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
-                          <span className="text-gray-300 text-sm sm:text-base">{t('admin.orderDate')}:</span>
-                          <span className="text-white text-sm sm:text-base">{formatDate(order.createdAt)}</span>
+                          <span className="text-muted-foreground text-sm sm:text-base">{t('admin.orderDate')}:</span>
+                          <span className="text-foreground text-sm sm:text-base">{formatDate(order.createdAt)}</span>
                         </div>
                         <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
-                          <span className="text-gray-300 text-sm sm:text-base">{t('common.totalAmount')}:</span>
-                          <span className="text-white font-semibold text-sm sm:text-base">{formatAmount(order.totalAmount)}</span>
+                          <span className="text-muted-foreground text-sm sm:text-base">{t('common.totalAmount')}:</span>
+                          <span className="text-foreground font-semibold text-sm sm:text-base">{formatAmount(order.totalAmount)}</span>
                         </div>
                         <div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0">
-                          <span className="text-gray-300 text-sm sm:text-base">{t('common.status')}:</span>
+                          <span className="text-muted-foreground text-sm sm:text-base">{t('common.status')}:</span>
                           <span
                             className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(order.status)}`}
                           >
@@ -310,22 +316,22 @@ export default function AdminOrders({ className = '' }: AdminOrdersProps) {
                     </div>
 
                     <div>
-                      <h4 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">{t('admin.orderedItems')}</h4>
+                      <h4 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">{t('admin.orderedItems')}</h4>
                       <div className="space-y-2 sm:space-y-3">
                         {order.items?.map((item, itemIndex) => (
-                          <div key={itemIndex} className="bg-white/10 rounded-lg p-3 sm:p-4">
+                          <div key={itemIndex} className="rounded-lg border border-white/10 bg-white/[0.03] p-3 sm:p-4">
                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
                               <div className="min-w-0 flex-1">
-                                <h5 className="font-semibold text-white text-sm sm:text-base truncate">{item.beat.title}</h5>
-                                <p className="text-xs sm:text-sm text-gray-300">
+                                <h5 className="font-semibold text-foreground text-sm sm:text-base truncate">{item.beat.title}</h5>
+                                <p className="text-xs sm:text-sm text-muted-foreground">
                                   {item.beat.genre} • {item.beat.bpm} BPM
                                 </p>
                               </div>
                               <div className="text-right">
-                                <div className="text-white font-semibold text-sm sm:text-base">{formatAmount(item.unitPrice)}</div>
-                                <div className="text-xs sm:text-sm text-gray-300">{t('admin.quantity')}: {item.quantity}</div>
-                                <div className="text-xs sm:text-sm text-indigo-300 font-medium">{item.licenseType}</div>
-                                <div className="text-xs sm:text-sm text-purple-300 font-medium">
+                                <div className="text-foreground font-semibold text-sm sm:text-base">{formatAmount(item.unitPrice)}</div>
+                                <div className="text-xs sm:text-sm text-muted-foreground">{t('admin.quantity')}: {item.quantity}</div>
+                                <div className="text-xs sm:text-sm text-muted-foreground font-medium">{item.licenseType}</div>
+                                <div className="text-xs sm:text-sm text-foreground font-medium">
                                   {t('common.total')}: {formatAmount(item.totalPrice)}
                                 </div>
                               </div>
@@ -336,17 +342,17 @@ export default function AdminOrders({ className = '' }: AdminOrdersProps) {
                     </div>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-white/20">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-white/10">
                     <button
                       type="button"
-                      className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white rounded-lg transition-all duration-300 text-sm sm:text-base touch-manipulation shadow-lg hover:shadow-xl"
+                      className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-white text-black hover:bg-white/90 rounded-lg transition-opacity text-sm sm:text-base touch-manipulation"
                     >
                       <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
                       {t('admin.viewDetails')}
                     </button>
                     <button
                       type="button"
-                      className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 sm:py-2 bg-gradient-to-r from-slate-500 to-gray-600 hover:from-slate-600 hover:to-gray-700 text-white rounded-lg transition-all duration-300 text-sm sm:text-base touch-manipulation shadow-lg hover:shadow-xl"
+                      className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 sm:py-2 border border-white/12 rounded-lg text-foreground bg-white/[0.02] hover:bg-white/[0.06] transition-opacity text-sm sm:text-base touch-manipulation"
                     >
                       <Download className="w-3 h-3 sm:w-4 sm:h-4" />
                       {t('common.download')}
@@ -360,9 +366,9 @@ export default function AdminOrders({ className = '' }: AdminOrdersProps) {
       </div>
 
       {filteredOrders.length > 0 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between bg-white/10 backdrop-blur-lg rounded-xl p-3 sm:p-4 border border-white/20 gap-3 sm:gap-0">
+        <div className={cn(catalogPanelClass, 'flex flex-col sm:flex-row items-center justify-between p-3 sm:p-4 gap-3 sm:gap-0')}>
           <div className="flex items-center gap-4">
-            <span className="text-gray-300 text-xs sm:text-sm text-center sm:text-left">
+            <span className="text-muted-foreground text-xs sm:text-sm text-center sm:text-left">
               {t('admin.showingOrders', {
                 start: startIndex + 1,
                 end: Math.min(endIndex, filteredOrders.length),
@@ -376,7 +382,7 @@ export default function AdminOrders({ className = '' }: AdminOrdersProps) {
               type="button"
               onClick={goToPreviousPage}
               disabled={currentPage === 1}
-              className="flex items-center gap-1 px-2 sm:px-3 py-2 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 rounded-lg text-white hover:from-indigo-500/30 hover:to-purple-500/30 hover:border-indigo-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 text-xs sm:text-sm touch-manipulation"
+              className="flex items-center gap-1 px-2 sm:px-3 py-2 border border-white/12 rounded-lg text-foreground bg-white/[0.02] hover:bg-white/[0.06] disabled:opacity-50 disabled:cursor-not-allowed transition-opacity text-xs sm:text-sm touch-manipulation"
             >
               <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">{t('pagination.previous')}</span>
@@ -400,11 +406,12 @@ export default function AdminOrders({ className = '' }: AdminOrdersProps) {
                     key={pageNum}
                     type="button"
                     onClick={() => goToPage(pageNum)}
-                    className={`px-2 sm:px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 touch-manipulation ${
+                    className={cn(
+                      'px-2 sm:px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-opacity touch-manipulation',
                       currentPage === pageNum
-                        ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg'
-                        : 'bg-white/10 text-gray-300 hover:bg-gradient-to-r hover:from-indigo-500/20 hover:to-purple-500/20 hover:text-white'
-                    }`}
+                        ? 'bg-white text-black'
+                        : 'bg-white/[0.02] text-muted-foreground border border-white/10 hover:bg-white/[0.06] hover:text-foreground'
+                    )}
                   >
                     {pageNum}
                   </button>
@@ -416,7 +423,7 @@ export default function AdminOrders({ className = '' }: AdminOrdersProps) {
               type="button"
               onClick={goToNextPage}
               disabled={currentPage === totalPages}
-              className="flex items-center gap-1 px-2 sm:px-3 py-2 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 rounded-lg text-white hover:from-indigo-500/30 hover:to-purple-500/30 hover:border-indigo-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 text-xs sm:text-sm touch-manipulation"
+              className="flex items-center gap-1 px-2 sm:px-3 py-2 border border-white/12 rounded-lg text-foreground bg-white/[0.02] hover:bg-white/[0.06] disabled:opacity-50 disabled:cursor-not-allowed transition-opacity text-xs sm:text-sm touch-manipulation"
             >
               <span className="hidden sm:inline">{t('pagination.next')}</span>
               <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />

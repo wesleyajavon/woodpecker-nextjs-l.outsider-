@@ -2,9 +2,22 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { BarChart3, Calendar, Music, Package, ShoppingCart, TrendingUp, DollarSign, Users } from 'lucide-react';
-import { DottedSurface } from '@/components/ui/dotted-surface';
-import { TextRewind } from '@/components/ui/text-rewind';
+import {
+  BarChart3,
+  Calendar,
+  Music,
+  Package,
+  ShoppingCart,
+  TrendingUp,
+  DollarSign,
+  Users,
+  Loader2,
+  ArrowRight,
+} from 'lucide-react';
+import { AdminPageShell } from '@/components/admin/AdminPageShell';
+import { PublicPageHeader } from '@/components/home/PublicPageHeader';
+import { Button } from '@/components/ui/Button';
+import { catalogPanelClass } from '@/components/catalog/catalog-styles';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAdminStats } from '@/hooks/queries/useAdminStats';
@@ -13,74 +26,51 @@ import { useAdminMultiItemOrders } from '@/hooks/queries/useOrders';
 export default function AdminDashboardPage() {
   const { t, language } = useLanguage();
 
-  // TanStack Query hooks
-  const {
-    data: stats,
-    isLoading: statsLoading,
-    error: statsError
-  } = useAdminStats();
-
+  const { data: stats, isLoading: statsLoading, error: statsError } = useAdminStats();
   const {
     data: ordersData,
     isLoading: ordersLoading,
-    error: ordersError
+    error: ordersError,
   } = useAdminMultiItemOrders({ limit: 5 });
 
-  // Formatage des statistiques
-  const formattedStats = stats ? [
-    {
-      title: t('admin.totalBeats'),
-      value: stats.totalBeats.toString(),
-      icon: Music,
-      color: 'text-blue-400'
-    },
-    {
-      title: t('admin.totalOrders'),
-      value: stats.totalOrders.toString(),
-      icon: ShoppingCart,
-      color: 'text-green-400'
-    },
-    {
-      title: t('admin.totalRevenue'),
-      value: `€${stats.totalRevenue.toLocaleString()}`,
-      icon: DollarSign,
-      color: 'text-purple-400'
-    },
-    {
-      title: t('admin.uniqueCustomers'),
-      value: stats.uniqueCustomers.toString(),
-      icon: Users,
-      color: 'text-orange-400'
-    }
-  ] : [];
+  const formattedStats = stats
+    ? [
+        { title: t('admin.totalBeats'), value: stats.totalBeats.toString(), icon: Music },
+        { title: t('admin.totalOrders'), value: stats.totalOrders.toString(), icon: ShoppingCart },
+        {
+          title: t('admin.totalRevenue'),
+          value: `€${stats.totalRevenue.toLocaleString()}`,
+          icon: DollarSign,
+        },
+        { title: t('admin.uniqueCustomers'), value: stats.uniqueCustomers.toString(), icon: Users },
+      ]
+    : [];
 
   const latestOrders = (ordersData?.orders || []).slice(0, 5);
+  const isLoading = statsLoading || ordersLoading;
+  const hasError = statsError || ordersError;
 
-  const formatDate = (date: string | Date) => {
-    return new Date(date).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', {
+  const formatDate = (date: string | Date) =>
+    new Date(date).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
     });
-  };
 
-  const formatAmount = (amount: number | string) => {
-    return new Intl.NumberFormat(language === 'fr' ? 'fr-FR' : 'en-US', {
+  const formatAmount = (amount: number | string) =>
+    new Intl.NumberFormat(language === 'fr' ? 'fr-FR' : 'en-US', {
       style: 'currency',
       currency: 'EUR',
     }).format(Number(amount));
-  };
 
-  const getOrderAmount = (order: NonNullable<typeof ordersData>['orders'][number]) => {
-    return order.items.reduce((total, item) => total + Number(item.totalPrice), 0);
-  };
+  const getOrderAmount = (order: NonNullable<typeof ordersData>['orders'][number]) =>
+    order.items.reduce((total, item) => total + Number(item.totalPrice), 0);
 
   const getOrderTitle = (order: NonNullable<typeof ordersData>['orders'][number]) => {
     if (order.items.length === 1) {
       return order.items[0]?.beat?.title || t('admin.beatNotFound');
     }
-
     return t('admin.multiOrderTitle', { count: order.items.length });
   };
 
@@ -88,274 +78,184 @@ export default function AdminDashboardPage() {
     switch (status.toUpperCase()) {
       case 'PAID':
       case 'COMPLETED':
-        return 'bg-green-500/20 text-green-300 border-green-500/30';
+        return 'border-emerald-500/20 bg-emerald-500/5 text-emerald-200';
       case 'PENDING':
-        return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30';
+        return 'border-amber-500/20 bg-amber-500/5 text-amber-200';
       case 'FAILED':
       case 'CANCELLED':
-        return 'bg-red-500/20 text-red-300 border-red-500/30';
+        return 'border-red-500/20 bg-red-500/5 text-red-300';
       default:
-        return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
+        return 'border-white/10 bg-white/[0.03] text-muted-foreground';
     }
   };
 
-  // États de chargement et d'erreur
-  const isLoading = statsLoading || ordersLoading;
-  const hasError = statsError || ordersError;
-
   if (isLoading) {
     return (
-      <div className="flex-1 pt-16 sm:pt-20 pb-8 sm:pb-12 px-3 sm:px-4 lg:px-8 relative flex items-center justify-center">
-        <DottedSurface className="size-full z-0" />
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col items-center gap-4 relative z-10"
-        >
-          <div className="relative">
-            <div className="w-16 h-16 border-4 border-purple-500/20 rounded-full"></div>
-            <div className="absolute top-0 left-0 w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-          </div>
-          <div className="text-center">
-            <h3 className="text-lg font-semibold text-foreground mb-1">Chargement du dashboard...</h3>
-            <p className="text-sm text-muted-foreground">Veuillez patienter</p>
-          </div>
-        </motion.div>
-      </div>
+      <AdminPageShell>
+        <div className="flex min-h-[50vh] flex-col items-center justify-center py-20">
+          <Loader2 className="mb-4 h-8 w-8 animate-spin text-muted-foreground" />
+          <p className="font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">
+            {t('admin.pleaseWait')}
+          </p>
+        </div>
+      </AdminPageShell>
     );
   }
 
   if (hasError) {
     return (
-      <div className="flex-1 pt-16 sm:pt-20 pb-8 sm:pb-12 px-3 sm:px-4 lg:px-8 relative flex items-center justify-center">
-        <DottedSurface className="size-full z-0" />
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center max-w-md mx-auto p-6 relative z-10"
-        >
-          <BarChart3 className="h-16 w-16 text-red-400 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-foreground mb-2">Erreur de chargement</h1>
-          <p className="text-muted-foreground mb-6">
-            {statsError instanceof Error ? statsError.message : 
-             ordersError instanceof Error ? ordersError.message : 
-             'Impossible de charger les données du dashboard.'}
-          </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors"
-          >
-            Réessayer
-          </button>
-        </motion.div>
-      </div>
+      <AdminPageShell>
+        <div className="py-16 text-center">
+          <div className={cn(catalogPanelClass, 'mx-auto max-w-md p-6')}>
+            <BarChart3 className="mx-auto mb-4 h-10 w-10 text-red-300" />
+            <p className="mb-6 text-sm text-muted-foreground">
+              {statsError instanceof Error
+                ? statsError.message
+                : ordersError instanceof Error
+                  ? ordersError.message
+                  : t('admin.loadingError')}
+            </p>
+            <Button onClick={() => window.location.reload()} variant="outline" className="border-white/12">
+              {t('beats.retry')}
+            </Button>
+          </div>
+        </div>
+      </AdminPageShell>
     );
   }
 
   return (
-    <div className="flex-1 pt-16 sm:pt-20 pb-8 sm:pb-12 px-3 sm:px-4 lg:px-8 relative">
-      <DottedSurface className="size-full z-0" />
+    <AdminPageShell>
+      <PublicPageHeader
+        label={t('admin.title')}
+        title={t('admin.dashboardTitle')}
+        subtitle={t('admin.dashboardSubtitle')}
+      />
 
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 z-0 flex items-center justify-center">
-        <div
-          aria-hidden="true"
-          className={cn(
-            'pointer-events-none absolute -top-10 left-1/2 size-full -translate-x-1/2 rounded-full',
-            'bg-[radial-gradient(ellipse_at_center,var(--theme-gradient),transparent_50%)]',
-            'blur-[30px]',
-          )}
-        />
-      </div>
-
-      <div className="max-w-6xl mx-auto py-4 sm:py-8 relative z-10">
-        {/* Page Title */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8 sm:mb-12 px-2"
-        >
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05 }}
+        className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
+      >
+        {formattedStats.map((stat, index) => (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            key={stat.title}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-16 mt-6"
+            transition={{ delay: 0.08 + index * 0.04 }}
+            className={cn(catalogPanelClass, 'p-5')}
           >
-            <TextRewind text={t('admin.dashboardTitle')} />
+            <stat.icon className="mb-3 h-5 w-5 text-muted-foreground" />
+            <p className="text-2xl font-semibold tracking-tight text-foreground">{stat.value}</p>
+            <p className="mt-1 font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">
+              {stat.title}
+            </p>
           </motion.div>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
-          >
-            {t('admin.dashboardSubtitle')}
-          </motion.p>
-        </motion.div>
+        ))}
+      </motion.div>
 
-        {/* Stats Grid */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+          transition={{ delay: 0.12 }}
+          className={cn(catalogPanelClass, 'p-6')}
         >
-          {formattedStats.map((stat, index) => (
-            <motion.div
-              key={stat.title}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3 + index * 0.1 }}
-              className="bg-card/10 backdrop-blur-lg rounded-xl p-6 border border-border/20 hover:border-border/30 transition-all duration-300"
+          <div className="mb-6 flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-semibold tracking-tight text-foreground">
+                {t('admin.latestOrders')}
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {t('admin.latestOrdersDescription')}
+              </p>
+            </div>
+            <Link
+              href="/admin/orders"
+              className="font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground"
             >
-              <div className="flex items-center mb-4">
-                <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center", stat.color === 'text-blue-400' ? 'bg-blue-500/20' : stat.color === 'text-green-400' ? 'bg-green-500/20' : stat.color === 'text-purple-400' ? 'bg-purple-500/20' : 'bg-orange-500/20')}>
-                  <stat.icon className={cn("w-5 h-5", stat.color)} />
+              {t('admin.viewAllOrders')}
+            </Link>
+          </div>
+
+          {latestOrders.length === 0 ? (
+            <div className="py-10 text-center">
+              <Package className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">{t('admin.noRecentOrders')}</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {latestOrders.map((order) => (
+                <div
+                  key={order.id}
+                  className="flex items-center gap-3 rounded-lg border border-white/8 bg-white/[0.02] p-3"
+                >
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10">
+                    <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="truncate text-sm font-medium text-foreground">
+                        {getOrderTitle(order)}
+                      </p>
+                      <p className="text-sm font-semibold text-foreground">
+                        {formatAmount(getOrderAmount(order))}
+                      </p>
+                    </div>
+                    <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                      <span className="truncate">{order.customerEmail}</span>
+                      <span className="inline-flex items-center gap-1">
+                        <Calendar className="h-3 w-3" />
+                        {formatDate(order.createdAt)}
+                      </span>
+                    </div>
+                  </div>
+                  <span
+                    className={cn(
+                      'rounded-full border px-2 py-0.5 font-mono text-xs uppercase tracking-wide',
+                      getStatusColor(order.status),
+                    )}
+                  >
+                    {order.status}
+                  </span>
                 </div>
-              </div>
-              <h3 className="text-2xl font-bold text-foreground mb-1">{stat.value}</h3>
-              <p className="text-sm text-muted-foreground">{stat.title}</p>
-            </motion.div>
-          ))}
+              ))}
+            </div>
+          )}
         </motion.div>
 
-        {/* Latest Orders */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-8"
+          transition={{ delay: 0.16 }}
+          className={cn(catalogPanelClass, 'p-6')}
         >
-          {/* Latest Orders */}
-          <div className="bg-card/10 backdrop-blur-lg rounded-xl p-6 border border-border/20">
-            <div className="flex items-center justify-between gap-4 mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center">
-                  <ShoppingCart className="w-4 h-4 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold text-foreground">{t('admin.latestOrders')}</h2>
-                  <p className="text-sm text-muted-foreground">{t('admin.latestOrdersDescription')}</p>
-                </div>
-              </div>
+          <h2 className="mb-6 text-lg font-semibold tracking-tight text-foreground">
+            {t('admin.quickActions')}
+          </h2>
+          <div className="space-y-2">
+            {[
+              { href: '/admin/upload', icon: Music, label: t('admin.uploadBeat') },
+              { href: '/admin/manage', icon: BarChart3, label: t('admin.manageBeats') },
+              { href: '/admin/orders', icon: ShoppingCart, label: t('admin.viewOrders') },
+              { href: '/admin/stats', icon: TrendingUp, label: t('admin.detailedAnalytics') },
+            ].map((action) => (
               <Link
-                href="/admin/orders"
-                className="text-sm font-medium text-indigo-300 hover:text-indigo-200 transition-colors"
+                key={action.href}
+                href={action.href}
+                className="flex items-center justify-between gap-3 rounded-lg border border-white/8 px-4 py-3 text-sm font-medium text-foreground transition-colors hover:border-white/12 hover:bg-white/[0.04]"
               >
-                {t('admin.viewAllOrders')}
+                <span className="inline-flex items-center gap-3">
+                  <action.icon className="h-4 w-4 text-muted-foreground" />
+                  {action.label}
+                </span>
+                <ArrowRight className="h-4 w-4 text-muted-foreground" />
               </Link>
-            </div>
-
-            {latestOrders.length === 0 ? (
-              <div className="text-center py-10">
-                <Package className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-sm text-muted-foreground">{t('admin.noRecentOrders')}</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {latestOrders.map((order, index) => (
-                  <motion.div
-                    key={order.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.5 + index * 0.1 }}
-                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-card/20 transition-colors"
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center">
-                      <ShoppingCart className="w-4 h-4 text-green-400" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="text-sm font-medium text-foreground truncate">{getOrderTitle(order)}</p>
-                        <p className="text-sm font-semibold text-foreground whitespace-nowrap">
-                          {formatAmount(getOrderAmount(order))}
-                        </p>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-muted-foreground">
-                        <span className="truncate">{order.customerEmail}</span>
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          {formatDate(order.createdAt)}
-                        </span>
-                        <span>{order.items.length} {t('admin.licenses')}</span>
-                      </div>
-                    </div>
-                    <span className={cn(
-                      "px-2 py-1 rounded-full text-xs font-medium border whitespace-nowrap",
-                      getStatusColor(order.status)
-                    )}>
-                      {order.status}
-                    </span>
-                  </motion.div>
-                ))}
-              </div>
-            )}
-                  </div>
-
-          {/* Quick Actions */}
-          <div className="bg-card/10 backdrop-blur-lg rounded-xl p-6 border border-border/20">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center">
-                <BarChart3 className="w-4 h-4 text-white" />
-              </div>
-              <h2 className="text-xl font-bold text-foreground">{t('admin.quickActions')}</h2>
-            </div>
-            <div className="space-y-3">
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.6 }}
-              >
-                <Link
-                  href="/admin/upload"
-                  className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-indigo-500/10 to-purple-500/10 hover:from-indigo-500/20 hover:to-purple-500/20 border border-indigo-500/20 transition-all duration-300"
-                >
-                  <Music className="w-5 h-5 text-indigo-400" />
-                  <span className="text-sm font-medium text-foreground">{t('admin.uploadBeat')}</span>
-                </Link>
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.7 }}
-              >
-                <Link
-                  href="/admin/manage"
-                  className="flex items-center gap-3 p-3 rounded-lg bg-card/20 hover:bg-card/30 transition-colors"
-                >
-                  <BarChart3 className="w-5 h-5 text-muted-foreground" />
-                  <span className="text-sm font-medium text-foreground">{t('admin.manageBeats')}</span>
-                </Link>
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.8 }}
-              >
-                <Link
-                  href="/admin/orders"
-                  className="flex items-center gap-3 p-3 rounded-lg bg-card/20 hover:bg-card/30 transition-colors"
-                >
-                  <ShoppingCart className="w-5 h-5 text-muted-foreground" />
-                  <span className="text-sm font-medium text-foreground">{t('admin.viewOrders')}</span>
-                </Link>
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.9 }}
-              >
-                <Link
-                  href="/admin/stats"
-                  className="flex items-center gap-3 p-3 rounded-lg bg-card/20 hover:bg-card/30 transition-colors"
-                >
-                  <TrendingUp className="w-5 h-5 text-muted-foreground" />
-                  <span className="text-sm font-medium text-foreground">{t('admin.detailedAnalytics')}</span>
-                </Link>
-              </motion.div>
-            </div>
+            ))}
           </div>
         </motion.div>
       </div>
-    </div>
+    </AdminPageShell>
   );
 }
