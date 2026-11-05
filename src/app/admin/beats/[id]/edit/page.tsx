@@ -275,7 +275,7 @@ export default function BeatEditPage() {
                     uploadedFiles={uploadedFiles}
                     uploadProgress={uploadProgress}
                     isUploading={isUploading}
-                    error={actionError ?? (error instanceof Error ? error.message : null)}
+                    error={actionError}
                     onFileSelect={handleFileSelect}
                     onRemoveFile={handleRemoveFile}
                     onS3UploadComplete={handleS3UploadComplete}

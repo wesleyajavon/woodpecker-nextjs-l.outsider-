@@ -9,7 +9,7 @@ vi.mock('@/services/beatService', () => ({
 
 const { BeatService } = await import('@/services/beatService')
 
-function createRequest(overrides: { headers?: Headers } = {}) {
+function createRequest(overrides: { headers?: HeadersInit } = {}) {
   const headers = new Headers(overrides.headers)
   return new Request('http://localhost/api/cron/activate-scheduled-beats', {
     method: 'GET',
