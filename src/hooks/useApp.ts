@@ -1,23 +1,24 @@
 'use client'
 
 import { useAppStore } from '@/stores/appStore'
+import { useLanguage as useLanguageContext } from '@/contexts/LanguageContext'
 
 // Hook principal pour l'app
 export function useApp() {
   return useAppStore()
 }
 
-// Hooks spécialisés pour la langue
+// Le sélecteur écrit dans LanguageContext. Ces hooks lisent cette même source.
 export function useLanguage() {
-  return useAppStore(state => state.language)
+  return useLanguageContext().language
 }
 
 export function useSetLanguage() {
-  return useAppStore(state => state.setLanguage)
+  return useLanguageContext().setLanguage
 }
 
 export function useTranslation() {
-  const t = useAppStore(state => state.t)
+  const { t } = useLanguageContext()
   return { t }
 }
 

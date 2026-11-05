@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useAppStore } from '@/stores/appStore';
 
 export type Language = 'fr' | 'en';
 
@@ -49,6 +50,10 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
       localStorage.setItem('language', lang);
     }
   };
+
+  useEffect(() => {
+    useAppStore.getState().setLanguage(language);
+  }, [language]);
 
   const t = (key: string, params?: Record<string, string | number>): string => {
     const keys = key.split('.');

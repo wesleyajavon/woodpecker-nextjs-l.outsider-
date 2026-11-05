@@ -1,5 +1,4 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
 import { translations } from '@/lib/translations'
 
 export type Language = 'fr' | 'en'
@@ -47,65 +46,51 @@ function replaceParams(text: string, params?: Record<string, string | number>): 
   })
 }
 
-export const useAppStore = create<AppState & AppActions>()(
-  persist(
-    (set, get) => ({
-      // État initial
-      language: 'fr',
-      sidebarOpen: false,
-      notifications: [],
+export const useAppStore = create<AppState & AppActions>()((set, get) => ({
+  language: 'fr',
+  sidebarOpen: false,
+  notifications: [],
 
-      // Actions
-      setLanguage: (language) => {
-        set({ language })
-      },
+  setLanguage: (language) => {
+    set({ language })
+  },
 
-      toggleSidebar: () => {
-        set(state => ({ sidebarOpen: !state.sidebarOpen }))
-      },
+  toggleSidebar: () => {
+    set(state => ({ sidebarOpen: !state.sidebarOpen }))
+  },
 
-      setSidebarOpen: (open) => {
-        set({ sidebarOpen: open })
-      },
+  setSidebarOpen: (open) => {
+    set({ sidebarOpen: open })
+  },
 
-      addNotification: (notification) => {
-        const id = Math.random().toString(36).substr(2, 9)
-        const newNotification = { ...notification, id }
-        set(state => ({ 
-          notifications: [...state.notifications, newNotification] 
-        }))
-        
-        // Auto-remove après la durée spécifiée
-        if (notification.duration) {
-          setTimeout(() => {
-            get().removeNotification(id)
-          }, notification.duration)
-        }
-      },
+  addNotification: (notification) => {
+    const id = Math.random().toString(36).substr(2, 9)
+    const newNotification = { ...notification, id }
+    set(state => ({
+      notifications: [...state.notifications, newNotification]
+    }))
 
-      removeNotification: (id) => {
-        set(state => ({ 
-          notifications: state.notifications.filter(n => n.id !== id) 
-        }))
-      },
-
-      clearNotifications: () => {
-        set({ notifications: [] })
-      },
-
-      // Fonction de traduction
-      t: (key: string, params?: Record<string, string | number>) => {
-        const { language } = get()
-        const translation = translations[language]
-        const text = getNestedValue(translation, key)
-        return replaceParams(text, params)
-      },
-    }),
-    {
-      name: 'loutsider-app',
-      partialize: (state) => ({ 
-        language: state.language
-      }), // ne persiste que la langue
+    if (notification.duration) {
+      setTimeout(() => {
+        get().removeNotification(id)
+      }, notification.duration)
     }
-  )
-)
+  },
+
+  removeNotification: (id) => {
+    set(state => ({
+      notifications: state.notifications.filter(n => n.id !== id)
+    }))
+  },
+
+  clearNotifications: () => {
+    set({ notifications: [] })
+  },
+
+  t: (key: string, params?: Record<string, string | number>) => {
+    const { language } = get()
+    const translation = translations[language]
+    const text = getNestedValue(translation, key)
+    return replaceParams(text, params)
+  },
+}))
