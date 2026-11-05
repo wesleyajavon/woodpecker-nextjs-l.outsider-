@@ -33,31 +33,29 @@ export default function BeatEditPage() {
     const beat = beatData?.data || null;
 
     const [isUploading, setIsUploading] = useState(false);
+    const [actionError, setActionError] = useState<string | null>(null);
     const [uploadProgress, setUploadProgress] = useState<{
         preview: number;
         master: number;
         artwork: number;
-        stems: number;
     }>({
         preview: 0,
         master: 0,
-        artwork: 0,
-        stems: 0
+        artwork: 0
     });
     const [uploadedFiles, setUploadedFiles] = useState<{
         preview?: File;
         master?: File;
         artwork?: File;
-        stems?: File;
     }>({});
 
     // Gestion des fichiers sélectionnés
-    const handleFileSelect = (field: 'preview' | 'master' | 'artwork' | 'stems', file: File) => {
+    const handleFileSelect = (field: 'preview' | 'master' | 'artwork', file: File) => {
         setUploadedFiles(prev => ({ ...prev, [field]: file }));
     };
 
     // Suppression des fichiers sélectionnés
-    const handleRemoveFile = (field: 'preview' | 'master' | 'artwork' | 'stems') => {
+    const handleRemoveFile = (field: 'preview' | 'master' | 'artwork') => {
         setUploadedFiles(prev => {
             const newFiles = { ...prev };
             delete newFiles[field];
@@ -87,14 +85,40 @@ export default function BeatEditPage() {
     const handleS3UploadComplete = async (type: 'master' | 'stems', result: { url: string; key: string }) => {
         if (!beat) return;
 
-        const updateData = type === 'master'
-            ? { s3MasterUrl: result.url, s3MasterKey: result.key }
-            : { s3StemsUrl: result.url, s3StemsKey: result.key };
+        if (type === 'stems') {
+            setActionError(null);
+
+            try {
+                const response = await fetch(`/api/beats/${beatId}/stems`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: result.url, key: result.key })
+                });
+
+                if (!response.ok) {
+                    const body = await response.json().catch(() => null);
+                    const message = typeof body?.error === 'string'
+                        ? body.error
+                        : 'Mise à jour des stems impossible';
+                    setActionError(message);
+                    console.error('Erreur lors de la mise à jour des stems:', message);
+                    return;
+                }
+
+                setActionError(null);
+                await refetch();
+            } catch (err) {
+                const message = 'Mise à jour des stems impossible';
+                setActionError(message);
+                console.error('Erreur lors de la mise à jour des stems:', err);
+            }
+            return;
+        }
 
         try {
             await updateBeatMutation.mutateAsync({
                 id: beatId,
-                data: updateData
+                data: { s3MasterUrl: result.url, s3MasterKey: result.key }
             });
             await refetch(); // Refresh data from TanStack Query
         } catch (err) {
@@ -110,14 +134,29 @@ export default function BeatEditPage() {
     const handleRemoveStems = async () => {
         if (!beat) return;
 
+        setActionError(null);
+        setIsUploading(true);
+
         try {
-            setIsUploading(true);
-            await updateBeatMutation.mutateAsync({
-                id: beatId,
-                data: { stemsUrl: null }
+            const response = await fetch(`/api/beats/${beatId}/stems`, {
+                method: 'DELETE'
             });
-            await refetch(); // Refresh data from TanStack Query
+
+            if (!response.ok) {
+                const body = await response.json().catch(() => null);
+                const message = typeof body?.error === 'string'
+                    ? body.error
+                    : 'Suppression des stems impossible';
+                setActionError(message);
+                console.error('Erreur lors de la suppression des stems:', message);
+                return;
+            }
+
+            setActionError(null);
+            await refetch();
         } catch (err) {
+            const message = 'Suppression des stems impossible';
+            setActionError(message);
             console.error('Erreur lors de la suppression des stems:', err);
         } finally {
             setIsUploading(false);
@@ -130,7 +169,7 @@ export default function BeatEditPage() {
 
         try {
             setIsUploading(true);
-            setUploadProgress({ preview: 0, master: 0, artwork: 0, stems: 0 });
+            setUploadProgress({ preview: 0, master: 0, artwork: 0 });
 
             const formData = new FormData();
 
@@ -138,15 +177,13 @@ export default function BeatEditPage() {
             if (uploadedFiles.preview) formData.append('preview', uploadedFiles.preview);
             if (uploadedFiles.master) formData.append('master', uploadedFiles.master);
             if (uploadedFiles.artwork) formData.append('artwork', uploadedFiles.artwork);
-            if (uploadedFiles.stems) formData.append('stems', uploadedFiles.stems);
 
             // Simulation du progrès d'upload
             const progressInterval = setInterval(() => {
                 setUploadProgress(prev => ({
                     preview: Math.min(prev.preview + 10, 100),
                     master: Math.min(prev.master + 8, 100),
-                    artwork: Math.min(prev.artwork + 12, 100),
-                    stems: Math.min(prev.stems + 15, 100)
+                    artwork: Math.min(prev.artwork + 12, 100)
                 }));
             }, 200);
 
@@ -167,7 +204,7 @@ export default function BeatEditPage() {
             if (result.success) {
                 await refetch(); // Refresh data from TanStack Query
                 setUploadedFiles({});
-                setUploadProgress({ preview: 0, master: 0, artwork: 0, stems: 0 });
+                setUploadProgress({ preview: 0, master: 0, artwork: 0 });
                 router.push(`/admin/beats/${beatId}`);
             }
 
@@ -238,7 +275,7 @@ export default function BeatEditPage() {
                     uploadedFiles={uploadedFiles}
                     uploadProgress={uploadProgress}
                     isUploading={isUploading}
-                    error={error}
+                    error={actionError ?? (error instanceof Error ? error.message : null)}
                     onFileSelect={handleFileSelect}
                     onRemoveFile={handleRemoveFile}
                     onS3UploadComplete={handleS3UploadComplete}

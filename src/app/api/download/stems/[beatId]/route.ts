@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { BeatService } from '@/services/beatService';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { getUserIdFromEmail } from '@/lib/userUtils';
-import { CloudinaryService } from '@/lib/cloudinary';
 import { prisma } from '@/lib/prisma';
+import { s3Service } from '@/lib/s3-service';
 
 interface RouteParams {
   params: Promise<{
@@ -30,23 +29,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json(
         { error: 'ID du beat requis' },
         { status: 400 }
-      );
-    }
-
-    // Récupération du beat
-    const beat = await BeatService.getBeatById(beatId);
-    if (!beat) {
-      return NextResponse.json(
-        { error: 'Beat non trouvé' },
-        { status: 404 }
-      );
-    }
-
-    // Vérification que le beat a des stems
-    if (!beat.stemsUrl) {
-      return NextResponse.json(
-        { error: 'Aucun fichier stems disponible pour ce beat' },
-        { status: 404 }
       );
     }
 
@@ -79,16 +61,19 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Génération d'une URL signée pour le téléchargement (valide 30 minutes)
-    const downloadUrl = CloudinaryService.generateSignedUrl(
-      beat.stemsUrl.split('/').slice(-2).join('/').replace('.zip', ''), // Extraire le public_id
-      30, // 30 minutes
-      {
-        format: 'zip',
-        quality: 'auto:best'
-      },
-      'raw'
-    );
+    const beat = await prisma.beat.findUnique({
+      where: { id: beatId },
+      select: { s3StemsKey: true, title: true },
+    })
+
+    if (!beat?.s3StemsKey) {
+      return NextResponse.json(
+        { error: 'Stems indisponibles' },
+        { status: 404 }
+      );
+    }
+
+    const downloadUrl = await s3Service.generatePresignedDownloadUrl(beat.s3StemsKey, 30 * 60)
 
     return NextResponse.json({
       success: true,

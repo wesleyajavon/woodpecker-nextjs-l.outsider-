@@ -28,18 +28,16 @@ interface BeatEditCardProps {
     preview?: File;
     master?: File;
     artwork?: File;
-    stems?: File;
   };
   uploadProgress: {
     preview: number;
     master: number;
     artwork: number;
-    stems: number;
   };
   isUploading: boolean;
   error: string | null;
-  onFileSelect: (field: 'preview' | 'master' | 'artwork' | 'stems', file: File) => void;
-  onRemoveFile: (field: 'preview' | 'master' | 'artwork' | 'stems') => void;
+  onFileSelect: (field: 'preview' | 'master' | 'artwork', file: File) => void;
+  onRemoveFile: (field: 'preview' | 'master' | 'artwork') => void;
   onS3UploadComplete: (type: 'master' | 'stems', result: { url: string; key: string }) => void;
   onS3UploadError: (error: string) => void;
   onRemoveArtwork: () => void;
@@ -281,74 +279,42 @@ export default function BeatEditCard({
             </h3>
             
             <div className={cn(fileSectionClass, 'p-6')}>
-              {beat.s3StemsUrl ? (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 rounded-xl border border-white/10 bg-white/[0.04]">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-muted-foreground" />
-                      <p className="text-foreground text-sm">{t('admin.stemsFileAvailable')}</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={onRemoveStems}
-                      className="text-red-400 hover:text-red-300 transition-opacity"
-                      title={t('common.remove')}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                  <div className="p-3 rounded-xl border border-white/10 bg-white/[0.02]">
-                    <p className="text-foreground text-sm">{t('upload.stemsZipOptional')}</p>
-                    <p className="text-muted-foreground text-xs mt-1 font-mono">
-                      {beat.s3StemsKey}
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <p className="text-muted-foreground text-sm">{t('admin.noStemsFile')}</p>
-                  <S3Upload
-                    beatId={beatId}
-                    folder="stems"
-                    onUploadComplete={(result) => onS3UploadComplete('stems', result)}
-                    onUploadError={onS3UploadError}
-                    maxSize={1024}
-                    acceptedTypes={['application/zip', 'application/x-zip-compressed']}
-                  />
-                </div>
-              )}
-
-              <div className="mt-4">
-                <input
-                  type="file"
-                  accept=".zip"
-                  onChange={(e) => e.target.files?.[0] && onFileSelect('stems', e.target.files[0])}
-                  className="hidden"
-                  id="stems-upload"
-                />
-                <label htmlFor="stems-upload" className={dropzoneClass}>
-                  {uploadedFiles.stems ? (
-                    <div className="flex items-center gap-2 text-foreground">
-                      <Archive className="w-4 h-4" />
-                      <span className="text-sm truncate flex-1">{uploadedFiles.stems.name}</span>
+              <div className="space-y-4">
+                {beat.s3StemsUrl ? (
+                  <>
+                    <div className="flex items-center justify-between p-3 rounded-xl border border-white/10 bg-white/[0.04]">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-muted-foreground" />
+                        <p className="text-foreground text-sm">{t('admin.stemsFileAvailable')}</p>
+                      </div>
                       <button
                         type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          onRemoveFile('stems');
-                        }}
-                        className="ml-auto text-red-400 hover:text-red-300 transition-opacity"
+                        onClick={onRemoveStems}
+                        className="text-red-400 hover:text-red-300 transition-opacity"
+                        title={t('common.remove')}
                       >
-                        <X className="w-4 h-4" />
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
-                  ) : (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Upload className="w-4 h-4" />
-                      <span className="text-sm">{t('admin.replaceStemsFile')}</span>
+                    <div className="p-3 rounded-xl border border-white/10 bg-white/[0.02]">
+                      <p className="text-foreground text-sm">{t('upload.stemsZipOptional')}</p>
+                      <p className="text-muted-foreground text-xs mt-1 font-mono">
+                        {beat.s3StemsKey}
+                      </p>
                     </div>
-                  )}
-                </label>
+                    <p className="text-muted-foreground text-sm">{t('admin.replaceStemsFile')}</p>
+                  </>
+                ) : (
+                  <p className="text-muted-foreground text-sm">{t('admin.noStemsFile')}</p>
+                )}
+                <S3Upload
+                  beatId={beatId}
+                  folder="stems"
+                  onUploadComplete={(result) => onS3UploadComplete('stems', result)}
+                  onUploadError={onS3UploadError}
+                  maxSize={1024}
+                  acceptedTypes={['application/zip', 'application/x-zip-compressed']}
+                />
               </div>
             </div>
           </div>
@@ -411,24 +377,6 @@ export default function BeatEditCard({
                         <div
                           className="bg-white h-2 rounded-full transition-opacity"
                           style={{ width: `${uploadProgress.artwork}%` }}
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {uploadedFiles.stems && (
-                    <div>
-                      <div className="flex justify-between text-sm text-muted-foreground mb-2">
-                        <span className="flex items-center gap-2">
-                          <Archive className="w-4 h-4" />
-                          Stems
-                        </span>
-                        <span>{uploadProgress.stems}%</span>
-                      </div>
-                      <div className="w-full bg-white/[0.06] rounded-full h-2">
-                        <div
-                          className="bg-white h-2 rounded-full transition-opacity"
-                          style={{ width: `${uploadProgress.stems}%` }}
                         />
                       </div>
                     </div>
