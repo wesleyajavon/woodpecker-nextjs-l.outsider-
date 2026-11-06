@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma'
-import { Beat, CreateBeatInput, UpdateBeatInput, BeatFilters, BeatSortOptions } from '@/types/beat'
+import { Beat, CreateBeatInput, UpdateBeatInput, BeatFilters, BeatSortOptions, PublicBeat } from '@/types/beat'
 // Import Decimal from Prisma
 import { Decimal } from '@prisma/client/runtime/library'
 import { createBeatStripeProducts } from '@/lib/stripe'
@@ -51,6 +51,32 @@ export class BeatService {
       wavLeasePrice: Number(beat.wavLeasePrice),
       trackoutLeasePrice: Number(beat.trackoutLeasePrice),
       unlimitedLeasePrice: Number(beat.unlimitedLeasePrice)
+    }
+  }
+
+  /** Liste blanche renvoyée aux visiteurs. À appliquer après convertPrismaBeat. */
+  static toPublicBeat(beat: Beat): PublicBeat {
+    return {
+      id: beat.id,
+      title: beat.title,
+      description: beat.description,
+      genre: beat.genre,
+      bpm: beat.bpm,
+      key: beat.key,
+      mode: beat.mode,
+      duration: beat.duration,
+      wavLeasePrice: beat.wavLeasePrice,
+      trackoutLeasePrice: beat.trackoutLeasePrice,
+      unlimitedLeasePrice: beat.unlimitedLeasePrice,
+      tags: beat.tags,
+      previewUrl: beat.previewUrl,
+      artworkUrl: beat.artworkUrl,
+      featured: beat.featured,
+      isExclusive: beat.isExclusive,
+      rating: beat.rating,
+      reviewCount: beat.reviewCount,
+      hasStems: beat.s3StemsKey != null || beat.stemsUrl != null,
+      createdAt: beat.createdAt,
     }
   }
 
@@ -177,13 +203,14 @@ export class BeatService {
       ]
     }
 
+    // Même signal que le badge public (toPublicBeat) : s3StemsKey ou stemsUrl.
     if (filters.hasStems) {
       where.AND = [
         ...(where.AND || []),
         {
           OR: [
-            { stemsUrl: { not: null } },
-            { s3StemsUrl: { not: null } }
+            { s3StemsKey: { not: null } },
+            { stemsUrl: { not: null } }
           ]
         }
       ]

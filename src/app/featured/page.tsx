@@ -30,7 +30,7 @@ export default function FeaturedBeatsPage() {
     [featuredBeats],
   );
   const stemsCount = useMemo(
-    () => featuredBeats.filter((beat) => beat.stemsUrl).length,
+    () => featuredBeats.filter((beat) => beat.hasStems).length,
     [featuredBeats],
   );
 

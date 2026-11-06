@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: result.beats,
+      data: result.beats.map((beat) => BeatService.toPublicBeat(beat)),
       pagination: {
         page,
         limit,

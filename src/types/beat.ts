@@ -18,6 +18,8 @@ export interface Beat {
   previewUrl?: string | null
   fullUrl?: string | null
   stemsUrl?: string | null
+  /** Présent sur la vue publique. Calculé côté serveur, sans exposer l'URL. */
+  hasStems?: boolean
   artworkUrl?: string | null
   
   // S3 URLs for large files
@@ -36,6 +38,30 @@ export interface Beat {
   scheduledReleaseAt?: Date | null
   createdAt: Date
   updatedAt: Date
+}
+
+/** Réponse catalogue : aucune URL de master/stems, aucune clé S3, aucun identifiant Stripe. */
+export interface PublicBeat {
+  id: string
+  title: string
+  description?: string | null
+  genre: string
+  bpm: number
+  key: string
+  mode?: string
+  duration: string
+  wavLeasePrice: number
+  trackoutLeasePrice: number
+  unlimitedLeasePrice: number
+  tags: string[]
+  previewUrl?: string | null
+  artworkUrl?: string | null
+  featured: boolean
+  isExclusive: boolean
+  rating: number
+  reviewCount: number
+  hasStems: boolean
+  createdAt: Date
 }
 
 export interface CreateBeatInput {

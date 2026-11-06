@@ -44,7 +44,8 @@ export async function POST(
               select: {
                 id: true,
                 title: true,
-                stemsUrl: true
+                stemsUrl: true,
+                s3StemsKey: true,
               }
             }
           }
@@ -71,29 +72,31 @@ export async function POST(
     const beatDownloadUrls: BeatDownloadUrls[] = []
     const expiresAt = new Date(Date.now() + 30 * 60 * 1000) // 30 minutes from now
 
+    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
+    const stemsLicense = (licenseType: string) =>
+      licenseType === 'TRACKOUT_LEASE' || licenseType === 'UNLIMITED_LEASE'
+
     for (const item of order.items) {
       const beat = item.beat
-      
-      // Generate secure download URLs for each beat
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+      const beatHasStems = !!(beat.s3StemsKey || beat.stemsUrl)
+      const includeStems = stemsLicense(item.licenseType) && beatHasStems
+
       const masterUrl = `${baseUrl}/api/download/beat/${beat.id}?orderId=${orderId}&customerEmail=${encodeURIComponent(customerEmail)}&type=master`
-      
+
       const downloadUrls: DownloadUrls = {
         master: masterUrl,
         expiresAt: expiresAt.toISOString(),
       }
-      
-      // Add stems URL if license includes stems and stems are available
-      if ((item.licenseType === 'TRACKOUT_LEASE' || item.licenseType === 'UNLIMITED_LEASE') && beat.stemsUrl) {
+
+      if (includeStems) {
         downloadUrls.stems = `${baseUrl}/api/download/beat/${beat.id}?orderId=${orderId}&customerEmail=${encodeURIComponent(customerEmail)}&type=stems`
-        console.log('✅ Generated stems URL for beat:', beat.id, 'license:', item.licenseType)
       }
 
       beatDownloadUrls.push({
         beatId: beat.id,
         beatTitle: beat.title,
         downloadUrls,
-        hasStems: !!beat.stemsUrl && (item.licenseType === 'TRACKOUT_LEASE' || item.licenseType === 'UNLIMITED_LEASE')
+        hasStems: includeStems,
       })
     }
 

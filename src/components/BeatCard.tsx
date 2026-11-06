@@ -232,7 +232,7 @@ export default function BeatCard({
             </div>
           </div>
 
-          {beat.stemsUrl && (
+          {beat.hasStems && (
             <div className="absolute top-2 left-2 z-10">
               <div className="rounded-full border border-primary/40 bg-primary/15 px-2 py-1 text-xs font-medium text-primary">
                 {t('beatCard.stems')}
@@ -354,7 +354,7 @@ export default function BeatCard({
               </span>
               <span>•</span>
               <span>{beat.duration}</span>
-              {beat.stemsUrl && <span className="text-primary">• STEMS</span>}
+              {beat.hasStems && <span className="text-primary">• STEMS</span>}
             </div>
 
             <div className="flex items-center gap-2">

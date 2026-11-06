@@ -33,7 +33,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({
       success: true,
-      data: beats,
+      data: beats.map((beat) => BeatService.toPublicBeat(beat)),
       genre,
       count: beats.length
     })

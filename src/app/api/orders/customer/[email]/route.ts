@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { publicOrderBeatSelect, toPublicOrderBeat } from '@/lib/public-order-beat'
 
 interface RouteParams {
   params: Promise<{
@@ -27,15 +28,25 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       include: {
         items: {
           include: {
-            beat: true,
+            beat: {
+              select: publicOrderBeatSelect,
+            },
           },
         },
       },
     })
 
+    const data = orders.map((order) => ({
+      ...order,
+      items: order.items.map((item) => ({
+        ...item,
+        beat: toPublicOrderBeat(item.beat),
+      })),
+    }))
+
     return NextResponse.json({
       success: true,
-      data: orders,
+      data,
       customerEmail: decodedEmail,
       count: orders.length,
     })

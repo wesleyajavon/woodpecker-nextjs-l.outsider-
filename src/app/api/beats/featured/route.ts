@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: featuredBeats,
+      data: featuredBeats.map((beat) => BeatService.toPublicBeat(beat)),
       count: featuredBeats.length
     })
 

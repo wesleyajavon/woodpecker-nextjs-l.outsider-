@@ -43,7 +43,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({
       success: true,
-      data: beat
+      data: isAdmin ? beat : BeatService.toPublicBeat(beat)
     });
 
   } catch (error) {

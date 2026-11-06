@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { publicOrderBeatSelect, toPublicOrderBeat } from '@/lib/public-order-beat'
 
 interface RouteParams {
   params: Promise<{
@@ -22,7 +23,9 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
       include: {
         items: {
           include: {
-            beat: true,
+            beat: {
+              select: publicOrderBeatSelect,
+            },
           },
         },
       },
@@ -32,9 +35,17 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
+    const data = {
+      ...order,
+      items: order.items.map((item) => ({
+        ...item,
+        beat: toPublicOrderBeat(item.beat),
+      })),
+    }
+
     return NextResponse.json({
       success: true,
-      data: order,
+      data,
     })
   } catch (error) {
     console.error('Error fetching order by payment ID:', error)

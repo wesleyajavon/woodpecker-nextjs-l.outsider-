@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { publicOrderBeatSelect, toPublicOrderBeat } from '@/lib/public-order-beat'
 import { OrderStatus } from '@prisma/client'
 import type { MultiItemOrder, LicenseType } from '@/types/order'
 
@@ -22,7 +23,9 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
       include: {
         items: {
           include: {
-            beat: true,
+            beat: {
+              select: publicOrderBeatSelect,
+            },
           },
         },
       },
@@ -32,7 +35,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Commande non trouvée' }, { status: 404 })
     }
 
-    const data: MultiItemOrder = {
+    const data = {
       id: order.id,
       customerEmail: order.customerEmail,
       customerName: order.customerName,
@@ -58,7 +61,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
         createdAt: item.createdAt,
         updatedAt: item.updatedAt,
         beat: {
-          ...item.beat,
+          ...toPublicOrderBeat(item.beat),
           wavLeasePrice: Number(item.beat.wavLeasePrice),
           trackoutLeasePrice: Number(item.beat.trackoutLeasePrice),
           unlimitedLeasePrice: Number(item.beat.unlimitedLeasePrice),

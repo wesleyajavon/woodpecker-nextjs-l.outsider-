@@ -228,7 +228,7 @@ export default function BeatDetailPage() {
                 <dt className="text-muted-foreground">{t('beats.detail.duration')}</dt>
                 <dd className="mt-1 text-foreground">{beat.duration}</dd>
               </div>
-              {beat.stemsUrl && (
+              {beat.hasStems && (
                 <div>
                   <dt className="text-muted-foreground">STEMS</dt>
                   <dd className="mt-1 text-foreground">{t('beats.detail.stemsAvailable')}</dd>

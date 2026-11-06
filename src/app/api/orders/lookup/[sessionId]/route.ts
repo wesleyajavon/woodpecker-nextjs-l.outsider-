@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { publicOrderBeatSelect, toPublicOrderBeat } from '@/lib/public-order-beat'
 
 export async function GET(
   request: NextRequest,
@@ -18,22 +19,7 @@ export async function GET(
         items: {
           include: {
             beat: {
-              select: {
-                id: true,
-                title: true,
-                genre: true,
-                bpm: true,
-                key: true,
-                duration: true,
-                wavLeasePrice: true,
-                trackoutLeasePrice: true,
-                unlimitedLeasePrice: true,
-                isExclusive: true,
-                featured: true,
-                fullUrl: true,
-                stemsUrl: true,
-                artworkUrl: true,
-              },
+              select: publicOrderBeatSelect,
             },
           },
         },
@@ -41,9 +27,17 @@ export async function GET(
     })
 
     if (multiItemOrder) {
+      const data = {
+        ...multiItemOrder,
+        items: multiItemOrder.items.map((item) => ({
+          ...item,
+          beat: toPublicOrderBeat(item.beat),
+        })),
+      }
+
       return NextResponse.json({
         success: true,
-        data: multiItemOrder,
+        data,
         type: 'multi-item',
       })
     }

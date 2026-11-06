@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
+import { publicOrderBeatSelect, toPublicOrderBeat } from '@/lib/public-order-beat'
 import { MultiItemOrder, OrderStatus, LicenseType } from '@/types/order'
 
 interface OrderItemWithPartialBeat {
@@ -18,7 +19,8 @@ interface OrderItemWithPartialBeat {
     unlimitedLeasePrice: unknown // Prisma Decimal type
     isExclusive: boolean
     featured: boolean
-    fullUrl: string | null
+    artworkUrl: string | null
+    hasStems: boolean
   }
   quantity: number
   unitPrice: number
@@ -53,20 +55,7 @@ export async function GET(
         items: {
           include: {
             beat: {
-              select: {
-                id: true,
-                title: true,
-                genre: true,
-                bpm: true,
-                key: true,
-                duration: true,
-                wavLeasePrice: true,
-                trackoutLeasePrice: true,
-                unlimitedLeasePrice: true,
-                isExclusive: true,
-                featured: true,
-                fullUrl: true,
-              }
+              select: publicOrderBeatSelect,
             }
           }
         }
@@ -99,7 +88,7 @@ export async function GET(
         id: item.id,
         orderId: item.orderId,
         beatId: item.beatId,
-        beat: item.beat,
+        beat: toPublicOrderBeat(item.beat),
         quantity: item.quantity,
         unitPrice: Number(item.unitPrice),
         totalPrice: Number(item.totalPrice),

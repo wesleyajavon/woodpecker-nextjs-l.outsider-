@@ -112,7 +112,7 @@ export default function CartItem({ item }: CartItemProps) {
                     <span className="text-xs sm:text-sm">{t('beatCard.exclusive')}</span>
                   </div>
                 )}
-                {item.beat.stemsUrl && (
+                {item.beat.hasStems && (
                   <div className="flex items-center gap-1">
                     <Archive className="h-3 w-3 sm:h-4 sm:w-4" />
                     <span className="text-xs sm:text-sm">{t('beatCard.stems')}</span>

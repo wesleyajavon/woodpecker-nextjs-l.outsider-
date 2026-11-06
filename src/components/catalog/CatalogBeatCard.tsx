@@ -145,7 +145,7 @@ function ArtworkBlock({
         <div className="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-transparent opacity-80" />
       )}
 
-      {!compact && beat.stemsUrl && (
+      {!compact && beat.hasStems && (
         <div className="absolute left-3 top-3">
           <span className="rounded-md border border-white/10 bg-black/40 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground backdrop-blur-sm">
             Stems
@@ -307,7 +307,7 @@ export function CatalogBeatCard({
                 <span className="font-mono text-[10px] text-muted-foreground">
                   {licenseLabels[state.selectedLicense]}
                 </span>
-                {beat.stemsUrl && (
+                {beat.hasStems && (
                   <span className="font-mono text-[10px] text-muted-foreground">Stems</span>
                 )}
               </div>

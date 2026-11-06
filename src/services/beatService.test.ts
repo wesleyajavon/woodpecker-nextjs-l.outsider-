@@ -142,6 +142,37 @@ describe('BeatService - Scheduled Release', () => {
     })
   })
 
+  describe('getBeats - hasStems filter', () => {
+    it('filtre sur s3StemsKey ou stemsUrl, comme le badge toPublicBeat', async () => {
+      const withKeyOnly = createMockBeat({
+        s3StemsKey: 'beats/stems/zip.zip',
+        stemsUrl: null,
+        s3StemsUrl: null,
+      })
+
+      mockPrisma.beat.count.mockResolvedValue(1)
+      mockPrisma.beat.findMany.mockResolvedValue([withKeyOnly])
+
+      const { beats } = await BeatService.getBeats({ hasStems: true })
+
+      expect(mockPrisma.beat.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            AND: expect.arrayContaining([
+              {
+                OR: [
+                  { s3StemsKey: { not: null } },
+                  { stemsUrl: { not: null } },
+                ],
+              },
+            ]),
+          }),
+        })
+      )
+      expect(BeatService.toPublicBeat(beats[0]).hasStems).toBe(true)
+    })
+  })
+
   describe('getBeats - visibility filter', () => {
     it('excludes beats with scheduledReleaseAt in the future from public results', async () => {
       const visibleBeat = createMockBeat({

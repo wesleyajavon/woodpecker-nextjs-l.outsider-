@@ -19,10 +19,15 @@ interface DownloadUrls {
   expiresAt: string
 }
 
+const DOWNLOAD_ACCESS_MS = 30 * 24 * 60 * 60 * 1000
+const STEMS_LICENSES = new Set(['TRACKOUT_LEASE', 'UNLIMITED_LEASE'])
+
 interface OrderWithBeat {
   id: string
   customerEmail: string
   licenseType?: string
+  paidAt: Date | null
+  createdAt: Date
   totalAmount?: unknown // Prisma Decimal type
   beat: {
     id: string
@@ -62,8 +67,15 @@ async function resolveCustomerMultiItemBeat(
     customerEmail: multiOrder.customerEmail,
     beat: orderItem.beat,
     licenseType: orderItem.licenseType,
+    paidAt: multiOrder.paidAt,
+    createdAt: multiOrder.createdAt,
     totalAmount: multiOrder.totalAmount,
   }
+}
+
+function isDownloadWindowClosed(order: OrderWithBeat, now = Date.now()): boolean {
+  const paymentDate = order.paidAt ?? order.createdAt
+  return now - paymentDate.getTime() > DOWNLOAD_ACCESS_MS
 }
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
@@ -172,6 +184,23 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json(
         { error: 'Beat ne correspond pas à la commande' },
         { status: 400 }
+      )
+    }
+
+    if (isDownloadWindowClosed(order)) {
+      return NextResponse.json(
+        {
+          error:
+            'La période de 30 jours après le paiement est dépassée. Contactez le support pour un nouveau lien.',
+        },
+        { status: 403 }
+      )
+    }
+
+    if (type === 'stems' && !STEMS_LICENSES.has(order.licenseType ?? '')) {
+      return NextResponse.json(
+        { error: 'Les stems ne sont pas inclus dans cette licence' },
+        { status: 403 }
       )
     }
 

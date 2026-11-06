@@ -111,7 +111,7 @@ export function HomeFeaturedBeatCard({
             <div className="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-transparent opacity-80" />
 
             <div className="absolute left-3 top-3 flex items-center gap-2">
-              {beat.stemsUrl && (
+              {beat.hasStems && (
                 <span className="rounded-md border border-white/10 bg-black/40 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground backdrop-blur-sm">
                   Stems
                 </span>

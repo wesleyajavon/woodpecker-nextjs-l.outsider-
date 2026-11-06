@@ -142,7 +142,7 @@ export default function BeatPricing({ beat, onLicenseSelect, className = '' }: B
               </ul>
               
               {/* Indicateur de disponibilité des stems */}
-              {license !== 'WAV_LEASE' && !beat.stemsUrl && (
+              {license !== 'WAV_LEASE' && !beat.hasStems && (
                 <div className="mt-3 p-2 bg-yellow-500/20 border border-yellow-500/50 rounded-lg">
                   <p className="text-xs text-yellow-400 text-center">
                     {t('licenses.stemsNotAvailable')}
