@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { MultiItemOrder } from '@/types/order'
+import { MultiItemOrder, MyOrdersResponse } from '@/types/order'
 
 interface MultiItemOrdersResponse {
   orders: MultiItemOrder[]
@@ -61,6 +61,20 @@ export function useAdminMultiItemOrders(filters: {
       return response.json()
     },
     staleTime: 1 * 60 * 1000,
+  })
+}
+
+export function useMyOrders() {
+  return useQuery({
+    queryKey: [...orderKeys.all, 'me'] as const,
+    queryFn: async (): Promise<MyOrdersResponse> => {
+      const response = await fetch('/api/orders/me')
+      if (!response.ok) {
+        throw new Error('Erreur lors du chargement de vos commandes')
+      }
+      return response.json()
+    },
+    staleTime: 60 * 1000,
   })
 }
 

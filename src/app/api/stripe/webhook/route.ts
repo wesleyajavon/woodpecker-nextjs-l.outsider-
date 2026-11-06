@@ -3,6 +3,7 @@ import { stripe } from '@/lib/stripe'
 import { headers } from 'next/headers'
 import { BeatService } from '@/services/beatService'
 import { sendOrderConfirmationEmail } from '@/services/orderEmailService'
+import { findUserIdByEmail } from '@/services/orderService'
 import { PrismaClient, OrderStatus } from '@prisma/client'
 import { LicenseType } from '@/types/cart'
 import Stripe from 'stripe'
@@ -371,6 +372,10 @@ async function handleMultiItemOrder(fullSession: StripeCheckoutSession, lineItem
     return
             }
 
+  const customerEmail =
+    fullSession.customer_email || fullSession.customer_details?.email || existingOrder.customerEmail
+  const linkedUserId = existingOrder.userId ?? (await findUserIdByEmail(customerEmail))
+
   // Update existing order to PAID status
   const updatedOrder = await prisma.multiItemOrder.update({
     where: { id: existingOrder.id },
@@ -378,9 +383,10 @@ async function handleMultiItemOrder(fullSession: StripeCheckoutSession, lineItem
       status: OrderStatus.PAID,
       paidAt: new Date(),
       sessionId: fullSession.id,
-      customerEmail: fullSession.customer_email || fullSession.customer_details?.email || existingOrder.customerEmail,
+      customerEmail,
       customerName: fullSession.customer_details?.name || existingOrder.customerName,
       customerPhone: fullSession.customer_details?.phone || existingOrder.customerPhone,
+      ...(linkedUserId ? { userId: linkedUserId } : {}),
       totalAmount: totalAmount,
                 currency: fullSession.currency?.toUpperCase() || 'EUR',
                 paymentMethod: 'card',

@@ -38,7 +38,8 @@
     "schedule-beat-10min": "tsx scripts/schedule-beat-in-10min.ts",
     "diagnose:scheduled-beats": "tsx scripts/diagnose-scheduled-beats.ts",
     "cron:activate-beats": "tsx scripts/run-cron-activate-beats.ts",
-    "db:link-beats-to-user": "tsx scripts/link-beats-to-user.ts"
+    "db:link-beats-to-user": "tsx scripts/link-beats-to-user.ts",
+    "db:link-orders-to-users": "tsx scripts/link-orders-to-users.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",

@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth/next'
 import { createMultiItemCheckoutSession } from '@/lib/stripe'
 import { prisma } from '@/lib/prisma'
+import { authOptions } from '@/lib/auth'
+import { findUserIdByEmail } from '@/services/orderService'
 import { OrderStatus } from '@prisma/client'
 
 const LICENSE_PRICE_FIELD = {
@@ -98,6 +101,9 @@ export async function POST(request: NextRequest) {
 
     console.log('🔍 Multi-checkout API resolved items:', resolvedItems.map(({ priceId, ...rest }) => rest))
 
+    const authSession = await getServerSession(authOptions)
+    const userId = await findUserIdByEmail(authSession?.user?.email)
+
     // Créer une commande multi-items PENDING avant la session Stripe
     const pendingOrder = await prisma.multiItemOrder.create({
       data: {
@@ -107,6 +113,7 @@ export async function POST(request: NextRequest) {
         paymentMethod: 'card',
         sessionId: 'pending', // Sera mis à jour par le webhook
         status: OrderStatus.PENDING,
+        ...(userId ? { userId } : {}),
         items: {
           create: resolvedItems.map(item => ({
             beatId: item.beatId,

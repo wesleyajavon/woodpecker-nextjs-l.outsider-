@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { User, LogOut } from 'lucide-react'
+import { User, LogOut, ShoppingBag } from 'lucide-react'
 import Avatar from './Avatar'
 import { useTranslation } from '@/hooks/useApp'
 import { useCurrentUser } from '@/hooks/useAuthSync'
@@ -51,17 +51,17 @@ export default function UserMenu({
         }
       }
     },
-    // {
-    //   icon: ShoppingBag,
-    //   label: 'Mes commandes',
-    //   onClick: () => {
-    //     router.push('/orders')
-    //     setIsOpen(false)
-    //     if (variant === 'mobile' && onMobileMenuClose) {
-    //       onMobileMenuClose()
-    //     }
-    //   }
-    // },
+    {
+      icon: ShoppingBag,
+      label: t('userMenu.orders'),
+      onClick: () => {
+        router.push('/orders')
+        setIsOpen(false)
+        if (variant === 'mobile' && onMobileMenuClose) {
+          onMobileMenuClose()
+        }
+      }
+    },
     // {
     //   icon: Settings,
     //   label: 'Paramètres',

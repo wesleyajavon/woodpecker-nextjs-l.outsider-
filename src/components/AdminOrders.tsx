@@ -14,7 +14,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
-import { MultiItemOrder } from '@/types/order';
+import { MultiItemOrder, OrderStatus } from '@/types/order';
 import { useTranslation, useLanguage } from '@/hooks/useApp';
 import { useAdminMultiItemOrders } from '@/hooks/queries/useOrders';
 import {
@@ -23,6 +23,16 @@ import {
   catalogSelectClass,
 } from '@/components/catalog/catalog-styles';
 import { cn } from '@/lib/utils';
+
+const ORDER_STATUSES: OrderStatus[] = [
+  'PENDING',
+  'PAID',
+  'COMPLETED',
+  'CANCELLED',
+  'FAILED',
+  'REFUNDED',
+  'DISPUTED',
+];
 
 interface AdminOrdersProps {
   className?: string;
@@ -40,6 +50,7 @@ export default function AdminOrders({ className = '' }: AdminOrdersProps) {
   const loading = multiOrdersLoading;
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<OrderStatus | 'ALL'>('ALL');
   const [sortBy, setSortBy] = useState<'date' | 'amount' | 'status'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
@@ -48,6 +59,10 @@ export default function AdminOrders({ className = '' }: AdminOrdersProps) {
 
   const filteredOrders = useMemo(() => {
     let list: MultiItemOrder[] = [...(multiOrdersData?.orders || [])];
+
+    if (statusFilter !== 'ALL') {
+      list = list.filter((order) => order.status === statusFilter);
+    }
 
     if (searchTerm) {
       const q = searchTerm.toLowerCase();
@@ -84,11 +99,19 @@ export default function AdminOrders({ className = '' }: AdminOrdersProps) {
     });
 
     return list;
-  }, [multiOrdersData?.orders, searchTerm, sortBy, sortOrder]);
+  }, [multiOrdersData?.orders, searchTerm, statusFilter, sortBy, sortOrder]);
+
+  const statusCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const order of multiOrdersData?.orders || []) {
+      counts.set(order.status, (counts.get(order.status) ?? 0) + 1);
+    }
+    return counts;
+  }, [multiOrdersData?.orders]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, sortBy, sortOrder]);
+  }, [searchTerm, statusFilter, sortBy, sortOrder]);
 
   const formatDate = (date: string | Date) => {
     return new Date(date).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', {
@@ -107,13 +130,23 @@ export default function AdminOrders({ className = '' }: AdminOrdersProps) {
     }).format(Number(amount));
   };
 
+  const formatStatus = (status: string) => {
+    const key = `myOrders.statuses.${status}`;
+    const label = t(key);
+    return label === key ? status : label;
+  };
+
   const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'completed':
+    switch (status.toUpperCase()) {
+      case 'PAID':
+      case 'COMPLETED':
         return 'bg-green-500/20 text-green-300 border-green-500/30';
-      case 'pending':
+      case 'PENDING':
         return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30';
-      case 'failed':
+      case 'FAILED':
+      case 'CANCELLED':
+      case 'REFUNDED':
+      case 'DISPUTED':
         return 'bg-red-500/20 text-red-300 border-red-500/30';
       default:
         return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
@@ -160,15 +193,35 @@ export default function AdminOrders({ className = '' }: AdminOrdersProps) {
     <div className={`space-y-6 ${className}`}>
       <div className={cn(catalogPanelClass, 'p-4 sm:p-6')}>
         <div className="flex flex-col gap-3 sm:gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 sm:w-5 sm:h-5" />
-            <input
-              type="text"
-              placeholder={t('admin.searchOrders')}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className={cn(catalogInputClass, 'pl-9 sm:pl-10 py-2.5 sm:py-2 text-sm sm:text-base touch-manipulation')}
-            />
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <div className="relative min-w-0 flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 sm:w-5 sm:h-5" />
+              <input
+                type="text"
+                placeholder={t('admin.searchOrders')}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={cn(catalogInputClass, 'pl-9 sm:pl-10 py-2.5 sm:py-2 text-sm sm:text-base touch-manipulation')}
+              />
+            </div>
+
+            <label className="sm:w-56">
+              <span className="sr-only">{t('admin.allStatuses')}</span>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as OrderStatus | 'ALL')}
+                className={cn(catalogSelectClass, 'py-2.5 sm:py-2 text-sm sm:text-base touch-manipulation')}
+              >
+                <option value="ALL">
+                  {t('admin.allStatuses')} ({multiOrdersData?.orders.length ?? 0})
+                </option>
+                {ORDER_STATUSES.map((value) => (
+                  <option key={value} value={value}>
+                    {formatStatus(value)} ({statusCounts.get(value) ?? 0})
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
@@ -263,7 +316,7 @@ export default function AdminOrders({ className = '' }: AdminOrdersProps) {
                       <div
                         className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(order.status)}`}
                       >
-                        {order.status}
+                        {formatStatus(order.status)}
                       </div>
                     </div>
                     <button type="button" className="p-2 hover:bg-white/[0.06] rounded-lg transition-opacity touch-manipulation">
@@ -309,7 +362,7 @@ export default function AdminOrders({ className = '' }: AdminOrdersProps) {
                           <span
                             className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(order.status)}`}
                           >
-                            {order.status}
+                            {formatStatus(order.status)}
                           </span>
                         </div>
                       </div>

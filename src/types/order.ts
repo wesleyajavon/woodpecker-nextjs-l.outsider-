@@ -47,6 +47,61 @@ export interface OrderItem {
   updatedAt: Date
 }
 
+export interface MyOrderBeat {
+  id: string
+  title: string
+  genre: string | null
+  bpm: number | null
+  key: string | null
+  duration: string | null
+  artworkUrl: string | null
+  hasStems: boolean
+}
+
+export interface MyOrderItem {
+  id: string
+  beatId: string
+  quantity: number
+  unitPrice: number
+  totalPrice: number
+  licenseType: LicenseType
+  beat: MyOrderBeat
+}
+
+export interface MyOrder {
+  id: string
+  customerEmail: string
+  customerName: string | null
+  totalAmount: number
+  currency: string
+  status: OrderStatus
+  paidAt: string | null
+  createdAt: string
+  items: MyOrderItem[]
+}
+
+export interface MyOrdersSpentByCurrency {
+  currency: string
+  amount: number
+}
+
+export interface MyOrdersSummary {
+  orderCount: number
+  paidCount: number
+  totalSpent: number | null
+  currency: string | null
+  spentByCurrency: MyOrdersSpentByCurrency[]
+  beatsPurchased: number
+  byLicense: Record<string, number>
+  byStatus: Record<string, number>
+  lastPaidAt: string | null
+}
+
+export interface MyOrdersResponse {
+  orders: MyOrder[]
+  summary: MyOrdersSummary
+}
+
 export interface CreateMultiItemOrderInput {
   customerEmail: string
   customerName?: string

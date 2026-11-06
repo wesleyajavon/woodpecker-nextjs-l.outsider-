@@ -20,7 +20,7 @@ export async function GET() {
         byId: '/api/orders/[id]',
         create: '/api/orders',
         stats: '/api/orders/stats',
-        byCustomer: '/api/orders/customer/[email]',
+        mine: '/api/orders/me',
         actions: '/api/orders/[id]/actions'
       }
     }
