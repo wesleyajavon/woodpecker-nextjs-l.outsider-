@@ -5,7 +5,6 @@ import { CreateBeatInput } from '@/types/beat';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { getUserIdFromEmail } from '@/lib/userUtils';
-import { createBeatStripeProducts } from '@/lib/stripe';
 
 export async function POST(request: NextRequest) {
   try {
@@ -136,41 +135,14 @@ export async function POST(request: NextRequest) {
 
       const newBeat = await BeatService.createBeat(beatData, userId);
 
-      // Créer les produits Stripe pour ce beat
-      try {
-        console.log('🎵 Creating Stripe products for new beat...');
-        const stripeProducts = await createBeatStripeProducts({
-          id: newBeat.id,
-          title: newBeat.title,
-          description: newBeat.description || null,
-          wavLeasePrice: newBeat.wavLeasePrice,
-          trackoutLeasePrice: newBeat.trackoutLeasePrice,
-          unlimitedLeasePrice: newBeat.unlimitedLeasePrice
-        });
+      const hasStripePrices = Boolean(
+        newBeat.stripeWavPriceId &&
+        newBeat.stripeTrackoutPriceId &&
+        newBeat.stripeUnlimitedPriceId
+      );
 
-        // Mettre à jour le beat avec les priceId Stripe
-        const updatedBeat = await BeatService.updateBeat(newBeat.id, {
-          stripeWavPriceId: stripeProducts.prices.wav,
-          stripeTrackoutPriceId: stripeProducts.prices.trackout,
-          stripeUnlimitedPriceId: stripeProducts.prices.unlimited
-        });
-
-        console.log('✅ Stripe products created successfully');
-
-        return NextResponse.json({
-          success: true,
-          message: 'Beat uploadé avec succès et produits Stripe créés',
-          data: {
-            beat: updatedBeat,
-            uploads: uploadResults,
-            stripeProducts
-          }
-        }, { status: 201 });
-
-      } catch (stripeError) {
-        console.error('❌ Error creating Stripe products:', stripeError);
-        
-        // Retourner le beat même si Stripe a échoué
+      if (!hasStripePrices) {
+        console.error('❌ Stripe products missing after beat creation:', newBeat.id);
         return NextResponse.json({
           success: true,
           message: 'Beat uploadé avec succès (erreur Stripe - produits à créer manuellement)',
@@ -181,6 +153,22 @@ export async function POST(request: NextRequest) {
           }
         }, { status: 201 });
       }
+
+      return NextResponse.json({
+        success: true,
+        message: 'Beat uploadé avec succès et produits Stripe créés',
+        data: {
+          beat: newBeat,
+          uploads: uploadResults,
+          stripeProducts: {
+            prices: {
+              wav: newBeat.stripeWavPriceId,
+              trackout: newBeat.stripeTrackoutPriceId,
+              unlimited: newBeat.stripeUnlimitedPriceId
+            }
+          }
+        }
+      }, { status: 201 });
 
     } catch (dbError) {
       console.error('Erreur lors de la création du beat:', dbError);

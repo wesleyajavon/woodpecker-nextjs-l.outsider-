@@ -21,70 +21,134 @@ interface BeatStripeData {
   unlimitedLeasePrice: number
 }
 
-// Fonction pour créer les 3 produits Stripe pour un beat
+const LICENSE_PRICE_FIELDS = {
+  WAV_LEASE: 'wavLeasePrice',
+  TRACKOUT_LEASE: 'trackoutLeasePrice',
+  UNLIMITED_LEASE: 'unlimitedLeasePrice',
+} as const
+
+type LicenseType = keyof typeof LICENSE_PRICE_FIELDS
+
+function stripeSearchLiteral(value: string): string {
+  return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
+}
+
+/** Produit actif le plus récent pour ce beat. La recherche Stripe est indexée en différé. */
+async function findActiveBeatProduct(beatId: string): Promise<Stripe.Product | null> {
+  try {
+    const result = await stripe.products.search({
+      query: `active:'true' AND metadata['beat_id']:'${stripeSearchLiteral(beatId)}'`,
+      limit: 10,
+    })
+
+    if (result.data.length === 0) return null
+
+    return [...result.data].sort((a, b) => b.created - a.created)[0]
+  } catch (error) {
+    console.error('⚠️ Stripe product search failed, falling back to create:', error)
+    return null
+  }
+}
+
+async function licensePriceIds(productId: string): Promise<Partial<Record<LicenseType, string>>> {
+  const prices = await stripe.prices.list({
+    product: productId,
+    active: true,
+    limit: 100,
+  })
+
+  const ids: Partial<Record<LicenseType, string>> = {}
+  for (const price of prices.data) {
+    const licenseType = price.metadata?.license_type
+    if (
+      (licenseType === 'WAV_LEASE' ||
+        licenseType === 'TRACKOUT_LEASE' ||
+        licenseType === 'UNLIMITED_LEASE') &&
+      !ids[licenseType]
+    ) {
+      ids[licenseType] = price.id
+    }
+  }
+  return ids
+}
+
+function createLicensePrice(
+  productId: string,
+  beatId: string,
+  licenseType: LicenseType,
+  amountEuros: number,
+) {
+  const unitAmount = Math.round(amountEuros * 100)
+  return stripe.prices.create(
+    {
+      product: productId,
+      unit_amount: unitAmount,
+      currency: 'eur',
+      metadata: {
+        beat_id: beatId,
+        license_type: licenseType,
+      },
+    },
+    {
+      idempotencyKey: `beat-price-${beatId}-${licenseType}-${unitAmount}`,
+    },
+  )
+}
+
+// Crée un produit Stripe et ses 3 prix, ou réutilise ceux déjà liés à ce beat.
 export async function createBeatStripeProducts(beat: BeatStripeData) {
   try {
     console.log(`🎵 Creating Stripe products for beat: ${beat.title}`)
-    
-    // Créer le produit principal
-    const product = await stripe.products.create({
-      name: beat.title,
-      description: beat.description || `Beat: ${beat.title}`,
-      metadata: {
-        beat_id: beat.id,
-        type: 'beat'
-      }
-    })
-    
-    console.log(`✅ Created product: ${product.id}`)
-    
-    // Créer les 3 prix pour chaque type de licence
-    const [wavPrice, trackoutPrice, unlimitedPrice] = await Promise.all([
-      // WAV Lease
-      stripe.prices.create({
-        product: product.id,
-        unit_amount: Math.round(beat.wavLeasePrice * 100), // Convertir en centimes
-        currency: 'eur',
+
+    const existingProduct = await findActiveBeatProduct(beat.id)
+    const product = existingProduct ?? await stripe.products.create(
+      {
+        name: beat.title,
+        description: beat.description || `Beat: ${beat.title}`,
         metadata: {
           beat_id: beat.id,
-          license_type: 'WAV_LEASE'
-        }
+          type: 'beat',
+        },
+      },
+      {
+        idempotencyKey: `beat-product-${beat.id}`,
+      },
+    )
+
+    if (existingProduct) {
+      console.log(`↩️ Reusing Stripe product ${product.id} for beat ${beat.id}`)
+    } else {
+      console.log(`✅ Created product: ${product.id}`)
+    }
+
+    const existingPrices = await licensePriceIds(product.id)
+    const createdPriceIds = await Promise.all(
+      (Object.keys(LICENSE_PRICE_FIELDS) as LicenseType[]).map(async (licenseType) => {
+        const existingPriceId = existingPrices[licenseType]
+        if (existingPriceId) return existingPriceId
+
+        const price = await createLicensePrice(
+          product.id,
+          beat.id,
+          licenseType,
+          beat[LICENSE_PRICE_FIELDS[licenseType]],
+        )
+        return price.id
       }),
-      
-      // Trackout Lease
-      stripe.prices.create({
-        product: product.id,
-        unit_amount: Math.round(beat.trackoutLeasePrice * 100),
-        currency: 'eur',
-        metadata: {
-          beat_id: beat.id,
-          license_type: 'TRACKOUT_LEASE'
-        }
-      }),
-      
-      // Unlimited Lease
-      stripe.prices.create({
-        product: product.id,
-        unit_amount: Math.round(beat.unlimitedLeasePrice * 100),
-        currency: 'eur',
-        metadata: {
-          beat_id: beat.id,
-          license_type: 'UNLIMITED_LEASE'
-        }
-      })
-    ])
-    
-    console.log(`✅ Created prices: WAV=${wavPrice.id}, Trackout=${trackoutPrice.id}, Unlimited=${unlimitedPrice.id}`)
-    
+    )
+
+    const [wavPriceId, trackoutPriceId, unlimitedPriceId] = createdPriceIds
+
+    console.log(`✅ Stripe prices: WAV=${wavPriceId}, Trackout=${trackoutPriceId}, Unlimited=${unlimitedPriceId}`)
+
     return {
       productId: product.id,
       prices: {
-        wav: wavPrice.id,
-        trackout: trackoutPrice.id,
-        unlimited: unlimitedPrice.id
-      }
+        wav: wavPriceId,
+        trackout: trackoutPriceId,
+        unlimited: unlimitedPriceId,
+      },
     }
-    
   } catch (error) {
     console.error('❌ Error creating Stripe products:', error)
     throw error
